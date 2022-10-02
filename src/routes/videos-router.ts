@@ -108,6 +108,7 @@ videosRouter.post(
 
     const { title, author, availableResolutions } = req.body as Video;
     const currentDate = new Date();
+    const nextDate = new Date((Number(currentDate) + 24 * 60 * 60 * 1000))
 
     const newVideo: Video = {
       id: Number(currentDate),
@@ -115,7 +116,7 @@ videosRouter.post(
       author,
       availableResolutions,
       createdAt: currentDate.toISOString(),
-      publicationDate: currentDate.toISOString(),
+      publicationDate: nextDate.toISOString(),
       minAgeRestriction: null,
       canBeDownloaded: false,
     };
@@ -146,9 +147,7 @@ videosRouter.put("/:id", (req: Request, res: Response) => {
 });
 
 videosRouter.delete("/:id", (req: Request, res: Response) => {
-  const index = videos.findIndex(
-    (video) => video.id === Number(req.params.id)
-  );
+  const index = videos.findIndex((video) => video.id === Number(req.params.id));
 
   if (index !== -1) {
     videos.splice(index, 1);
