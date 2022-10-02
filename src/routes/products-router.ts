@@ -22,6 +22,7 @@ productsRouter.post("/", (req: Request, res: Response) => {
 
 productsRouter.put("/:id", (req: Request, res: Response) => {
   const product = products.find((p) => p.id === Number(req.params.id));
+
   if (product) {
     product.title = req.body.title;
     res.send(product);
