@@ -18,7 +18,6 @@ const youtubeUrlValidation = body("youtubeUrl")
   .notEmpty()
   .isURL()
   .withMessage("YoutubeUrl incorrect")
-  .bail()
   .isLength({ max: 100 })
   .withMessage("YoutubeUrl length error");
 
