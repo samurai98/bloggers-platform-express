@@ -1,51 +1,59 @@
 import { Router, Request, Response } from "express";
+import { body } from "express-validator";
+
+import { inputValidationMiddleware } from "../middlewares/input-validation";
+import { productsRepository } from "../repositories/products-repository";
 
 export const productsRouter = Router({});
 
-const products = [
-  { id: 1, title: "tomato" },
-  { id: 2, title: "orange" },
-];
+const titleValidation = body("title")
+  .trim()
+  .isLength({ min: 3, max: 10 })
+  .withMessage("Title length error");
 
 productsRouter.get("/", (req: Request, res: Response) => {
-  if (req.query.title) {
-    const searchString = req.query.title.toString();
-    res.send(products.filter((p) => p.title.indexOf(searchString) > -1));
-  } else res.send(products);
-});
+  const foundProducts = productsRepository.findProducts(
+    req.query.title?.toString()
+  );
 
-productsRouter.post("/", (req: Request, res: Response) => {
-  const newProduct = { id: Number(new Date()), title: req.body.title };
-  products.push(newProduct);
-  res.status(201).send(newProduct);
-});
-
-productsRouter.put("/:id", (req: Request, res: Response) => {
-  const product = products.find((p) => p.id === Number(req.params.id));
-
-  if (product) {
-    product.title = req.body.title;
-    res.send(product);
-  } else res.send(404);
+  res.send(foundProducts);
 });
 
 productsRouter.get("/:id", (req: Request, res: Response) => {
-  const product = products.find((p) => p.id === Number(req.params.id));
-  if (product) {
-    res.send(product);
-  } else res.send(404);
+  const product = productsRepository.findProductById(Number(req.params.id));
+
+  if (product) res.send(product);
+  else res.send(404);
 });
 
-productsRouter.delete("/products/:id", (req: Request, res: Response) => {
-  const index = products.findIndex(
-    (product) => product.id === Number(req.params.id)
-  );
-
-  if (index !== -1) {
-    products.splice(index, 1);
-    res.send(204);
-    return;
+productsRouter.post(
+  "/",
+  titleValidation,
+  inputValidationMiddleware,
+  (req: Request, res: Response) => {
+    const newProduct = productsRepository.createProduct(req.body.title);
+    res.status(201).send(newProduct);
   }
+);
 
-  res.send(404);
+productsRouter.put(
+  "/:id",
+  titleValidation,
+  inputValidationMiddleware,
+  (req: Request, res: Response) => {
+    const id = Number(req.params.id);
+    const isUpdated = productsRepository.updateProduct(id, req.body.title);
+
+    if (isUpdated) {
+      const product = productsRepository.findProductById(id);
+      res.send(product);
+    } else res.send(404);
+  }
+);
+
+productsRouter.delete("/:id", (req: Request, res: Response) => {
+  const isDeleted = productsRepository.deleteProduct(Number(req.params.id));
+
+  if (isDeleted) res.send(204);
+  else res.send(404);
 });
