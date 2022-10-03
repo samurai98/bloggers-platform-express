@@ -15,9 +15,10 @@ const nameValidation = body("name")
 
 const youtubeUrlValidation = body("youtubeUrl")
   .trim()
+  .notEmpty()
   .isURL()
   .withMessage("YoutubeUrl incorrect")
-  .notEmpty()
+  .bail()
   .isLength({ max: 100 })
   .withMessage("YoutubeUrl length error");
 
@@ -54,10 +55,8 @@ blogsRouter.put(
     const id = req.params.id;
     const isUpdated = blogsRepository.updateBlog(id, req.body);
 
-    if (isUpdated) {
-      const blog = blogsRepository.findBlogById(id);
-      res.send(blog);
-    } else res.send(404);
+    if (isUpdated) res.send(204);
+    else res.send(404);
   }
 );
 
