@@ -3,6 +3,7 @@ import { body } from "express-validator";
 
 import { checkAuth } from "../middlewares/check-auth";
 import { inputValidationMiddleware } from "../middlewares/input-validation";
+import { blogsRepository } from "../repositories/blogs-repository";
 import { postsRepository } from "../repositories/posts-repository";
 
 export const postsRouter = Router({});
@@ -28,7 +29,9 @@ const contentValidation = body("content")
 const blogIdValidation = body("blogId")
   .trim()
   .notEmpty()
-  .withMessage("BlogId error");
+  .withMessage("BlogId error")
+  .custom((value) => !!blogsRepository.findBlogById(value))
+  .withMessage("Incorrect BlogId");
 
 postsRouter.get("/", (req: Request, res: Response) => {
   res.send(postsRepository.getAllPosts());
