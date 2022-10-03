@@ -29,7 +29,7 @@ app.use(router.ht_02_posts, postsRouter);
 
 /** TESTING ROUTER */
 app.use(
-  "/hometask_02/api/testing/all-data",
+  "/ht_02/api/testing/all-data",
   Router({}).delete("/", (req: any, res: any) => {
     res.send(204);
   })
