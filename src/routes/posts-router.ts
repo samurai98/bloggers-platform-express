@@ -1,6 +1,7 @@
 import { Router, Request, Response } from "express";
 import { body } from "express-validator";
 
+import { checkAuth } from "../middlewares/check-auth";
 import { inputValidationMiddleware } from "../middlewares/input-validation";
 import { postsRepository } from "../repositories/posts-repository";
 
@@ -8,19 +9,33 @@ export const postsRouter = Router({});
 
 const titleValidation = body("title")
   .trim()
-  .isLength({ min: 3, max: 10 })
+  .notEmpty()
+  .isLength({ max: 30 })
   .withMessage("Title length error");
 
-postsRouter.get("/", (req: Request, res: Response) => {
-  const foundPosts = postsRepository.findPosts(
-    req.query.title?.toString()
-  );
+const shortDescriptionValidation = body("shortDescription")
+  .trim()
+  .notEmpty()
+  .isLength({ max: 100 })
+  .withMessage("ShortDescription length error");
 
-  res.send(foundPosts);
+const contentValidation = body("content")
+  .trim()
+  .notEmpty()
+  .isLength({ max: 1000 })
+  .withMessage("Content length error");
+
+const blogIdValidation = body("blogId")
+  .trim()
+  .notEmpty()
+  .withMessage("BlogId error");
+
+postsRouter.get("/", (req: Request, res: Response) => {
+  res.send(postsRepository.getAllPosts());
 });
 
 postsRouter.get("/:id", (req: Request, res: Response) => {
-  const post = postsRepository.findPostById(Number(req.params.id));
+  const post = postsRepository.findPostById(req.params.id);
 
   if (post) res.send(post);
   else res.send(404);
@@ -28,31 +43,37 @@ postsRouter.get("/:id", (req: Request, res: Response) => {
 
 postsRouter.post(
   "/",
+  checkAuth,
   titleValidation,
+  shortDescriptionValidation,
+  contentValidation,
+  blogIdValidation,
   inputValidationMiddleware,
   (req: Request, res: Response) => {
-    const newPost = postsRepository.createPost(req.body.title);
+    const newPost = postsRepository.createPost(req.body);
     res.status(201).send(newPost);
   }
 );
 
 postsRouter.put(
   "/:id",
+  checkAuth,
   titleValidation,
+  shortDescriptionValidation,
+  contentValidation,
+  blogIdValidation,
   inputValidationMiddleware,
   (req: Request, res: Response) => {
-    const id = Number(req.params.id);
-    const isUpdated = postsRepository.updatePost(id, req.body.title);
+    const id = req.params.id;
+    const isUpdated = postsRepository.updatePost(id, req.body);
 
-    if (isUpdated) {
-      const post = postsRepository.findPostById(id);
-      res.send(post);
-    } else res.send(404);
+    if (isUpdated) res.send(204);
+    else res.send(404);
   }
 );
 
-postsRouter.delete("/:id", (req: Request, res: Response) => {
-  const isDeleted = postsRepository.deletePost(Number(req.params.id));
+postsRouter.delete("/:id", checkAuth, (req: Request, res: Response) => {
+  const isDeleted = postsRepository.deletePost(req.params.id);
 
   if (isDeleted) res.send(204);
   else res.send(404);

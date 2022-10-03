@@ -1,35 +1,48 @@
-type Post = any;
+type Post = {
+  id: string;
+  title: string;
+  shortDescription: string;
+  content: string;
+  blogId: string;
+  blogName: string;
+};
 
 const posts: Post[] = [];
 
 export const postsRepository = {
-  findPosts(title?: string) {
-    if (!title) return posts;
-
-    return posts.filter((post) => post.title.indexOf(title) > -1);
+  getAllPosts() {
+    return posts;
   },
 
-  findPostById(id: number) {
+  findPostById(id: string) {
     return posts.find((post) => post.id === id);
   },
 
-  createPost(title: string) {
-    const newPost = { id: Number(new Date()), title };
+  createPost({ title, shortDescription, content, blogId, blogName }: Post) {
+    const newPost: Post = {
+      id: new Date().toISOString(),
+      title,
+      shortDescription,
+      content,
+      blogId,
+      blogName: blogName || 'no blog name'
+    };
     posts.push(newPost);
+
     return newPost;
   },
 
-  updatePost(id: number, title: string) {
-    const post = this.findPostById(id);
+  updatePost(id: string, post: Post) {
+    const currentPost = this.findPostById(id);
 
-    if (!post) return false;
+    if (!currentPost) return false;
 
-    post.title = title;
+    Object.assign(currentPost, post);
     return true;
   },
 
-  deletePost(id: number) {
-    const index = posts.findIndex((post: Post) => post.id === id);
+  deletePost(id: string) {
+    const index = posts.findIndex((post) => post.id === id);
 
     if (index === -1) return false;
 
