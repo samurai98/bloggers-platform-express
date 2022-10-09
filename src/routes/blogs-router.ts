@@ -21,12 +21,12 @@ const youtubeUrlValidation = body("youtubeUrl")
   .isLength({ max: 100 })
   .withMessage("YoutubeUrl length error");
 
-blogsRouter.get("/", (req: Request, res: Response) => {
-  res.send(blogsRepository.getAllBlogs());
+blogsRouter.get("/", async (req: Request, res: Response) => {
+  res.send(await blogsRepository.getAllBlogs());
 });
 
-blogsRouter.get("/:id", (req: Request, res: Response) => {
-  const blog = blogsRepository.findBlogById(req.params.id);
+blogsRouter.get("/:id", async (req: Request, res: Response) => {
+  const blog = await blogsRepository.findBlogById(req.params.id);
 
   if (blog) res.send(blog);
   else res.send(404);
@@ -38,8 +38,8 @@ blogsRouter.post(
   nameValidation,
   youtubeUrlValidation,
   inputValidationMiddleware,
-  (req: Request, res: Response) => {
-    const newBlog = blogsRepository.createBlog(req.body);
+  async (req: Request, res: Response) => {
+    const newBlog = await blogsRepository.createBlog(req.body);
     res.status(201).send(newBlog);
   }
 );
@@ -50,17 +50,17 @@ blogsRouter.put(
   nameValidation,
   youtubeUrlValidation,
   inputValidationMiddleware,
-  (req: Request, res: Response) => {
+  async (req: Request, res: Response) => {
     const id = req.params.id;
-    const isUpdated = blogsRepository.updateBlog(id, req.body);
+    const isUpdated = await blogsRepository.updateBlog(id, req.body);
 
     if (isUpdated) res.send(204);
     else res.send(404);
   }
 );
 
-blogsRouter.delete("/:id", checkAuth, (req: Request, res: Response) => {
-  const isDeleted = blogsRepository.deleteBlog(req.params.id);
+blogsRouter.delete("/:id", checkAuth, async (req: Request, res: Response) => {
+  const isDeleted = await blogsRepository.deleteBlog(req.params.id);
 
   if (isDeleted) res.send(204);
   else res.send(404);

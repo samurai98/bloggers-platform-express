@@ -1,52 +1,55 @@
-type Post = {
-  id: string;
-  title: string;
-  shortDescription: string;
-  content: string;
-  blogId: string;
-  blogName: string;
-};
+import { postsCollection } from "./db";
+import { Post } from "./types";
 
-const posts: Post[] = [];
+const _posts: Post[] = [];
 
 export const postsRepository = {
-  getAllPosts() {
-    return posts;
+  async getAllPosts() {
+    return postsCollection.find({}).toArray();
   },
 
-  findPostById(id: string) {
-    return posts.find((post) => post.id === id);
+  async findPostById(id: string) {
+    return postsCollection.findOne({ id });
   },
 
-  createPost({ title, shortDescription, content, blogId, blogName }: Post) {
+  async createPost({
+    title,
+    shortDescription,
+    content,
+    blogId,
+    blogName,
+  }: Post) {
+    const currentDate = new Date().toISOString();
     const newPost: Post = {
       id: new Date().toISOString(),
       title,
       shortDescription,
       content,
       blogId,
-      blogName: blogName || 'no blog name'
+      blogName: blogName || "no blog name",
+      createdAt: currentDate,
     };
-    posts.push(newPost);
+
+    await postsCollection.insertOne(newPost);
 
     return newPost;
   },
 
-  updatePost(id: string, post: Post) {
-    const currentPost = this.findPostById(id);
+  async updatePost(id: string, post: Post) {
+    const result = await postsCollection.updateOne({ id }, { $set: post });
 
-    if (!currentPost) return false;
-
-    Object.assign(currentPost, post);
-    return true;
+    return result.matchedCount === 1;
   },
 
-  deletePost(id: string) {
-    const index = posts.findIndex((post) => post.id === id);
+  async deletePost(id: string) {
+    const result = await postsCollection.deleteOne({ id });
 
-    if (index === -1) return false;
+    return result.deletedCount === 1;
+  },
 
-    posts.splice(index, 1);
-    return true;
+  async deleteAll(): Promise<boolean> {
+    const result = await postsCollection.deleteMany({});
+
+    return result.deletedCount === 1;
   },
 };

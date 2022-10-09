@@ -33,12 +33,12 @@ const blogIdValidation = body("blogId")
   .custom((value) => !!blogsRepository.findBlogById(value))
   .withMessage("Incorrect BlogId");
 
-postsRouter.get("/", (req: Request, res: Response) => {
-  res.send(postsRepository.getAllPosts());
+postsRouter.get("/", async (req: Request, res: Response) => {
+  res.send(await postsRepository.getAllPosts());
 });
 
-postsRouter.get("/:id", (req: Request, res: Response) => {
-  const post = postsRepository.findPostById(req.params.id);
+postsRouter.get("/:id", async (req: Request, res: Response) => {
+  const post = await postsRepository.findPostById(req.params.id);
 
   if (post) res.send(post);
   else res.send(404);
@@ -52,8 +52,8 @@ postsRouter.post(
   contentValidation,
   blogIdValidation,
   inputValidationMiddleware,
-  (req: Request, res: Response) => {
-    const newPost = postsRepository.createPost(req.body);
+  async (req: Request, res: Response) => {
+    const newPost = await postsRepository.createPost(req.body);
     res.status(201).send(newPost);
   }
 );
@@ -66,17 +66,17 @@ postsRouter.put(
   contentValidation,
   blogIdValidation,
   inputValidationMiddleware,
-  (req: Request, res: Response) => {
+  async (req: Request, res: Response) => {
     const id = req.params.id;
-    const isUpdated = postsRepository.updatePost(id, req.body);
+    const isUpdated = await postsRepository.updatePost(id, req.body);
 
     if (isUpdated) res.send(204);
     else res.send(404);
   }
 );
 
-postsRouter.delete("/:id", checkAuth, (req: Request, res: Response) => {
-  const isDeleted = postsRepository.deletePost(req.params.id);
+postsRouter.delete("/:id", checkAuth, async (req: Request, res: Response) => {
+  const isDeleted = await postsRepository.deletePost(req.params.id);
 
   if (isDeleted) res.send(204);
   else res.send(404);
