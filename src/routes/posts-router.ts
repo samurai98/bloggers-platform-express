@@ -1,4 +1,4 @@
-import { Router, Request, Response } from "express";
+import { Router, Request, Response, NextFunction } from "express";
 import { body } from "express-validator";
 
 import { checkAuth } from "../middlewares/check-auth";
@@ -26,12 +26,17 @@ const contentValidation = body("content")
   .isLength({ max: 1000 })
   .withMessage("Content length error");
 
-const blogIdValidation = body("blogId")
-  .trim()
-  .notEmpty()
-  .withMessage("BlogId error")
-  .custom((value) => !!blogsRepository.findBlogById(value))
-  .withMessage("Incorrect BlogId");
+const blogIdValidation = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const blog = await blogsRepository.findBlogById(req.body.blogId.trim());
+
+  if (!blog) (req as any).customError = { blogId: "Incorrect BlogId" };
+
+  next();
+};
 
 postsRouter.get("/", async (req: Request, res: Response) => {
   res.send(await postsRepository.getAllPosts());

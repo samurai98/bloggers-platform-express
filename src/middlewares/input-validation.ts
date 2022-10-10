@@ -12,8 +12,14 @@ export const inputValidationMiddleware = (
   });
 
   const errors = validationResult(req).formatWith(errorFormatter);
+  const errorsMessages = errors.array({ onlyFirstError: true });
 
-  if (!errors.isEmpty())
-    res.status(400).json({ errorsMessages: errors.array({onlyFirstError: true}) });
+  if ((req as any).customError) {
+    Object.entries((req as any).customError).forEach(([key, value]) =>
+      errorsMessages.push({ field: key, message: value })
+    );
+  }
+
+  if (errorsMessages.length) res.status(400).json({ errorsMessages });
   else next();
 };
