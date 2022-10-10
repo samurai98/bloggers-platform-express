@@ -3,11 +3,11 @@ import { Blog } from "./types";
 
 export const blogsRepository = {
   async getAllBlogs(): Promise<Blog[]> {
-    return blogsCollection.find({}).toArray();
+    return blogsCollection.find({}, { projection: { _id: false } }).toArray();
   },
 
   async findBlogById(id: string): Promise<Blog | null> {
-    return blogsCollection.findOne({ id });
+    return blogsCollection.findOne({ id }, { projection: { _id: false } });
   },
 
   async createBlog({ name, youtubeUrl }: Blog): Promise<Blog> {
@@ -19,7 +19,7 @@ export const blogsRepository = {
       createdAt: currentDate,
     };
 
-    await blogsCollection.insertOne(newBlog);
+    await blogsCollection.insertOne({ ...newBlog });
 
     return newBlog;
   },

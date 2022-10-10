@@ -5,11 +5,11 @@ const _posts: Post[] = [];
 
 export const postsRepository = {
   async getAllPosts() {
-    return postsCollection.find({}).toArray();
+    return postsCollection.find({}, { projection: { _id: false } }).toArray();
   },
 
   async findPostById(id: string) {
-    return postsCollection.findOne({ id });
+    return postsCollection.findOne({ id }, { projection: { _id: false } });
   },
 
   async createPost({
@@ -30,7 +30,7 @@ export const postsRepository = {
       createdAt: currentDate,
     };
 
-    await postsCollection.insertOne(newPost);
+    await postsCollection.insertOne({ ...newPost });
 
     return newPost;
   },
