@@ -21,7 +21,7 @@ export const blogsQueryRepository = {
 
     const items = (await blogsCollection
       .find(
-        { name: { $regex: searchNameTerm } },
+        { name: { $regex: new RegExp(`${searchNameTerm}`, 'i') } },
         { projection: { _id: false } }
       )
       .sort({ [sortBy]: sortDirection })

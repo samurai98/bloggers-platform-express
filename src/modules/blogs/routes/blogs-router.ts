@@ -36,7 +36,7 @@ blogsRouter.get("/:id", async (req: Request, res: Response<ResponseBlog>) => {
 
 blogsRouter.get(
   "/:id/posts",
-  async (req: Request, res: Response<ResponsePosts>) => {
+  async (req: Request<ParamBlog>, res: Response<ResponsePosts>) => {
     const { id: blogId } = req.params;
 
     if (!blogId || !(await blogsQueryRepository.findBlogById(blogId))) {
