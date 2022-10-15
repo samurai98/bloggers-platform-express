@@ -1,5 +1,5 @@
-import { productsCollection } from "./db";
-import { Product } from "./types";
+import { productsCollection } from "../../../common/db";
+import { Product } from "../product";
 
 export const productsRepository = {
   async findProducts(title?: string): Promise<Product[]> {
@@ -16,12 +16,10 @@ export const productsRepository = {
     return await productsCollection.findOne({ id });
   },
 
-  async createProduct(title: string): Promise<Product> {
-    const newProduct = { id: Number(new Date()), title };
+  async createProduct(product: Product): Promise<Product> {
+    await productsCollection.insertOne(product);
 
-    await productsCollection.insertOne(newProduct);
-
-    return newProduct;
+    return product;
   },
 
   async updateProduct(id: number, title: string): Promise<boolean> {

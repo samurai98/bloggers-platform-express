@@ -1,8 +1,9 @@
 import { Router, Request, Response } from "express";
 import { body } from "express-validator";
 
-import { inputValidationMiddleware } from "../middlewares/input-validation";
-import { productsRepository } from "../repositories/products-db-repository";
+import { HTTP_STATUSES } from "../../../common/http-statuses";
+import { inputValidationMiddleware } from "../../../middlewares/input-validation";
+import { productsService } from "../services/products-service";
 
 export const productsRouter = Router({});
 
@@ -12,7 +13,7 @@ const titleValidation = body("title")
   .withMessage("Title length error");
 
 productsRouter.get("/", async (req: Request, res: Response) => {
-  const foundProducts = await productsRepository.findProducts(
+  const foundProducts = await productsService.findProducts(
     req.query.title?.toString()
   );
 
@@ -20,10 +21,10 @@ productsRouter.get("/", async (req: Request, res: Response) => {
 });
 
 productsRouter.get("/:id", async (req: Request, res: Response) => {
-  const product = await productsRepository.findProductById(Number(req.params.id));
+  const product = await productsService.findProductById(Number(req.params.id));
 
   if (product) res.send(product);
-  else res.send(404);
+  else res.send(HTTP_STATUSES.NOT_FOUND_404);
 });
 
 productsRouter.post(
@@ -31,8 +32,8 @@ productsRouter.post(
   titleValidation,
   inputValidationMiddleware,
   async (req: Request, res: Response) => {
-    const newProduct = await productsRepository.createProduct(req.body.title);
-    res.status(201).send(newProduct);
+    const newProduct = await productsService.createProduct(req.body.title);
+    res.status(HTTP_STATUSES.CREATED_201).send(newProduct);
   }
 );
 
@@ -42,18 +43,18 @@ productsRouter.put(
   inputValidationMiddleware,
   async (req: Request, res: Response) => {
     const id = Number(req.params.id);
-    const isUpdated = await productsRepository.updateProduct(id, req.body.title);
+    const isUpdated = await productsService.updateProduct(id, req.body.title);
 
     if (isUpdated) {
-      const product = await productsRepository.findProductById(id);
+      const product = await productsService.findProductById(id);
       res.send(product);
-    } else res.send(404);
+    } else res.send(HTTP_STATUSES.NOT_FOUND_404);
   }
 );
 
 productsRouter.delete("/:id", async (req: Request, res: Response) => {
-  const isDeleted = await productsRepository.deleteProduct(Number(req.params.id));
+  const isDeleted = await productsService.deleteProduct(Number(req.params.id));
 
-  if (isDeleted) res.send(204);
-  else res.send(404);
+  if (isDeleted) res.send(HTTP_STATUSES.NO_CONTENT_204);
+  else res.send(HTTP_STATUSES.NOT_FOUND_404);
 });

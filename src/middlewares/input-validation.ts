@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import { ValidationError, validationResult } from "express-validator";
+import { HTTP_STATUSES } from "../common/http-statuses";
 
 export const inputValidationMiddleware = (
   req: Request,
@@ -20,6 +21,6 @@ export const inputValidationMiddleware = (
     );
   }
 
-  if (errorsMessages.length) res.status(400).json({ errorsMessages });
+  if (errorsMessages.length) res.status(HTTP_STATUSES.BAD_REQUEST_400).json({ errorsMessages });
   else next();
 };
