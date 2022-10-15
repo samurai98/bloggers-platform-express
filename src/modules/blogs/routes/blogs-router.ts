@@ -1,7 +1,7 @@
 import { Router, Request, Response } from "express";
 
 import { HTTP_STATUSES } from "../../../common/http-statuses";
-import { ResType } from "../../../common/types";
+import { Query, ResType } from "../../../common/types";
 import { ResponsePost, ResponsePosts } from "../../posts/post";
 import { postByBlogIdValidation } from "../../posts/routes/validation";
 import { postsQueryRepository } from "../../posts/repositories";
@@ -36,7 +36,10 @@ blogsRouter.get("/:id", async (req: Request, res: Response<ResponseBlog>) => {
 
 blogsRouter.get(
   "/:id/posts",
-  async (req: Request<ParamBlog>, res: Response<ResponsePosts>) => {
+  async (
+    req: Request<ParamBlog, {}, {}, Query>,
+    res: Response<ResponsePosts>
+  ) => {
     const { id: blogId } = req.params;
 
     if (!blogId || !(await blogsQueryRepository.findBlogById(blogId))) {
@@ -44,7 +47,7 @@ blogsRouter.get(
       return;
     }
 
-    const posts = await postsQueryRepository.getPosts({ blogId });
+    const posts = await postsQueryRepository.getPosts({ ...req.query, blogId });
 
     if (posts) res.send(posts);
     else res.send(HTTP_STATUSES.NOT_FOUND_404);
