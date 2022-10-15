@@ -14,16 +14,14 @@ export const blogsQueryRepository = {
     const sortBy = query.sortBy || "createdAt";
     const sortDirection = getSortDirectionNumber(query.sortDirection || "desc");
 
-    const totalCount = await blogsCollection.countDocuments();
+    const filter = { name: { $regex: new RegExp(`${searchNameTerm}`, "i") } };
+    const totalCount = await blogsCollection.countDocuments(filter);
 
     const skipCount = getSkipCount(pageNumber, pageSize);
     const pagesCount = getPagesCount(totalCount, pageSize);
 
     const items = (await blogsCollection
-      .find(
-        { name: { $regex: new RegExp(`${searchNameTerm}`, 'i') } },
-        { projection: { _id: false } }
-      )
+      .find(filter, { projection: { _id: false } })
       .sort({ [sortBy]: sortDirection })
       .skip(skipCount)
       .limit(pageSize)

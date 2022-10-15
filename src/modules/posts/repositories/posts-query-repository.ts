@@ -14,12 +14,12 @@ export const postsQueryRepository = {
     const sortDirection = getSortDirectionNumber(query.sortDirection || "desc");
     const blogId = query.blogId;
 
-    const totalCount = await postsCollection.countDocuments();
+    const filter = blogId ? { blogId } : {};
+    const totalCount = await postsCollection.countDocuments(filter);
 
     const skipCount = getSkipCount(pageNumber, pageSize);
     const pagesCount = getPagesCount(totalCount, pageSize);
 
-    const filter = blogId ? { blogId } : {};
     const items = (await postsCollection
       .find(filter, { projection: { _id: false } })
       .sort({ [sortBy]: sortDirection })
