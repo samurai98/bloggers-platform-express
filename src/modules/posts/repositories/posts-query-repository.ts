@@ -7,19 +7,21 @@ import {
 import { Post, QueryPost } from "../post";
 
 export const postsQueryRepository = {
-  async getAllPosts(query: QueryPost = {}) {
+  async getPosts(query: QueryPost = {}) {
     const pageNumber = Number(query.pageNumber) || 1;
     const pageSize = Number(query.pageSize) || 10;
     const sortBy = query.sortBy || "createdAt";
     const sortDirection = getSortDirectionNumber(query.sortDirection || "desc");
+    const blogId = query.blogId;
 
     const totalCount = await postsCollection.countDocuments();
 
     const skipCount = getSkipCount(pageNumber, pageSize);
     const pagesCount = getPagesCount(totalCount, pageSize);
 
+    const filter = blogId ? { blogId } : {};
     const items = (await postsCollection
-      .find({ projection: { _id: false } })
+      .find(filter, { projection: { _id: false } })
       .sort({ [sortBy]: sortDirection })
       .skip(skipCount)
       .limit(pageSize)

@@ -18,7 +18,7 @@ export const postsRouter = Router({});
 postsRouter.get(
   "/",
   async (req: Request<{}, {}, {}, QueryPost>, res: Response<ResponsePosts>) => {
-    res.send(await postsQueryRepository.getAllPosts(req.query));
+    res.send(await postsQueryRepository.getPosts(req.query));
   }
 );
 

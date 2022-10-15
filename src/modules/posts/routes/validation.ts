@@ -44,4 +44,12 @@ export const postValidation = [
   inputValidationMiddleware,
 ];
 
+export const postByBlogIdValidation = [
+  checkAuth,
+  titleValidation,
+  shortDescriptionValidation,
+  contentValidation,
+  inputValidationMiddleware,
+];
+
 export { checkAuth };

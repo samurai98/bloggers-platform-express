@@ -12,7 +12,7 @@ export type Post = {
 
 export type ParamPost = { id: Post["id"] };
 
-export type QueryPost = Query;
+export type QueryPost = Query & { blogId?: string };
 
 export type CreatePost = {
   title: string;

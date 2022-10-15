@@ -7,7 +7,7 @@ import {
 import { Blog, QueryBlog, ResponseBlogs } from "../blog";
 
 export const blogsQueryRepository = {
-  async getAllBlogs(query: QueryBlog = {}): Promise<ResponseBlogs> {
+  async getBlogs(query: QueryBlog = {}): Promise<ResponseBlogs> {
     const pageNumber = Number(query.pageNumber) || 1;
     const pageSize = Number(query.pageSize) || 10;
     const searchNameTerm = query.searchNameTerm || "";

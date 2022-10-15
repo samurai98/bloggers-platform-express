@@ -18,6 +18,13 @@ export type CreateBlog = {
   youtubeUrl: string;
 };
 
+export type CreatePostByBlogId = {
+  title: string;
+  shortDescription: string;
+  content: string;
+};
+
+
 export type ResponseBlogs = ResType<Pagination<Blog>>;
 
 export type ResponseBlog = ResType<Blog>;
