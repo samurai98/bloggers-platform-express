@@ -7,24 +7,21 @@ export type Blog = {
   createdAt: string;
 };
 
-export type ParamBlog = { id: Blog["id"] };
-
-export type QueryBlog = Query & {
-  searchNameTerm?: string;
-};
-
-export type CreateBlog = {
+export type ReqBodyBlog = {
   name: string;
   youtubeUrl: string;
 };
 
-export type CreatePostByBlogId = {
+export type ReqBodyPostByBlogId = {
   title: string;
   shortDescription: string;
   content: string;
 };
 
+export type ParamBlog = { id: Blog["id"] };
 
-export type ResponseBlogs = ResType<Pagination<Blog>>;
+export type ReqQueryBlog = Query & { searchNameTerm?: string };
 
-export type ResponseBlog = ResType<Blog>;
+export type ResBlogs = ResType<Pagination<Blog>>;
+
+export type ResBlog = ResType<Blog>;

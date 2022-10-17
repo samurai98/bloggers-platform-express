@@ -10,17 +10,17 @@ export type Post = {
   createdAt: string;
 };
 
-export type ParamPost = { id: Post["id"] };
-
-export type QueryPost = Query & { blogId?: string };
-
-export type CreatePost = {
+export type ReqBodyPost = {
   title: string;
   shortDescription: string;
   content: string;
   blogId: string;
 };
 
-export type ResponsePosts = ResType<Pagination<Post>>;
+export type ParamPost = { id: Post["id"] };
 
-export type ResponsePost = ResType<Post>;
+export type ReqQueryPost = Query & { blogId?: string };
+
+export type ResPosts = ResType<Pagination<Post>>;
+
+export type ResPost = ResType<Post>;

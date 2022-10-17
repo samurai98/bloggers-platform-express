@@ -1,5 +1,5 @@
 import { postsCollection } from "../../../common/db";
-import { CreatePost, Post } from "../post";
+import { ReqBodyPost, Post } from "../post";
 
 export const postsRepository = {
   async createPost(post: Post): Promise<Post> {
@@ -8,7 +8,7 @@ export const postsRepository = {
     return post;
   },
 
-  async updatePost(id: string, post: CreatePost): Promise<boolean> {
+  async updatePost(id: string, post: ReqBodyPost): Promise<boolean> {
     const result = await postsCollection.updateOne({ id }, { $set: post });
 
     return result.matchedCount === 1;

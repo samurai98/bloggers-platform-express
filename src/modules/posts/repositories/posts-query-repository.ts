@@ -1,20 +1,22 @@
+import { Filter } from "mongodb";
+
 import { postsCollection } from "../../../common/db";
 import {
   getPagesCount,
   getSkipCount,
   getSortDirectionNumber,
 } from "../../../common/helpers/pagination";
-import { Post, QueryPost } from "../post";
+import { Post, ReqQueryPost } from "../post";
 
 export const postsQueryRepository = {
-  async getPosts(query: QueryPost = {}) {
+  async getPosts(query: ReqQueryPost = {}) {
     const pageNumber = Number(query.pageNumber) || 1;
     const pageSize = Number(query.pageSize) || 10;
     const sortBy = query.sortBy || "createdAt";
     const sortDirection = getSortDirectionNumber(query.sortDirection || "desc");
     const blogId = query.blogId;
 
-    const filter = blogId ? { blogId } : {};
+    const filter: Filter<Post> = blogId ? { blogId } : {};
     const totalCount = await postsCollection.countDocuments(filter);
 
     const skipCount = getSkipCount(pageNumber, pageSize);

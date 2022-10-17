@@ -1,20 +1,24 @@
+import { Filter } from "mongodb";
+
 import { blogsCollection } from "../../../common/db";
 import {
   getPagesCount,
   getSkipCount,
   getSortDirectionNumber,
 } from "../../../common/helpers/pagination";
-import { Blog, QueryBlog, ResponseBlogs } from "../blog";
+import { Blog, ReqQueryBlog, ResBlogs } from "../blog";
 
 export const blogsQueryRepository = {
-  async getBlogs(query: QueryBlog = {}): Promise<ResponseBlogs> {
+  async getBlogs(query: ReqQueryBlog = {}): Promise<ResBlogs> {
     const pageNumber = Number(query.pageNumber) || 1;
     const pageSize = Number(query.pageSize) || 10;
-    const searchNameTerm = query.searchNameTerm || "";
     const sortBy = query.sortBy || "createdAt";
     const sortDirection = getSortDirectionNumber(query.sortDirection || "desc");
+    const searchNameTerm = query.searchNameTerm || "";
 
-    const filter = { name: { $regex: new RegExp(`${searchNameTerm}`, "i") } };
+    const filter: Filter<Blog> = {
+      name: { $regex: new RegExp(`${searchNameTerm}`, "i") },
+    };
     const totalCount = await blogsCollection.countDocuments(filter);
 
     const skipCount = getSkipCount(pageNumber, pageSize);

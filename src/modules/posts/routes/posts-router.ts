@@ -3,11 +3,11 @@ import { Router, Request, Response } from "express";
 import { HTTP_STATUSES } from "../../../common/http-statuses";
 import { ResType } from "../../../common/types";
 import {
-  CreatePost,
+  ReqBodyPost,
   ParamPost,
-  QueryPost,
-  ResponsePost,
-  ResponsePosts,
+  ReqQueryPost,
+  ResPost,
+  ResPosts,
 } from "../post";
 import { postsQueryRepository } from "../repositories";
 import { postsService } from "../services/posts-service";
@@ -17,12 +17,12 @@ export const postsRouter = Router({});
 
 postsRouter.get(
   "/",
-  async (req: Request<{}, {}, {}, QueryPost>, res: Response<ResponsePosts>) => {
+  async (req: Request<{}, {}, {}, ReqQueryPost>, res: Response<ResPosts>) => {
     res.send(await postsQueryRepository.getPosts(req.query));
   }
 );
 
-postsRouter.get("/:id", async (req: Request, res: Response<ResponsePost>) => {
+postsRouter.get("/:id", async (req: Request, res: Response<ResPost>) => {
   const post = await postsQueryRepository.findPostById(req.params.id);
 
   if (post) res.send(post);
@@ -32,7 +32,7 @@ postsRouter.get("/:id", async (req: Request, res: Response<ResponsePost>) => {
 postsRouter.post(
   "/",
   postValidation,
-  async (req: Request<{}, {}, CreatePost>, res: Response<ResponsePost>) => {
+  async (req: Request<{}, {}, ReqBodyPost>, res: Response<ResPost>) => {
     const newPost = await postsService.createPost(req.body);
     res.status(HTTP_STATUSES.CREATED_201).send(newPost);
   }
@@ -41,7 +41,7 @@ postsRouter.post(
 postsRouter.put(
   "/:id",
   postValidation,
-  async (req: Request<ParamPost, {}, CreatePost>, res: Response<ResType>) => {
+  async (req: Request<ParamPost, {}, ReqBodyPost>, res: Response<ResType>) => {
     const id = req.params.id;
     const isUpdated = await postsService.updatePost(id, req.body);
 

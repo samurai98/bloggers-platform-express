@@ -1,8 +1,8 @@
 import { blogsRepository } from "../repositories/blogs-repository";
-import { Blog, CreateBlog } from "../blog";
+import { Blog, ReqBodyBlog } from "../blog";
 
 export const blogsService = {
-  async createBlog({ name, youtubeUrl }: CreateBlog): Promise<Blog> {
+  async createBlog({ name, youtubeUrl }: ReqBodyBlog): Promise<Blog> {
     const currentDate = new Date().toISOString();
     const newBlog: Blog = {
       id: currentDate,
@@ -14,7 +14,7 @@ export const blogsService = {
     return blogsRepository.createBlog(newBlog);
   },
 
-  async updateBlog(id: string, blog: CreateBlog): Promise<boolean> {
+  async updateBlog(id: string, blog: ReqBodyBlog): Promise<boolean> {
     return blogsRepository.updateBlog(id, blog);
   },
 
