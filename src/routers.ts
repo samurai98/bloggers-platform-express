@@ -15,7 +15,7 @@ const router = {
   blogs: "/blogs",
   posts: "/posts",
   users: "/users",
-  auth: "/auth/login",
+  auth: "/auth",
   delete_all: "/testing/all-data",
 } as const;
 

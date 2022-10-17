@@ -30,7 +30,9 @@ export const usersQueryRepository = {
     const pagesCount = getPagesCount(totalCount, pageSize);
 
     const items = (await usersCollection
-      .find(filter, { projection: { _id: false, password: false } })
+      .find(filter, {
+        projection: { _id: false, passHash: false, passSalt: false },
+      })
       .sort({ [sortBy]: sortDirection })
       .skip(skipCount)
       .limit(pageSize)
