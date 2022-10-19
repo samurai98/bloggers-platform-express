@@ -1,5 +1,7 @@
 import bcrypt from "bcrypt";
 
+import { getCurrentDateISO } from "common/helpers/utils";
+
 import { usersRepository, usersQueryRepository } from "../repositories";
 import { User, ReqBodyUser, UserDB, ReqBodyAuth } from "../user";
 
@@ -20,7 +22,7 @@ export const usersService = {
   },
 
   async createUser({ email, login, password }: ReqBodyUser): Promise<User> {
-    const currentDate = new Date().toISOString();
+    const currentDate = getCurrentDateISO();
     const passSalt = await bcrypt.genSalt(10);
     const passHash = await this._generateHash(password, passSalt);
 

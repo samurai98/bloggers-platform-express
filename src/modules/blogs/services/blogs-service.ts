@@ -1,9 +1,11 @@
+import { getCurrentDateISO } from "common/helpers/utils";
+
 import { blogsRepository } from "../repositories/blogs-repository";
 import { Blog, ReqBodyBlog } from "../blog";
 
 export const blogsService = {
   async createBlog({ name, youtubeUrl }: ReqBodyBlog): Promise<Blog> {
-    const currentDate = new Date().toISOString();
+    const currentDate = getCurrentDateISO();
     const newBlog: Blog = {
       id: currentDate,
       name,

@@ -1,3 +1,4 @@
+import { getCurrentDateISO } from 'common/helpers/utils'
 import { blogsQueryRepository } from "modules/blogs/repositories";
 import { Blog } from "modules/blogs/blog";
 
@@ -15,9 +16,9 @@ export const postsService = {
       blogId
     )) as Blog;
 
-    const currentDate = new Date().toISOString();
+    const currentDate = getCurrentDateISO();
     const newPost: Post = {
-      id: new Date().toISOString(),
+      id: currentDate,
       title,
       shortDescription,
       content,
