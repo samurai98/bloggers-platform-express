@@ -4,7 +4,10 @@ import { usersRepository, usersQueryRepository } from "../repositories";
 import { User, ReqBodyUser, UserDB, ReqBodyAuth } from "../user";
 
 export const usersService = {
-  async authUser({ loginOrEmail, password }: ReqBodyAuth): Promise<boolean> {
+  async authUser({
+    login: loginOrEmail,
+    password,
+  }: ReqBodyAuth): Promise<boolean> {
     const user = await usersQueryRepository.findByLoginOrEmail(loginOrEmail);
 
     if (!user) return false;

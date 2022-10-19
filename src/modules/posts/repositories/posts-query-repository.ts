@@ -9,13 +9,13 @@ import {
 import { Post, ReqQueryPost } from "../post";
 
 export const postsQueryRepository = {
-  async getPosts(query: ReqQueryPost = {}) {
-    const pageNumber = Number(query.pageNumber) || 1;
-    const pageSize = Number(query.pageSize) || 10;
-    const sortBy = query.sortBy || "createdAt";
-    const sortDirection = getSortDirectionNumber(query.sortDirection || "desc");
-    const blogId = query.blogId;
-
+  async getPosts({
+    pageNumber,
+    pageSize,
+    sortBy,
+    sortDirection,
+    blogId,
+  }: ReqQueryPost) {
     const filter: Filter<Post> = blogId ? { blogId } : {};
     const totalCount = await postsCollection.countDocuments(filter);
 

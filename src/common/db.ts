@@ -8,7 +8,7 @@ import { UserDB } from "../modules/users/user";
 
 dotenv.config();
 
-const mongoUri = process.env.mongoURI || "mongodb://0.0.0.0:27017";
+const mongoUri = process.env.MONGO_DB_URI || "mongodb://0.0.0.0:27017";
 
 const client = new MongoClient(mongoUri);
 

@@ -9,14 +9,14 @@ import {
 import { User, UserDB, ReqQueryUser, ResUsers } from "../user";
 
 export const usersQueryRepository = {
-  async getUsers(query: ReqQueryUser = {}): Promise<ResUsers> {
-    const pageNumber = Number(query.pageNumber) || 1;
-    const pageSize = Number(query.pageSize) || 10;
-    const sortBy = query.sortBy || "createdAt";
-    const sortDirection = getSortDirectionNumber(query.sortDirection || "desc");
-    const searchEmailTerm = query.searchEmailTerm || "";
-    const searchLoginTerm = query.searchLoginTerm || "";
-
+  async getUsers({
+    pageNumber,
+    pageSize,
+    sortBy,
+    sortDirection,
+    searchEmailTerm,
+    searchLoginTerm,
+  }: ReqQueryUser): Promise<ResUsers> {
     const filter: Filter<UserDB> = {
       $or: [
         { email: { $regex: new RegExp(`${searchEmailTerm}`, "i") } },
@@ -49,8 +49,18 @@ export const usersQueryRepository = {
 
   async findByLoginOrEmail(loginOrEmail: string): Promise<UserDB | null> {
     return usersCollection.findOne(
-      { $or: [{ email: loginOrEmail }, { userName: loginOrEmail }] },
+      { $or: [{ email: loginOrEmail }, { login: loginOrEmail }] },
       { projection: { _id: false } }
+    );
+  },
+
+  async findByLoginAndEmail(
+    login: string,
+    email: string
+  ): Promise<UserDB | null> {
+    return usersCollection.findOne(
+      { $or: [{ email }, { login }] },
+      { projection: { _id: false, passHash: false, passSalt: false } }
     );
   },
 };

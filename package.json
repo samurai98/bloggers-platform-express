@@ -5,9 +5,9 @@
   "license": "MIT",
   "scripts": {
     "watch": "tsc -w",
-    "dev": "yarn nodemon --inspect src/index.ts",
+    "dev": "nodemon --inspect src/index.ts",
     "build": "tsc",
-    "start": "node dist/index.js"
+    "start": "NODE_PATH=dist node dist/index.js"
   },
   "dependencies": {
     "bcrypt": "^5.1.0",

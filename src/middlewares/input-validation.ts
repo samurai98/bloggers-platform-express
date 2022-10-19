@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from "express";
 import { ValidationError, validationResult } from "express-validator";
 import { HTTP_STATUSES } from "../common/http-statuses";
 
-export const inputValidationMiddleware = (
+export const inputValidation = (
   req: Request,
   res: Response,
   next: NextFunction

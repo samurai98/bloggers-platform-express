@@ -1,8 +1,11 @@
 import { Request, Response, NextFunction } from "express";
 import { body } from "express-validator";
 
-import { inputValidationMiddleware } from "../../../middlewares/input-validation";
-import { checkAuth } from "../../../middlewares/check-auth";
+import {
+  checkAuth,
+  getQueryValidation,
+  inputValidation,
+} from "../../../middlewares";
 import { blogsQueryRepository } from "../../blogs/repositories";
 
 const titleValidation = body("title")
@@ -30,10 +33,20 @@ const blogIdValidation = async (
 ) => {
   const blog = await blogsQueryRepository.findBlogById(req.body.blogId.trim());
 
-  if (!blog) (req as any).customError = { blogId: "Incorrect BlogId" };
+  if (!blog)
+    (req as any).customError = {
+      ...(req as any).customError,
+      blogId: "Incorrect BlogId",
+    };
 
   next();
 };
+
+export const postsQueryValidation = getQueryValidation((query) => {
+  const { blogId } = query;
+
+  query.blogId = typeof blogId === "string" ? blogId : undefined;
+});
 
 export const postValidation = [
   checkAuth,
@@ -41,7 +54,7 @@ export const postValidation = [
   shortDescriptionValidation,
   contentValidation,
   blogIdValidation,
-  inputValidationMiddleware,
+  inputValidation,
 ];
 
 export const postByBlogIdValidation = [
@@ -49,7 +62,7 @@ export const postByBlogIdValidation = [
   titleValidation,
   shortDescriptionValidation,
   contentValidation,
-  inputValidationMiddleware,
+  inputValidation,
 ];
 
 export { checkAuth };

@@ -8,12 +8,13 @@ export type Pagination<T> = {
   items: T[];
 };
 
-export type Query = Partial<{
-  pageNumber: string;
-  pageSize: string;
+/** Query after validation */
+export type Query = {
+  pageNumber: number;
+  pageSize: number;
   sortBy: string;
-  sortDirection: "asc" | "desc";
-}>;
+  sortDirection: 1 | -1;
+};
 
 type ValueOf<T> = T[keyof T];
 

@@ -11,13 +11,13 @@ import {
   ResUser,
   ResUsers,
 } from "../user";
-import { userValidation, userQueryValidation, checkAuth } from "./validation";
+import { userValidation, usersQueryValidation, checkAuth } from "./validation";
 
 export const usersRouter = Router({});
 
 usersRouter.get(
   "/",
-  userQueryValidation,
+  usersQueryValidation,
   async (req: Request<{}, {}, {}, ReqQueryUser>, res: Response<ResUsers>) => {
     res.send(await usersQueryRepository.getUsers(req.query));
   }

@@ -1,13 +1,14 @@
 import { Router, Request, Response } from "express";
 
-import { HTTP_STATUSES } from "../../../common/http-statuses";
-import { Query, ResType } from "../../../common/types";
-import { ResPost, ResPosts } from "../../posts/post";
-import { postByBlogIdValidation } from "../../posts/routes/validation";
-import { postsQueryRepository } from "../../posts/repositories";
-import { postsService } from "../../posts/services/posts-service";
-import { blogsQueryRepository } from "../repositories";
+import { Query, ResType } from "common/types";
+import { ResPost, ResPosts } from "modules/posts/post";
+import { postsService } from "modules/posts/services/posts-service";
+import { HTTP_STATUSES } from "common/http-statuses";
+import { postsQueryRepository } from "modules/posts/repositories";
+import { postByBlogIdValidation } from "modules/posts/routes/validation";
+
 import { blogsService } from "../services/blogs-service";
+import { blogsQueryRepository } from "../repositories";
 import {
   ReqBodyBlog,
   ReqBodyPostByBlogId,
@@ -16,12 +17,18 @@ import {
   ResBlog,
   ResBlogs,
 } from "../blog";
-import { blogValidation, checkAuth } from "./validation";
+import {
+  checkAuth,
+  blogValidation,
+  blogsQueryValidation,
+  postsByBlogQueryValidation,
+} from "./validation";
 
 export const blogsRouter = Router({});
 
 blogsRouter.get(
   "/",
+  blogsQueryValidation,
   async (req: Request<{}, {}, {}, ReqQueryBlog>, res: Response<ResBlogs>) => {
     res.send(await blogsQueryRepository.getBlogs(req.query));
   }
@@ -36,10 +43,8 @@ blogsRouter.get("/:id", async (req: Request, res: Response<ResBlog>) => {
 
 blogsRouter.get(
   "/:id/posts",
-  async (
-    req: Request<ParamBlog, {}, {}, Query>,
-    res: Response<ResPosts>
-  ) => {
+  postsByBlogQueryValidation,
+  async (req: Request<ParamBlog, {}, {}, Query>, res: Response<ResPosts>) => {
     const { id: blogId } = req.params;
 
     if (!blogId || !(await blogsQueryRepository.findBlogById(blogId))) {

@@ -2,7 +2,7 @@ import { Router, Request, Response } from "express";
 import { body } from "express-validator";
 
 import { HTTP_STATUSES } from "../../../common/http-statuses";
-import { inputValidationMiddleware } from "../../../middlewares/input-validation";
+import { inputValidation } from "../../../middlewares";
 import { productsService } from "../services/products-service";
 
 export const productsRouter = Router({});
@@ -30,7 +30,7 @@ productsRouter.get("/:id", async (req: Request, res: Response) => {
 productsRouter.post(
   "/",
   titleValidation,
-  inputValidationMiddleware,
+  inputValidation,
   async (req: Request, res: Response) => {
     const newProduct = await productsService.createProduct(req.body.title);
     res.status(HTTP_STATUSES.CREATED_201).send(newProduct);
@@ -40,7 +40,7 @@ productsRouter.post(
 productsRouter.put(
   "/:id",
   titleValidation,
-  inputValidationMiddleware,
+  inputValidation,
   async (req: Request, res: Response) => {
     const id = Number(req.params.id);
     const isUpdated = await productsService.updateProduct(id, req.body.title);

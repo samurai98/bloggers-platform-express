@@ -11,7 +11,7 @@ import {
 } from "../post";
 import { postsQueryRepository } from "../repositories";
 import { postsService } from "../services/posts-service";
-import { postValidation, checkAuth } from "./validation";
+import { postValidation, checkAuth, postsQueryValidation } from "./validation";
 
 export const postsRouter = Router({});
 
@@ -31,6 +31,7 @@ postsRouter.get("/:id", async (req: Request, res: Response<ResPost>) => {
 
 postsRouter.post(
   "/",
+  postsQueryValidation,
   postValidation,
   async (req: Request<{}, {}, ReqBodyPost>, res: Response<ResPost>) => {
     const newPost = await postsService.createPost(req.body);

@@ -7,7 +7,8 @@
   },
   "watch": ["src/"],
   "env": {
-    "NODE_ENV": "development"
+    "NODE_ENV": "development",
+    "NODE_PATH": "./src"
   },
   "ext": "js,json,ts,graphql"
 }

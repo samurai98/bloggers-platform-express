@@ -14,7 +14,7 @@ export type ReqBodyUser = {
 };
 
 export type ReqBodyAuth = {
-  loginOrEmail: string;
+  login: string;
   password: string;
 };
 

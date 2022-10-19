@@ -4,18 +4,17 @@ import { blogsCollection } from "../../../common/db";
 import {
   getPagesCount,
   getSkipCount,
-  getSortDirectionNumber,
 } from "../../../common/helpers/pagination";
 import { Blog, ReqQueryBlog, ResBlogs } from "../blog";
 
 export const blogsQueryRepository = {
-  async getBlogs(query: ReqQueryBlog = {}): Promise<ResBlogs> {
-    const pageNumber = Number(query.pageNumber) || 1;
-    const pageSize = Number(query.pageSize) || 10;
-    const sortBy = query.sortBy || "createdAt";
-    const sortDirection = getSortDirectionNumber(query.sortDirection || "desc");
-    const searchNameTerm = query.searchNameTerm || "";
-
+  async getBlogs({
+    pageNumber,
+    pageSize,
+    sortBy,
+    sortDirection,
+    searchNameTerm,
+  }: ReqQueryBlog): Promise<ResBlogs> {
     const filter: Filter<Blog> = {
       name: { $regex: new RegExp(`${searchNameTerm}`, "i") },
     };

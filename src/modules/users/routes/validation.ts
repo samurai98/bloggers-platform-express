@@ -1,7 +1,8 @@
+import { Request, Response, NextFunction } from "express";
 import { body } from "express-validator";
 
-import { checkAuth } from "../../../middlewares/check-auth";
-import { inputValidationMiddleware } from "../../../middlewares/input-validation";
+import { checkAuth, getQueryValidation, inputValidation } from "../../../middlewares";
+import { usersQueryRepository } from "../repositories";
 
 const loginValidation = body("login")
   .trim()
@@ -21,21 +22,57 @@ const passwordValidation = body("password")
   .isLength({ min: 6, max: 20 })
   .withMessage("Password length error");
 
-const uniqueEmailValidation = async () => {};
-
-export const userQueryValidation = [];
-
-export const authValidation = body(["loginOrEmail", "password"])
+const loginAndPassValidation = body(["login", "password"])
   .trim()
   .notEmpty()
   .withMessage("Login or password incorrect");
+
+const uniqueLoginAndEmailValidation = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const login = req.body.login.trim() || "";
+  const email = req.body.email.trim() || "";
+
+  if (!login && !email) return next();
+
+  const user = await usersQueryRepository.findByLoginAndEmail(login, email);
+
+  if (user?.login === login)
+    (req as any).customError = {
+      ...(req as any).customError,
+      login: "This login taken",
+    };
+
+  if (user?.email === email)
+    (req as any).customError = {
+      ...(req as any).customError,
+      email: "This email is already registered",
+    };
+
+  next();
+};
+
+export const usersQueryValidation = getQueryValidation((query) => {
+  const { searchEmailTerm, searchLoginTerm } = query;
+
+  query.searchEmailTerm = typeof searchEmailTerm === "string" ? searchEmailTerm : "";
+  query.searchLoginTerm = typeof searchLoginTerm === "string" ? searchLoginTerm : "";
+});
+
+export const authValidation = [
+  loginAndPassValidation,
+  inputValidation,
+];
 
 export const userValidation = [
   checkAuth,
   loginValidation,
   emailValidation,
   passwordValidation,
-  inputValidationMiddleware,
+  uniqueLoginAndEmailValidation,
+  inputValidation,
 ];
 
 export { checkAuth };
