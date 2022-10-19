@@ -1,9 +1,9 @@
 import { Router, Request, Response } from "express";
 
 import { Query, ResType } from "common/types";
+import { HTTP_STATUSES } from "common/http-statuses";
 import { ResPost, ResPosts } from "modules/posts/post";
 import { postsService } from "modules/posts/services/posts-service";
-import { HTTP_STATUSES } from "common/http-statuses";
 import { postsQueryRepository } from "modules/posts/repositories";
 import { postByBlogIdValidation } from "modules/posts/routes/validation";
 

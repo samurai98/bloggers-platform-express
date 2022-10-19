@@ -1,8 +1,9 @@
 import { Router, Request, Response } from "express";
 import { body } from "express-validator";
 
-import { HTTP_STATUSES } from "../../../common/http-statuses";
-import { inputValidation } from "../../../middlewares";
+import { HTTP_STATUSES } from "common/http-statuses";
+import { inputValidation } from "middlewares";
+
 import { productsService } from "../services/products-service";
 
 export const productsRouter = Router({});

@@ -1,10 +1,10 @@
 import { MongoClient } from "mongodb";
 import dotenv from "dotenv";
 
-import { Product } from "../modules/products/product";
-import { Blog } from "../modules/blogs/blog";
-import { Post } from "../modules/posts/post";
-import { UserDB } from "../modules/users/user";
+import { Product } from "modules/products/product";
+import { Blog } from "modules/blogs/blog";
+import { Post } from "modules/posts/post";
+import { UserDB } from "modules/users/user";
 
 dotenv.config();
 

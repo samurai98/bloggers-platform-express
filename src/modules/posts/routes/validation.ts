@@ -1,12 +1,8 @@
 import { Request, Response, NextFunction } from "express";
 import { body } from "express-validator";
 
-import {
-  checkAuth,
-  getQueryValidation,
-  inputValidation,
-} from "../../../middlewares";
-import { blogsQueryRepository } from "../../blogs/repositories";
+import { checkAuth, getQueryValidation, inputValidation } from "middlewares";
+import { blogsQueryRepository } from "modules/blogs/repositories";
 
 const titleValidation = body("title")
   .trim()

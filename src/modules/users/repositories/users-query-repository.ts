@@ -1,11 +1,8 @@
 import { Filter } from "mongodb";
 
-import { usersCollection } from "../../../common/db";
-import {
-  getPagesCount,
-  getSkipCount,
-  getSortDirectionNumber,
-} from "../../../common/helpers/pagination";
+import { usersCollection } from "common/db";
+import { getPagesCount, getSkipCount } from "common/helpers/pagination";
+
 import { User, UserDB, ReqQueryUser, ResUsers } from "../user";
 
 export const usersQueryRepository = {

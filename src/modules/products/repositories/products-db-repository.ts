@@ -1,4 +1,5 @@
-import { productsCollection } from "../../../common/db";
+import { productsCollection } from "common/db";
+
 import { Product } from "../product";
 
 export const productsRepository = {

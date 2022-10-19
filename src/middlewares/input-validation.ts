@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import { ValidationError, validationResult } from "express-validator";
-import { HTTP_STATUSES } from "../common/http-statuses";
+
+import { HTTP_STATUSES } from "common/http-statuses";
 
 export const inputValidation = (
   req: Request,
@@ -21,6 +22,7 @@ export const inputValidation = (
     );
   }
 
-  if (errorsMessages.length) res.status(HTTP_STATUSES.BAD_REQUEST_400).json({ errorsMessages });
+  if (errorsMessages.length)
+    res.status(HTTP_STATUSES.BAD_REQUEST_400).json({ errorsMessages });
   else next();
 };

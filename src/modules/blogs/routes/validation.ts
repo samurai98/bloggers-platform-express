@@ -1,10 +1,6 @@
 import { body } from "express-validator";
 
-import {
-  checkAuth,
-  inputValidation,
-  getQueryValidation,
-} from "../../../middlewares";
+import { checkAuth, inputValidation, getQueryValidation } from "middlewares";
 
 const nameValidation = body("name")
   .trim()

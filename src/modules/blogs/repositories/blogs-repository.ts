@@ -1,4 +1,5 @@
-import { blogsCollection } from "../../../common/db";
+import { blogsCollection } from "common/db";
+
 import { Blog, ReqBodyBlog } from "../blog";
 
 export const blogsRepository = {

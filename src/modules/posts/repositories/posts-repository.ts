@@ -1,4 +1,5 @@
-import { postsCollection } from "../../../common/db";
+import { postsCollection } from "common/db";
+
 import { ReqBodyPost, Post } from "../post";
 
 export const postsRepository = {

@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 
-import { getSortDirectionNumber } from "../common/helpers/pagination";
+import { getSortDirectionNumber } from "common/helpers/pagination";
 
 export const getQueryValidation =
   (callBackValidator?: (query: Request["query"]) => void) =>

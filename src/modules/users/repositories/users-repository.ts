@@ -1,5 +1,5 @@
-import { usersCollection } from "../../../common/db";
-import { User, UserDB, ReqBodyAuth } from "../user";
+import { usersCollection } from "common/db";
+import { User, UserDB } from "../user";
 
 export const usersRepository = {
   async createUser(user: UserDB): Promise<User> {

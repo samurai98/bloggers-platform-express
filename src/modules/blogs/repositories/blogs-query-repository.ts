@@ -1,10 +1,8 @@
 import { Filter } from "mongodb";
 
-import { blogsCollection } from "../../../common/db";
-import {
-  getPagesCount,
-  getSkipCount,
-} from "../../../common/helpers/pagination";
+import { blogsCollection } from "common/db";
+import { getPagesCount, getSkipCount } from "common/helpers/pagination";
+
 import { Blog, ReqQueryBlog, ResBlogs } from "../blog";
 
 export const blogsQueryRepository = {

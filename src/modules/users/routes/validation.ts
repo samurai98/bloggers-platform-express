@@ -1,7 +1,8 @@
 import { Request, Response, NextFunction } from "express";
 import { body } from "express-validator";
 
-import { checkAuth, getQueryValidation, inputValidation } from "../../../middlewares";
+import { checkAuth, getQueryValidation, inputValidation } from "middlewares";
+
 import { usersQueryRepository } from "../repositories";
 
 const loginValidation = body("login")
@@ -57,14 +58,13 @@ const uniqueLoginAndEmailValidation = async (
 export const usersQueryValidation = getQueryValidation((query) => {
   const { searchEmailTerm, searchLoginTerm } = query;
 
-  query.searchEmailTerm = typeof searchEmailTerm === "string" ? searchEmailTerm : "";
-  query.searchLoginTerm = typeof searchLoginTerm === "string" ? searchLoginTerm : "";
+  query.searchEmailTerm =
+    typeof searchEmailTerm === "string" ? searchEmailTerm : "";
+  query.searchLoginTerm =
+    typeof searchLoginTerm === "string" ? searchLoginTerm : "";
 });
 
-export const authValidation = [
-  loginAndPassValidation,
-  inputValidation,
-];
+export const authValidation = [loginAndPassValidation, inputValidation];
 
 export const userValidation = [
   checkAuth,

@@ -1,11 +1,8 @@
 import { Filter } from "mongodb";
 
-import { postsCollection } from "../../../common/db";
-import {
-  getPagesCount,
-  getSkipCount,
-  getSortDirectionNumber,
-} from "../../../common/helpers/pagination";
+import { postsCollection } from "common/db";
+import { getPagesCount, getSkipCount } from "common/helpers/pagination";
+
 import { Post, ReqQueryPost } from "../post";
 
 export const postsQueryRepository = {

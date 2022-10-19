@@ -1,6 +1,6 @@
 import { Router, Request, Response } from "express";
 
-import { HTTP_STATUSES } from "../../../common/http-statuses";
+import { HTTP_STATUSES } from "common/http-statuses";
 
 export const addressesRouter = Router({});
 

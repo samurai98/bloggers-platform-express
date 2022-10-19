@@ -1,5 +1,6 @@
-import { blogsQueryRepository } from "../../blogs/repositories";
-import { Blog } from "../../blogs/blog";
+import { blogsQueryRepository } from "modules/blogs/repositories";
+import { Blog } from "modules/blogs/blog";
+
 import { postsRepository } from "../repositories/posts-repository";
 import { ReqBodyPost, Post } from "../post";
 
