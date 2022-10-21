@@ -18,6 +18,7 @@ export const postsRouter = Router({});
 
 postsRouter.get(
   "/",
+  postsQueryValidation,
   async (req: Request<{}, {}, {}, ReqQueryPost>, res: Response<ResPosts>) => {
     res.send(await postsQueryRepository.getPosts(req.query));
   }
@@ -32,7 +33,6 @@ postsRouter.get("/:id", async (req: Request, res: Response<ResPost>) => {
 
 postsRouter.post(
   "/",
-  postsQueryValidation,
   postValidation,
   async (req: Request<{}, {}, ReqBodyPost>, res: Response<ResPost>) => {
     const newPost = await postsService.createPost(req.body);
