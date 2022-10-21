@@ -6,4 +6,4 @@ export const HTTP_STATUSES = {
   BAD_REQUEST_400: 400,
   UNAUTHORIZED_401: 401,
   NOT_FOUND_404: 404,
-};
+} as const;

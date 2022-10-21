@@ -1,6 +1,6 @@
 import { HTTP_STATUSES } from "./http-statuses";
 
-export type Pagination<T> = {
+export type Pagination<T = unknown> = {
   pagesCount: number;
   page: number;
   pageSize: number;
@@ -19,3 +19,5 @@ export type Query = {
 type ValueOf<T> = T[keyof T];
 
 export type ResType<T = unknown> = T | ValueOf<typeof HTTP_STATUSES>;
+
+export type SortDirection = "asc" | "desc";

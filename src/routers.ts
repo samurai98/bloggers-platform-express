@@ -36,3 +36,11 @@ export const useRouters = (app: Express) => {
 
   app.use(delete_all_router, deleteAllRouter);
 };
+
+export {
+  blogs_router,
+  posts_router,
+  users_router,
+  auth_router,
+  delete_all_router,
+};
