@@ -27,7 +27,7 @@ const blogIdValidation = async (
   res: Response,
   next: NextFunction
 ) => {
-  const blog = await blogsQueryRepository.findBlogById(req.body.blogId.trim());
+  const blog = await blogsQueryRepository.findBlogById(req.body.blogId?.trim());
 
   if (!blog)
     (req as any).customError = {

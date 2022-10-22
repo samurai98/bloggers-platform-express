@@ -10,7 +10,7 @@ import {
 } from "../../src/modules/blogs/blog";
 import { Post } from "../../src/modules/posts/post";
 
-import { incorrectQuery, auth, validBlogs } from "../common/data";
+import { incorrectQuery, auth, validBlogs, validPosts } from "../common/data";
 import {
   anyString,
   dateISORegEx,
@@ -57,7 +57,7 @@ export const testBlogsApi = () =>
         .expect(HTTP_STATUSES.OK_200, getPaginationItems());
 
       await request(app)
-        .get(`${blogs_router}?${incorrectQuery.incorrect}searchNameTerm[]=`)
+        .get(`${blogs_router}?${incorrectQuery.incorrect}&searchNameTerm[]=`)
         .expect(HTTP_STATUSES.OK_200, getPaginationItems());
     });
 
@@ -341,7 +341,7 @@ export const testBlogsApi = () =>
     });
 
     it("Create post by blogId. Should return 201 and new post", async () => {
-      const post = { title: "tit", shortDescription: "desc", content: "cont" };
+      const post = validPosts[0];
       const res = await request(app)
         .post(`${blogs_router}/${createdBlogs[0].id}/posts`)
         .set(auth)
