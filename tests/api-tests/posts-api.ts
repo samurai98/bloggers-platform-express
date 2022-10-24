@@ -2,7 +2,11 @@ import request from "supertest";
 
 import { app } from "../../src/index";
 import { HTTP_STATUSES } from "../../src/common/http-statuses";
-import { blogs_router, posts_router } from "../../src/routers";
+import {
+  blogs_router,
+  delete_all_router,
+  posts_router,
+} from "../../src/routers";
 import { Post, ReqBodyPost } from "../../src/modules/posts/post";
 import { Blog } from "../../src/modules/blogs/blog";
 
@@ -14,13 +18,31 @@ import {
   getPaginationItems,
   sortByField,
 } from "../common/helpers";
-import { auth, incorrectQuery, validPosts } from "../common/data";
+import { auth, incorrectQuery, validBlogs, validPosts } from "../common/data";
 
 const createdPosts: Post[] = [];
 const createdBlogs: Blog[] = [];
 
 export const testPostsApi = () =>
   describe("Test posts api", () => {
+    beforeAll(async () => {
+      /** Creating blog for next tests */
+      const res = await request(app)
+        .post(blogs_router)
+        .set(auth)
+        .send(validBlogs[0]);
+
+      const createdBlog = res.body;
+      expect(res.statusCode).toEqual(HTTP_STATUSES.CREATED_201);
+      expect(createdBlog).toEqual({
+        ...validBlogs[0],
+        id: anyString,
+        createdAt: dateISORegEx,
+      });
+
+      createdBlogs.push(createdBlog);
+    });
+
     it("Posts without auth. Should return 401", async () => {
       await request(app)
         .post(posts_router)
@@ -65,6 +87,7 @@ export const testPostsApi = () =>
           "blogId"
         )
       );
+      expect(firstRes.body.errorsMessages).toHaveLength(4);
 
       const secondRes = await request(app)
         .post(posts_router)
@@ -85,6 +108,7 @@ export const testPostsApi = () =>
           "blogId"
         )
       );
+      expect(secondRes.body.errorsMessages).toHaveLength(4);
 
       const thirdRes = await request(app)
         .post(posts_router)
@@ -95,6 +119,7 @@ export const testPostsApi = () =>
       expect(thirdRes.body).toEqual(
         getErrorsMessages<ReqBodyPost>("shortDescription", "blogId")
       );
+      expect(thirdRes.body.errorsMessages).toHaveLength(2);
 
       await request(app)
         .get(posts_router)
@@ -102,9 +127,6 @@ export const testPostsApi = () =>
     });
 
     it("Create post. Should return 201 and new post", async () => {
-      const allBlogs = await (await request(app).get(blogs_router)).body.items;
-      createdBlogs.push(...allBlogs);
-
       const newPost = { ...validPosts[0], blogId: createdBlogs[0].id };
 
       const res = await request(app).post(posts_router).set(auth).send(newPost);
@@ -133,16 +155,13 @@ export const testPostsApi = () =>
     });
 
     it("Create posts. Should create new posts", async () => {
-      const requests = validPosts.slice(1).map((post) =>
-        request(app)
+      for (const post of validPosts.slice(1)) {
+        const res = await request(app)
           .post(posts_router)
           .set(auth)
-          .send({ ...post, blogId: createdBlogs[0].id })
-      );
-
-      const responses = await Promise.all(requests);
-
-      responses.forEach((res) => createdPosts.push(res.body));
+          .send({ ...post, blogId: createdBlogs[0].id });
+        createdPosts.push(res.body);
+      }
 
       const res = await request(app).get(posts_router);
 
@@ -254,6 +273,7 @@ export const testPostsApi = () =>
           "blogId"
         )
       );
+      expect(firstRes.body.errorsMessages).toHaveLength(4);
 
       const secondRes = await request(app)
         .put(`${posts_router}/${createdPosts[3].id}`)
@@ -274,6 +294,7 @@ export const testPostsApi = () =>
           "blogId"
         )
       );
+      expect(secondRes.body.errorsMessages).toHaveLength(4);
 
       const thirdRes = await request(app)
         .put(`${posts_router}/${createdPosts[3].id}`)
@@ -284,6 +305,7 @@ export const testPostsApi = () =>
       expect(thirdRes.body).toEqual(
         getErrorsMessages<ReqBodyPost>("shortDescription", "blogId")
       );
+      expect(thirdRes.body.errorsMessages).toHaveLength(2);
 
       await request(app)
         .get(`${posts_router}/${createdPosts[3].id}`)
@@ -306,5 +328,9 @@ export const testPostsApi = () =>
         .delete(`${posts_router}/fakePostId`)
         .set(auth)
         .expect(HTTP_STATUSES.NOT_FOUND_404);
+    });
+
+    afterAll(async () => {
+      await request(app).delete(delete_all_router);
     });
   });

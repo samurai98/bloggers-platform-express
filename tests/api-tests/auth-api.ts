@@ -2,14 +2,34 @@ import request from "supertest";
 
 import { app } from "../../src/index";
 import { HTTP_STATUSES } from "../../src/common/http-statuses";
-import { auth_router } from "../../src/routers";
+import {
+  auth_router,
+  delete_all_router,
+  users_router,
+} from "../../src/routers";
 import { ReqBodyAuth } from "../../src/modules/users/user";
 
-import { validUsers } from "../common/data";
-import { getErrorsMessages } from "../common/helpers";
+import { auth, validUsers } from "../common/data";
+import { anyString, dateISORegEx, getErrorsMessages } from "../common/helpers";
 
 export const testAuthApi = () =>
   describe("Test auth api", () => {
+    beforeAll(async () => {
+      /** Creating user for next tests */
+      const res = await request(app)
+        .post(users_router)
+        .set(auth)
+        .send(validUsers[0]);
+
+      expect(res.statusCode).toEqual(HTTP_STATUSES.CREATED_201);
+      expect(res.body).toEqual({
+        ...validUsers[0],
+        password: undefined,
+        id: anyString,
+        createdAt: dateISORegEx,
+      });
+    });
+
     it("Auth user. Should return 401", async () => {
       await request(app)
         .post(`${auth_router}/login`)
@@ -24,6 +44,7 @@ export const testAuthApi = () =>
       expect(firstRes.body).toEqual(
         getErrorsMessages<ReqBodyAuth>("login", "password")
       );
+      expect(firstRes.body.errorsMessages).toHaveLength(2);
 
       const secondRes = await request(app)
         .post(`${auth_router}/login`)
@@ -33,6 +54,7 @@ export const testAuthApi = () =>
       expect(secondRes.body).toEqual(
         getErrorsMessages<ReqBodyAuth>("password")
       );
+      expect(secondRes.body.errorsMessages).toHaveLength(1);
     });
 
     it("Auth user. Should return 204", async () => {
@@ -45,5 +67,9 @@ export const testAuthApi = () =>
         .post(`${auth_router}/login`)
         .send({ login: validUsers[0].email, password: validUsers[0].password })
         .expect(HTTP_STATUSES.NO_CONTENT_204);
+    });
+
+    afterAll(async () => {
+      await request(app).delete(delete_all_router);
     });
   });

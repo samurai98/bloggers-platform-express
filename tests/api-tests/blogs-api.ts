@@ -2,7 +2,11 @@ import request from "supertest";
 
 import { app } from "../../src/index";
 import { HTTP_STATUSES } from "../../src/common/http-statuses";
-import { blogs_router, posts_router } from "../../src/routers";
+import {
+  blogs_router,
+  delete_all_router,
+  posts_router,
+} from "../../src/routers";
 import {
   Blog,
   ReqBodyBlog,
@@ -68,6 +72,7 @@ export const testBlogsApi = () =>
       expect(firstRes.body).toEqual(
         getErrorsMessages<ReqBodyBlog>("name", "youtubeUrl")
       );
+      expect(firstRes.body.errorsMessages).toHaveLength(2);
 
       const secondRes = await request(app)
         .post(blogs_router)
@@ -81,6 +86,7 @@ export const testBlogsApi = () =>
       expect(secondRes.body).toEqual(
         getErrorsMessages<ReqBodyBlog>("name", "youtubeUrl")
       );
+      expect(secondRes.body.errorsMessages).toHaveLength(2);
 
       const thirdRes = await request(app)
         .post(blogs_router)
@@ -91,6 +97,7 @@ export const testBlogsApi = () =>
       expect(thirdRes.body).toEqual(
         getErrorsMessages<ReqBodyBlog>("youtubeUrl")
       );
+      expect(thirdRes.body.errorsMessages).toHaveLength(1);
 
       await request(app)
         .get(blogs_router)
@@ -127,13 +134,10 @@ export const testBlogsApi = () =>
     });
 
     it("Create blogs. Should create new blogs", async () => {
-      const requests = validBlogs
-        .slice(1)
-        .map((blog) => request(app).post(blogs_router).set(auth).send(blog));
-
-      const responses = await Promise.all(requests);
-
-      responses.forEach((res) => createdBlogs.push(res.body));
+      for (const blog of validBlogs.slice(1)) {
+        const res = await request(app).post(blogs_router).set(auth).send(blog);
+        createdBlogs.push(res.body);
+      }
 
       const res = await request(app).get(blogs_router);
 
@@ -235,6 +239,7 @@ export const testBlogsApi = () =>
       expect(firstRes.body).toEqual(
         getErrorsMessages<ReqBodyBlog>("name", "youtubeUrl")
       );
+      expect(firstRes.body.errorsMessages).toHaveLength(2);
 
       const secondRes = await request(app)
         .put(`${blogs_router}/${createdBlogs[2].id}`)
@@ -248,6 +253,7 @@ export const testBlogsApi = () =>
       expect(secondRes.body).toEqual(
         getErrorsMessages<ReqBodyBlog>("name", "youtubeUrl")
       );
+      expect(secondRes.body.errorsMessages).toHaveLength(2);
 
       const thirdRes = await request(app)
         .put(`${blogs_router}/${createdBlogs[2].id}`)
@@ -258,6 +264,7 @@ export const testBlogsApi = () =>
       expect(thirdRes.body).toEqual(
         getErrorsMessages<ReqBodyBlog>("youtubeUrl")
       );
+      expect(thirdRes.body.errorsMessages).toHaveLength(1);
 
       await request(app)
         .get(`${blogs_router}/${createdBlogs[2].id}`)
@@ -306,6 +313,7 @@ export const testBlogsApi = () =>
           "content"
         )
       );
+      expect(firstRes.body.errorsMessages).toHaveLength(3);
 
       const secondRes = await request(app)
         .post(`${blogs_router}/${createdBlogs[0].id}/posts`)
@@ -324,6 +332,7 @@ export const testBlogsApi = () =>
           "content"
         )
       );
+      expect(secondRes.body.errorsMessages).toHaveLength(3);
 
       const thirdRes = await request(app)
         .post(`${blogs_router}/${createdBlogs[0].id}/posts`)
@@ -334,6 +343,7 @@ export const testBlogsApi = () =>
       expect(thirdRes.body).toEqual(
         getErrorsMessages<ReqBodyPostByBlogId>("shortDescription", "content")
       );
+      expect(thirdRes.body.errorsMessages).toHaveLength(2);
 
       await request(app)
         .get(`${blogs_router}/${createdBlogs[0].id}/posts`)
@@ -403,5 +413,9 @@ export const testBlogsApi = () =>
         .delete(`${posts_router}/${createdPostByBlogId.id}`)
         .set(auth)
         .expect(HTTP_STATUSES.NO_CONTENT_204);
+    });
+
+    afterAll(async () => {
+      await request(app).delete(delete_all_router);
     });
   });

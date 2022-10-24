@@ -2,7 +2,7 @@ import request from "supertest";
 
 import { app } from "../../src/index";
 import { HTTP_STATUSES } from "../../src/common/http-statuses";
-import { users_router } from "../../src/routers";
+import { delete_all_router, users_router } from "../../src/routers";
 import { User, ReqBodyUser } from "../../src/modules/users/user";
 
 import { incorrectQuery, auth, validUsers } from "../common/data";
@@ -57,6 +57,7 @@ export const testUsersApi = () =>
       expect(firstRes.body).toEqual(
         getErrorsMessages<ReqBodyUser>("login", "email", "password")
       );
+      expect(firstRes.body.errorsMessages).toHaveLength(3);
 
       const secondRes = await request(app)
         .post(users_router)
@@ -71,6 +72,7 @@ export const testUsersApi = () =>
       expect(secondRes.body).toEqual(
         getErrorsMessages<ReqBodyUser>("login", "email", "password")
       );
+      expect(secondRes.body.errorsMessages).toHaveLength(3);
 
       const thirdRes = await request(app)
         .post(users_router)
@@ -81,6 +83,7 @@ export const testUsersApi = () =>
       expect(thirdRes.body).toEqual(
         getErrorsMessages<ReqBodyUser>("login", "password")
       );
+      expect(thirdRes.body.errorsMessages).toHaveLength(2);
 
       await request(app)
         .get(users_router)
@@ -118,13 +121,10 @@ export const testUsersApi = () =>
     });
 
     it("Create users. Should create new users", async () => {
-      const requests = validUsers
-        .slice(1)
-        .map((user) => request(app).post(users_router).set(auth).send(user));
-
-      const responses = await Promise.all(requests);
-
-      responses.forEach((res) => createdUsers.push(res.body));
+      for (const user of validUsers.slice(1)) {
+        const res = await request(app).post(users_router).set(auth).send(user);
+        createdUsers.push(res.body);
+      }
 
       const res = await request(app).get(users_router);
 
@@ -198,5 +198,9 @@ export const testUsersApi = () =>
         .delete(`${users_router}/fakeUserId`)
         .set(auth)
         .expect(HTTP_STATUSES.NOT_FOUND_404);
+    });
+
+    afterAll(async () => {
+      await request(app).delete(delete_all_router);
     });
   });
