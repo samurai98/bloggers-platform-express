@@ -25,7 +25,7 @@ productsRouter.get("/:id", async (req: Request, res: Response) => {
   const product = await productsService.findProductById(Number(req.params.id));
 
   if (product) res.send(product);
-  else res.send(HTTP_STATUSES.NOT_FOUND_404);
+  else res.sendStatus(HTTP_STATUSES.NOT_FOUND_404);
 });
 
 productsRouter.post(
@@ -49,13 +49,13 @@ productsRouter.put(
     if (isUpdated) {
       const product = await productsService.findProductById(id);
       res.send(product);
-    } else res.send(HTTP_STATUSES.NOT_FOUND_404);
+    } else res.sendStatus(HTTP_STATUSES.NOT_FOUND_404);
   }
 );
 
 productsRouter.delete("/:id", async (req: Request, res: Response) => {
   const isDeleted = await productsService.deleteProduct(Number(req.params.id));
 
-  if (isDeleted) res.send(HTTP_STATUSES.NO_CONTENT_204);
-  else res.send(HTTP_STATUSES.NOT_FOUND_404);
+  if (isDeleted) res.sendStatus(HTTP_STATUSES.NO_CONTENT_204);
+  else res.sendStatus(HTTP_STATUSES.NOT_FOUND_404);
 });

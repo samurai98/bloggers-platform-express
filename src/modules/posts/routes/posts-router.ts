@@ -12,7 +12,7 @@ import {
 } from "../post";
 import { postsQueryRepository } from "../repositories";
 import { postsService } from "../services/posts-service";
-import { postValidation, checkAuth, postsQueryValidation } from "./validation";
+import { postValidation, checkBasicAuth, postsQueryValidation } from "./validation";
 
 export const postsRouter = Router({});
 
@@ -28,7 +28,7 @@ postsRouter.get("/:id", async (req: Request, res: Response<ResPost>) => {
   const post = await postsQueryRepository.findPostById(req.params.id);
 
   if (post) res.send(post);
-  else res.send(HTTP_STATUSES.NOT_FOUND_404);
+  else res.sendStatus(HTTP_STATUSES.NOT_FOUND_404);
 });
 
 postsRouter.post(
@@ -47,18 +47,18 @@ postsRouter.put(
     const id = req.params.id;
     const isUpdated = await postsService.updatePost(id, req.body);
 
-    if (isUpdated) res.send(HTTP_STATUSES.NO_CONTENT_204);
-    else res.send(HTTP_STATUSES.NOT_FOUND_404);
+    if (isUpdated) res.sendStatus(HTTP_STATUSES.NO_CONTENT_204);
+    else res.sendStatus(HTTP_STATUSES.NOT_FOUND_404);
   }
 );
 
 postsRouter.delete(
   "/:id",
-  checkAuth,
+  checkBasicAuth,
   async (req: Request<ParamPost>, res: Response<ResType>) => {
     const isDeleted = await postsService.deletePost(req.params.id);
 
-    if (isDeleted) res.send(HTTP_STATUSES.NO_CONTENT_204);
-    else res.send(HTTP_STATUSES.NOT_FOUND_404);
+    if (isDeleted) res.sendStatus(HTTP_STATUSES.NO_CONTENT_204);
+    else res.sendStatus(HTTP_STATUSES.NOT_FOUND_404);
   }
 );

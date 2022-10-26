@@ -44,6 +44,13 @@ export const usersQueryRepository = {
     };
   },
 
+  async findUserById(id: string): Promise<User | null> {
+    return usersCollection.findOne(
+      { id: id },
+      { projection: { _id: false, passHash: false, passSalt: false } }
+    );
+  },
+
   async findByLoginOrEmail(loginOrEmail: string): Promise<UserDB | null> {
     return usersCollection.findOne(
       { $or: [{ email: loginOrEmail }, { login: loginOrEmail }] },
@@ -54,7 +61,7 @@ export const usersQueryRepository = {
   async findByLoginAndEmail(
     login: string,
     email: string
-  ): Promise<UserDB | null> {
+  ): Promise<User | null> {
     return usersCollection.findOne(
       { $or: [{ email }, { login }] },
       { projection: { _id: false, passHash: false, passSalt: false } }

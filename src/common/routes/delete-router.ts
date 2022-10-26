@@ -12,5 +12,5 @@ deleteAllRouter.delete("/", async (req: Request, res: Response) => {
   await blogsRepository.deleteAll();
   await usersRepository.deleteAll();
 
-  res.send(HTTP_STATUSES.NO_CONTENT_204);
+  res.sendStatus(HTTP_STATUSES.NO_CONTENT_204);
 });

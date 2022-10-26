@@ -3,21 +3,22 @@ import { ValidationError, validationResult } from "express-validator";
 
 import { HTTP_STATUSES } from "common/http-statuses";
 
+const errorFormatter = ({ msg, param }: ValidationError) => ({
+  field: param,
+  message: msg,
+});
+
 export const inputValidation = (
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
-  const errorFormatter = ({ msg, param }: ValidationError) => ({
-    field: param,
-    message: msg,
-  });
-
   const errors = validationResult(req).formatWith(errorFormatter);
   const errorsMessages = errors.array({ onlyFirstError: true });
+  const { validationErrors } = req.requestContext;
 
-  if ((req as any).customError) {
-    Object.entries((req as any).customError).forEach(([key, value]) =>
+  if (Object.keys(validationErrors).length) {
+    Object.entries(validationErrors).forEach(([key, value]) =>
       errorsMessages.push({ field: key, message: value })
     );
   }

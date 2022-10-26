@@ -18,7 +18,7 @@ import {
   ResBlogs,
 } from "../blog";
 import {
-  checkAuth,
+  checkBasicAuth,
   blogValidation,
   blogsQueryValidation,
   postsByBlogQueryValidation,
@@ -38,7 +38,7 @@ blogsRouter.get("/:id", async (req: Request, res: Response<ResBlog>) => {
   const blog = await blogsQueryRepository.findBlogById(req.params.id);
 
   if (blog) res.send(blog);
-  else res.send(HTTP_STATUSES.NOT_FOUND_404);
+  else res.sendStatus(HTTP_STATUSES.NOT_FOUND_404);
 });
 
 blogsRouter.get(
@@ -48,14 +48,14 @@ blogsRouter.get(
     const { id: blogId } = req.params;
 
     if (!blogId || !(await blogsQueryRepository.findBlogById(blogId))) {
-      res.send(HTTP_STATUSES.NOT_FOUND_404);
+      res.sendStatus(HTTP_STATUSES.NOT_FOUND_404);
       return;
     }
 
     const posts = await postsQueryRepository.getPosts({ ...req.query, blogId });
 
     if (posts) res.send(posts);
-    else res.send(HTTP_STATUSES.NOT_FOUND_404);
+    else res.sendStatus(HTTP_STATUSES.NOT_FOUND_404);
   }
 );
 
@@ -79,7 +79,7 @@ blogsRouter.post(
     const { id: blogId } = req.params;
 
     if (!blogId || !(await blogsQueryRepository.findBlogById(blogId))) {
-      res.send(HTTP_STATUSES.NOT_FOUND_404);
+      res.sendStatus(HTTP_STATUSES.NOT_FOUND_404);
       return;
     }
 
@@ -96,18 +96,18 @@ blogsRouter.put(
     const id = req.params.id;
     const isUpdated = await blogsService.updateBlog(id, req.body);
 
-    if (isUpdated) res.send(HTTP_STATUSES.NO_CONTENT_204);
-    else res.send(HTTP_STATUSES.NOT_FOUND_404);
+    if (isUpdated) res.sendStatus(HTTP_STATUSES.NO_CONTENT_204);
+    else res.sendStatus(HTTP_STATUSES.NOT_FOUND_404);
   }
 );
 
 blogsRouter.delete(
   "/:id",
-  checkAuth,
+  checkBasicAuth,
   async (req: Request<ParamBlog>, res: Response<ResType>) => {
     const isDeleted = await blogsService.deleteBlog(req.params.id);
 
-    if (isDeleted) res.send(HTTP_STATUSES.NO_CONTENT_204);
-    else res.send(HTTP_STATUSES.NOT_FOUND_404);
+    if (isDeleted) res.sendStatus(HTTP_STATUSES.NO_CONTENT_204);
+    else res.sendStatus(HTTP_STATUSES.NOT_FOUND_404);
   }
 );

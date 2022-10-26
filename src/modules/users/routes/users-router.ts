@@ -12,7 +12,7 @@ import {
   ResUser,
   ResUsers,
 } from "../user";
-import { userValidation, usersQueryValidation, checkAuth } from "./validation";
+import { userValidation, usersQueryValidation, checkBasicAuth } from "./validation";
 
 export const usersRouter = Router({});
 
@@ -36,11 +36,11 @@ usersRouter.post(
 
 usersRouter.delete(
   "/:id",
-  checkAuth,
+  checkBasicAuth,
   async (req: Request<ParamUser>, res: Response<ResType>) => {
     const isDeleted = await usersService.deleteUser(req.params.id);
 
-    if (isDeleted) res.send(HTTP_STATUSES.NO_CONTENT_204);
-    else res.send(HTTP_STATUSES.NOT_FOUND_404);
+    if (isDeleted) res.sendStatus(HTTP_STATUSES.NO_CONTENT_204);
+    else res.sendStatus(HTTP_STATUSES.NOT_FOUND_404);
   }
 );

@@ -1,15 +1,16 @@
 import express from "express";
-import dotenv from "dotenv";
+
+import { addRequestContext } from "middlewares";
+import { SETTINGS } from "settings/config";
 
 import { runDB } from "./common/db";
 import { useRouters } from "./routers";
 
-dotenv.config();
-
 export const app = express();
-const port = process.env.PORT || 3000;
+const port = SETTINGS.PORT;
 
 app.use(express.json());
+app.use(addRequestContext());
 
 useRouters(app);
 

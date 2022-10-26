@@ -1,7 +1,11 @@
 import { Request, Response, NextFunction } from "express";
 import { body } from "express-validator";
 
-import { checkAuth, getQueryValidation, inputValidation } from "middlewares";
+import {
+  checkBasicAuth,
+  getQueryValidation,
+  inputValidation,
+} from "middlewares";
 
 import { usersQueryRepository } from "../repositories";
 
@@ -41,16 +45,11 @@ const uniqueLoginAndEmailValidation = async (
   const user = await usersQueryRepository.findByLoginAndEmail(login, email);
 
   if (user?.login === login)
-    (req as any).customError = {
-      ...(req as any).customError,
-      login: "This login taken",
-    };
+    req.requestContext.validationErrors.login = "This login taken";
 
   if (user?.email === email)
-    (req as any).customError = {
-      ...(req as any).customError,
-      email: "This email is already registered",
-    };
+    req.requestContext.validationErrors.email =
+      "This email is already registered";
 
   next();
 };
@@ -67,7 +66,7 @@ export const usersQueryValidation = getQueryValidation((query) => {
 export const authValidation = [loginAndPassValidation, inputValidation];
 
 export const userValidation = [
-  checkAuth,
+  checkBasicAuth,
   loginValidation,
   emailValidation,
   passwordValidation,
@@ -75,4 +74,4 @@ export const userValidation = [
   inputValidation,
 ];
 
-export { checkAuth };
+export { checkBasicAuth };

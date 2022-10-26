@@ -9,7 +9,7 @@ export const usersService = {
   async authUser({
     login: loginOrEmail,
     password,
-  }: ReqBodyAuth): Promise<boolean> {
+  }: ReqBodyAuth): Promise<UserDB | false> {
     const user = await usersQueryRepository.findByLoginOrEmail(loginOrEmail);
 
     if (!user) return false;
@@ -18,7 +18,7 @@ export const usersService = {
 
     if (user.passHash !== passHash) return false;
 
-    return true;
+    return user;
   },
 
   async createUser({ email, login, password }: ReqBodyUser): Promise<User> {
@@ -33,7 +33,7 @@ export const usersService = {
       passHash,
       passSalt,
       createdAt: currentDate,
-    };
+    } as UserDB;
 
     return usersRepository.createUser(newUser);
   },

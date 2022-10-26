@@ -1,6 +1,10 @@
 import { body } from "express-validator";
 
-import { checkAuth, inputValidation, getQueryValidation } from "middlewares";
+import {
+  checkBasicAuth,
+  inputValidation,
+  getQueryValidation,
+} from "middlewares";
 
 const nameValidation = body("name")
   .trim()
@@ -26,10 +30,10 @@ export const blogsQueryValidation = getQueryValidation((query) => {
 export const postsByBlogQueryValidation = getQueryValidation();
 
 export const blogValidation = [
-  checkAuth,
+  checkBasicAuth,
   nameValidation,
   youtubeUrlValidation,
   inputValidation,
 ];
 
-export { checkAuth };
+export { checkBasicAuth };

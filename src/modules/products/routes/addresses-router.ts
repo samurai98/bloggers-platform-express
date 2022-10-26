@@ -17,5 +17,5 @@ addressesRouter.get("/:id", (req: Request, res: Response) => {
   const address = addresses.find((p) => p.id === Number(req.params.id));
   if (address) {
     res.send(address);
-  } else res.send(HTTP_STATUSES.NOT_FOUND_404);
+  } else res.sendStatus(HTTP_STATUSES.NOT_FOUND_404);
 });

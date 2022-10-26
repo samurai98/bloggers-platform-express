@@ -1,7 +1,12 @@
 import { Request, Response, NextFunction } from "express";
 import { body } from "express-validator";
 
-import { checkAuth, getQueryValidation, inputValidation } from "middlewares";
+import {
+  checkBasicAuth,
+  getQueryValidation,
+  inputValidation,
+} from "middlewares";
+
 import { blogsQueryRepository } from "modules/blogs/repositories";
 
 const titleValidation = body("title")
@@ -29,11 +34,7 @@ const blogIdValidation = async (
 ) => {
   const blog = await blogsQueryRepository.findBlogById(req.body.blogId?.trim());
 
-  if (!blog)
-    (req as any).customError = {
-      ...(req as any).customError,
-      blogId: "Incorrect BlogId",
-    };
+  if (!blog) req.requestContext.validationErrors.blogId = "Incorrect BlogId";
 
   next();
 };
@@ -45,7 +46,7 @@ export const postsQueryValidation = getQueryValidation((query) => {
 });
 
 export const postValidation = [
-  checkAuth,
+  checkBasicAuth,
   titleValidation,
   shortDescriptionValidation,
   contentValidation,
@@ -54,11 +55,11 @@ export const postValidation = [
 ];
 
 export const postByBlogIdValidation = [
-  checkAuth,
+  checkBasicAuth,
   titleValidation,
   shortDescriptionValidation,
   contentValidation,
   inputValidation,
 ];
 
-export { checkAuth };
+export { checkBasicAuth };

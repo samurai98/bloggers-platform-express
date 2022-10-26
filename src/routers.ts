@@ -11,7 +11,7 @@ import { authRouter } from "./modules/users/routes/auth-router";
 const router = {
   products: "/products",
   addresses: "/addresses",
-  ht_05: "/hometask_05/api",
+  ht_05: "/hometask_06/api",
   blogs: "/blogs",
   posts: "/posts",
   users: "/users",

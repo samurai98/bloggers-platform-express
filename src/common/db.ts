@@ -1,16 +1,12 @@
 import { MongoClient } from "mongodb";
-import dotenv from "dotenv";
 
 import { Product } from "modules/products/product";
 import { Blog } from "modules/blogs/blog";
 import { Post } from "modules/posts/post";
 import { UserDB } from "modules/users/user";
+import { SETTINGS } from "settings/config";
 
-dotenv.config();
-
-const mongoUri = process.env.MONGO_DB_URI || "mongodb://0.0.0.0:27017";
-
-const client = new MongoClient(mongoUri);
+const client = new MongoClient(SETTINGS.MONGO_DB_URI);
 
 const shopDB = client.db("shop");
 const homeTaskDB = client.db("hometask");
