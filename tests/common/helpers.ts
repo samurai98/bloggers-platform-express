@@ -1,6 +1,8 @@
 import { Pagination, SortDirection } from "../../src/common/types";
 import { getSortDirectionNumber } from "../../src/common/helpers/pagination";
 
+import { bearerAuth } from "./data";
+
 export const dateISORegEx = expect.stringMatching(
   /\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d\.\d+([+-][0-2]\d:[0-5]\d|Z)/
 );
@@ -45,3 +47,7 @@ export const getPaginationItems = ({
   totalCount,
   items,
 });
+
+export const setBearerAuth = (token: string) => {
+  bearerAuth.Authorization = `Bearer ${token}`;
+};

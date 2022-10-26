@@ -7,10 +7,18 @@ import {
   delete_all_router,
   users_router,
 } from "../../src/routers";
-import { ReqBodyAuth } from "../../src/modules/users/user";
+import { ReqBodyAuth, User } from "../../src/modules/users/user";
+import { jwtService } from "../../src/common/services/jwt-service";
 
-import { auth, validUsers } from "../common/data";
-import { anyString, dateISORegEx, getErrorsMessages } from "../common/helpers";
+import { basicAuth, bearerAuth, validUsers } from "../common/data";
+import {
+  anyString,
+  dateISORegEx,
+  getErrorsMessages,
+  setBearerAuth,
+} from "../common/helpers";
+
+let createdUser = {} as User;
 
 export const testAuthApi = () =>
   describe("Test auth api", () => {
@@ -18,7 +26,7 @@ export const testAuthApi = () =>
       /** Creating user for next tests */
       const res = await request(app)
         .post(users_router)
-        .set(auth)
+        .set(basicAuth)
         .send(validUsers[0]);
 
       expect(res.statusCode).toEqual(HTTP_STATUSES.CREATED_201);
@@ -28,6 +36,8 @@ export const testAuthApi = () =>
         id: anyString,
         createdAt: dateISORegEx,
       });
+
+      createdUser = { ...res.body };
     });
 
     it("Auth user. Should return 401", async () => {
@@ -58,15 +68,50 @@ export const testAuthApi = () =>
     });
 
     it("Auth user. Should return 204", async () => {
-      await request(app)
+      const firstRes = await request(app)
         .post(`${auth_router}/login`)
-        .send({ login: validUsers[0].login, password: validUsers[0].password })
-        .expect(HTTP_STATUSES.NO_CONTENT_204);
+        .send({ login: validUsers[0].login, password: validUsers[0].password });
+
+      const firstExpectedToken = await jwtService.getUserIdByToken(
+        firstRes.body.accessToken
+      );
+
+      expect(firstRes.statusCode).toEqual(HTTP_STATUSES.OK_200);
+      expect(firstExpectedToken).toEqual(createdUser.id);
+
+      const secondRes = await request(app)
+        .post(`${auth_router}/login`)
+        .send({ login: validUsers[0].email, password: validUsers[0].password });
+
+      const secondExpectedToken = await jwtService.getUserIdByToken(
+        secondRes.body.accessToken
+      );
+
+      expect(secondRes.statusCode).toEqual(HTTP_STATUSES.OK_200);
+      expect(secondExpectedToken).toEqual(createdUser.id);
+
+      setBearerAuth(secondRes.body.accessToken);
+    });
+
+    it("Get user information (me). Should return 200 and user information", async () => {
+      const { id: userId, email, login } = createdUser;
 
       await request(app)
-        .post(`${auth_router}/login`)
-        .send({ login: validUsers[0].email, password: validUsers[0].password })
-        .expect(HTTP_STATUSES.NO_CONTENT_204);
+        .get(`${auth_router}/me`)
+        .set(bearerAuth)
+        .expect(HTTP_STATUSES.OK_200, { userId, email, login });
+    });
+
+    it("Get user information (me). Should return 401", async () => {
+      await request(app)
+        .get(`${auth_router}/me`)
+        .set({ Authorization: "Bearer fakeToken" })
+        .expect(HTTP_STATUSES.UNAUTHORIZED_401);
+
+      await request(app)
+        .get(`${auth_router}/me`)
+        .set({ Authorization: "fakeBearerToken" })
+        .expect(HTTP_STATUSES.UNAUTHORIZED_401);
     });
 
     afterAll(async () => {

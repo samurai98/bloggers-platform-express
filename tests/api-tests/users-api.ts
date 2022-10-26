@@ -5,7 +5,7 @@ import { HTTP_STATUSES } from "../../src/common/http-statuses";
 import { delete_all_router, users_router } from "../../src/routers";
 import { User, ReqBodyUser } from "../../src/modules/users/user";
 
-import { incorrectQuery, auth, validUsers } from "../common/data";
+import { incorrectQuery, basicAuth, validUsers } from "../common/data";
 import {
   anyString,
   dateISORegEx,
@@ -51,7 +51,7 @@ export const testUsersApi = () =>
     });
 
     it("Create user. Incorrect body cases. Should return 400 and errorsMessages", async () => {
-      const firstRes = await request(app).post(users_router).set(auth).send();
+      const firstRes = await request(app).post(users_router).set(basicAuth).send();
 
       expect(firstRes.statusCode).toEqual(HTTP_STATUSES.BAD_REQUEST_400);
       expect(firstRes.body).toEqual(
@@ -61,7 +61,7 @@ export const testUsersApi = () =>
 
       const secondRes = await request(app)
         .post(users_router)
-        .set(auth)
+        .set(basicAuth)
         .send({
           email: "pochta@gmailcom",
           login: getOverMaxLength(10),
@@ -76,7 +76,7 @@ export const testUsersApi = () =>
 
       const thirdRes = await request(app)
         .post(users_router)
-        .set(auth)
+        .set(basicAuth)
         .send({ email: "valid@gmail.com", login: "12", password: "12345" });
 
       expect(thirdRes.statusCode).toEqual(HTTP_STATUSES.BAD_REQUEST_400);
@@ -93,7 +93,7 @@ export const testUsersApi = () =>
     it("Create user. Should return 201 and new user", async () => {
       const res = await request(app)
         .post(users_router)
-        .set(auth)
+        .set(basicAuth)
         .send(validUsers[0]);
 
       const createdUser = res.body;
@@ -122,7 +122,7 @@ export const testUsersApi = () =>
 
     it("Create users. Should create new users", async () => {
       for (const user of validUsers.slice(1)) {
-        const res = await request(app).post(users_router).set(auth).send(user);
+        const res = await request(app).post(users_router).set(basicAuth).send(user);
         createdUsers.push(res.body);
       }
 
@@ -185,7 +185,7 @@ export const testUsersApi = () =>
     it("Delete user. Should delete user and return 204", async () => {
       await request(app)
         .delete(`${users_router}/${createdUsers[2].id}`)
-        .set(auth)
+        .set(basicAuth)
         .expect(HTTP_STATUSES.NO_CONTENT_204);
 
       await request(app)
@@ -196,7 +196,7 @@ export const testUsersApi = () =>
     it("Delete user. Should return 404", async () => {
       await request(app)
         .delete(`${users_router}/fakeUserId`)
-        .set(auth)
+        .set(basicAuth)
         .expect(HTTP_STATUSES.NOT_FOUND_404);
     });
 

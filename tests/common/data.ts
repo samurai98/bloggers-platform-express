@@ -2,7 +2,9 @@ import { ReqBodyBlog } from "../../src/modules/blogs/blog";
 import { ReqBodyPost } from "../../src/modules/posts/post";
 import { ReqBodyUser } from "../../src/modules/users/user";
 
-export const auth = { Authorization: "Basic YWRtaW46cXdlcnR5" };
+export const basicAuth = { Authorization: "Basic YWRtaW46cXdlcnR5" };
+
+export const bearerAuth = {} as { Authorization: string };
 
 export const incorrectQuery = {
   empty: "&pageNumber=&pageSize=&sortBy=&sortDirection=",

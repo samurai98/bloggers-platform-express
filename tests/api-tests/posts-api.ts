@@ -18,7 +18,7 @@ import {
   getPaginationItems,
   sortByField,
 } from "../common/helpers";
-import { auth, incorrectQuery, validBlogs, validPosts } from "../common/data";
+import { basicAuth, incorrectQuery, validBlogs, validPosts } from "../common/data";
 
 const createdPosts: Post[] = [];
 const createdBlogs: Blog[] = [];
@@ -29,7 +29,7 @@ export const testPostsApi = () =>
       /** Creating blog for next tests */
       const res = await request(app)
         .post(blogs_router)
-        .set(auth)
+        .set(basicAuth)
         .send(validBlogs[0]);
 
       const createdBlog = res.body;
@@ -76,7 +76,7 @@ export const testPostsApi = () =>
     });
 
     it("Create post. Incorrect body cases. Should return 400 and errorsMessages", async () => {
-      const firstRes = await request(app).post(posts_router).set(auth).send();
+      const firstRes = await request(app).post(posts_router).set(basicAuth).send();
 
       expect(firstRes.statusCode).toEqual(HTTP_STATUSES.BAD_REQUEST_400);
       expect(firstRes.body).toEqual(
@@ -91,7 +91,7 @@ export const testPostsApi = () =>
 
       const secondRes = await request(app)
         .post(posts_router)
-        .set(auth)
+        .set(basicAuth)
         .send({
           title: getOverMaxLength(30),
           shortDescription: getOverMaxLength(100),
@@ -112,7 +112,7 @@ export const testPostsApi = () =>
 
       const thirdRes = await request(app)
         .post(posts_router)
-        .set(auth)
+        .set(basicAuth)
         .send({ title: "valid", content: "valid" });
 
       expect(thirdRes.statusCode).toEqual(HTTP_STATUSES.BAD_REQUEST_400);
@@ -129,7 +129,7 @@ export const testPostsApi = () =>
     it("Create post. Should return 201 and new post", async () => {
       const newPost = { ...validPosts[0], blogId: createdBlogs[0].id };
 
-      const res = await request(app).post(posts_router).set(auth).send(newPost);
+      const res = await request(app).post(posts_router).set(basicAuth).send(newPost);
       const createdPost = res.body;
 
       expect(res.statusCode).toEqual(HTTP_STATUSES.CREATED_201);
@@ -158,7 +158,7 @@ export const testPostsApi = () =>
       for (const post of validPosts.slice(1)) {
         const res = await request(app)
           .post(posts_router)
-          .set(auth)
+          .set(basicAuth)
           .send({ ...post, blogId: createdBlogs[0].id });
         createdPosts.push(res.body);
       }
@@ -236,7 +236,7 @@ export const testPostsApi = () =>
 
       await request(app)
         .put(`${posts_router}/${createdPosts[2].id}`)
-        .set(auth)
+        .set(basicAuth)
         .send(updateData)
         .expect(HTTP_STATUSES.NO_CONTENT_204);
 
@@ -248,7 +248,7 @@ export const testPostsApi = () =>
     it("Update post. Should return 404", async () => {
       await request(app)
         .put(`${posts_router}/fakePostId`)
-        .set(auth)
+        .set(basicAuth)
         .send({
           title: "new title",
           content: "update content",
@@ -261,7 +261,7 @@ export const testPostsApi = () =>
     it("Update post. Incorrect body cases. Should return 400 and errorsMessages", async () => {
       const firstRes = await request(app)
         .put(`${posts_router}/${createdPosts[3].id}`)
-        .set(auth)
+        .set(basicAuth)
         .send();
 
       expect(firstRes.statusCode).toEqual(HTTP_STATUSES.BAD_REQUEST_400);
@@ -277,7 +277,7 @@ export const testPostsApi = () =>
 
       const secondRes = await request(app)
         .put(`${posts_router}/${createdPosts[3].id}`)
-        .set(auth)
+        .set(basicAuth)
         .send({
           title: getOverMaxLength(30),
           shortDescription: getOverMaxLength(100),
@@ -298,7 +298,7 @@ export const testPostsApi = () =>
 
       const thirdRes = await request(app)
         .put(`${posts_router}/${createdPosts[3].id}`)
-        .set(auth)
+        .set(basicAuth)
         .send({ title: "valid", content: "valid" });
 
       expect(thirdRes.statusCode).toEqual(HTTP_STATUSES.BAD_REQUEST_400);
@@ -315,7 +315,7 @@ export const testPostsApi = () =>
     it("Delete post. Should delete post and return 204", async () => {
       await request(app)
         .delete(`${posts_router}/${createdPosts[4].id}`)
-        .set(auth)
+        .set(basicAuth)
         .expect(HTTP_STATUSES.NO_CONTENT_204);
 
       await request(app)
@@ -326,7 +326,7 @@ export const testPostsApi = () =>
     it("Delete post. Should return 404", async () => {
       await request(app)
         .delete(`${posts_router}/fakePostId`)
-        .set(auth)
+        .set(basicAuth)
         .expect(HTTP_STATUSES.NOT_FOUND_404);
     });
 

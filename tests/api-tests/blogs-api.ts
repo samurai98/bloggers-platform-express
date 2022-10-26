@@ -14,7 +14,7 @@ import {
 } from "../../src/modules/blogs/blog";
 import { Post } from "../../src/modules/posts/post";
 
-import { incorrectQuery, auth, validBlogs, validPosts } from "../common/data";
+import { incorrectQuery, basicAuth, validBlogs, validPosts } from "../common/data";
 import {
   anyString,
   dateISORegEx,
@@ -66,7 +66,7 @@ export const testBlogsApi = () =>
     });
 
     it("Create blog. Incorrect body cases. Should return 400 and errorsMessages", async () => {
-      const firstRes = await request(app).post(blogs_router).set(auth).send();
+      const firstRes = await request(app).post(blogs_router).set(basicAuth).send();
 
       expect(firstRes.statusCode).toEqual(HTTP_STATUSES.BAD_REQUEST_400);
       expect(firstRes.body).toEqual(
@@ -76,7 +76,7 @@ export const testBlogsApi = () =>
 
       const secondRes = await request(app)
         .post(blogs_router)
-        .set(auth)
+        .set(basicAuth)
         .send({
           name: getOverMaxLength(15),
           youtubeUrl: getOverMaxLength(100),
@@ -90,7 +90,7 @@ export const testBlogsApi = () =>
 
       const thirdRes = await request(app)
         .post(blogs_router)
-        .set(auth)
+        .set(basicAuth)
         .send({ name: "valid", youtubeUrl: "https://badurl" });
 
       expect(thirdRes.statusCode).toEqual(HTTP_STATUSES.BAD_REQUEST_400);
@@ -107,7 +107,7 @@ export const testBlogsApi = () =>
     it("Create blog. Should return 201 and new blog", async () => {
       const res = await request(app)
         .post(blogs_router)
-        .set(auth)
+        .set(basicAuth)
         .send(validBlogs[0]);
 
       const createdBlog = res.body;
@@ -135,7 +135,7 @@ export const testBlogsApi = () =>
 
     it("Create blogs. Should create new blogs", async () => {
       for (const blog of validBlogs.slice(1)) {
-        const res = await request(app).post(blogs_router).set(auth).send(blog);
+        const res = await request(app).post(blogs_router).set(basicAuth).send(blog);
         createdBlogs.push(res.body);
       }
 
@@ -212,7 +212,7 @@ export const testBlogsApi = () =>
 
       await request(app)
         .put(`${blogs_router}/${createdBlogs[1].id}`)
-        .set(auth)
+        .set(basicAuth)
         .send(updateData)
         .expect(HTTP_STATUSES.NO_CONTENT_204);
 
@@ -224,7 +224,7 @@ export const testBlogsApi = () =>
     it("Update blog. Should return 404", async () => {
       await request(app)
         .put(`${blogs_router}/fakeBlogId`)
-        .set(auth)
+        .set(basicAuth)
         .send({ name: "Updated", youtubeUrl: "https://new.url" })
         .expect(HTTP_STATUSES.NOT_FOUND_404);
     });
@@ -232,7 +232,7 @@ export const testBlogsApi = () =>
     it("Update blog. Incorrect body cases. Should return 400 and errorsMessages", async () => {
       const firstRes = await request(app)
         .put(`${blogs_router}/${createdBlogs[2].id}`)
-        .set(auth)
+        .set(basicAuth)
         .send();
 
       expect(firstRes.statusCode).toEqual(HTTP_STATUSES.BAD_REQUEST_400);
@@ -243,7 +243,7 @@ export const testBlogsApi = () =>
 
       const secondRes = await request(app)
         .put(`${blogs_router}/${createdBlogs[2].id}`)
-        .set(auth)
+        .set(basicAuth)
         .send({
           name: getOverMaxLength(15),
           youtubeUrl: getOverMaxLength(100),
@@ -257,7 +257,7 @@ export const testBlogsApi = () =>
 
       const thirdRes = await request(app)
         .put(`${blogs_router}/${createdBlogs[2].id}`)
-        .set(auth)
+        .set(basicAuth)
         .send({ name: "valid", youtubeUrl: "https://badurl" });
 
       expect(thirdRes.statusCode).toEqual(HTTP_STATUSES.BAD_REQUEST_400);
@@ -274,7 +274,7 @@ export const testBlogsApi = () =>
     it("Delete blog. Should delete blog and return 204", async () => {
       await request(app)
         .delete(`${blogs_router}/${createdBlogs[3].id}`)
-        .set(auth)
+        .set(basicAuth)
         .expect(HTTP_STATUSES.NO_CONTENT_204);
 
       await request(app)
@@ -285,7 +285,7 @@ export const testBlogsApi = () =>
     it("Delete blog. Should return 404", async () => {
       await request(app)
         .delete(`${blogs_router}/fakeBlogId`)
-        .set(auth)
+        .set(basicAuth)
         .expect(HTTP_STATUSES.NOT_FOUND_404);
     });
 
@@ -294,7 +294,7 @@ export const testBlogsApi = () =>
     it("Create post by blogId. Should return 404", async () => {
       await request(app)
         .post(`${blogs_router}/fakeBlogId/posts`)
-        .set(auth)
+        .set(basicAuth)
         .send({ title: "valid", shortDescription: "valid", content: "valid" })
         .expect(HTTP_STATUSES.NOT_FOUND_404);
     });
@@ -302,7 +302,7 @@ export const testBlogsApi = () =>
     it("Create post by blogId. Should return 400 and errorsMessages", async () => {
       const firstRes = await request(app)
         .post(`${blogs_router}/${createdBlogs[0].id}/posts`)
-        .set(auth)
+        .set(basicAuth)
         .send();
 
       expect(firstRes.statusCode).toEqual(HTTP_STATUSES.BAD_REQUEST_400);
@@ -317,7 +317,7 @@ export const testBlogsApi = () =>
 
       const secondRes = await request(app)
         .post(`${blogs_router}/${createdBlogs[0].id}/posts`)
-        .set(auth)
+        .set(basicAuth)
         .send({
           title: getOverMaxLength(30),
           shortDescription: getOverMaxLength(100),
@@ -336,7 +336,7 @@ export const testBlogsApi = () =>
 
       const thirdRes = await request(app)
         .post(`${blogs_router}/${createdBlogs[0].id}/posts`)
-        .set(auth)
+        .set(basicAuth)
         .send({ title: "valid", shortDescription: "" });
 
       expect(thirdRes.statusCode).toEqual(HTTP_STATUSES.BAD_REQUEST_400);
@@ -354,7 +354,7 @@ export const testBlogsApi = () =>
       const post = validPosts[0];
       const res = await request(app)
         .post(`${blogs_router}/${createdBlogs[0].id}/posts`)
-        .set(auth)
+        .set(basicAuth)
         .send(post);
 
       createdPostByBlogId = res.body;
@@ -411,7 +411,7 @@ export const testBlogsApi = () =>
     it("Delete post. Should return 204", async () => {
       await request(app)
         .delete(`${posts_router}/${createdPostByBlogId.id}`)
-        .set(auth)
+        .set(basicAuth)
         .expect(HTTP_STATUSES.NO_CONTENT_204);
     });
 
