@@ -1,7 +1,11 @@
 import { Router, Request, Response } from "express";
 
 import { HTTP_STATUSES } from "common/http-statuses";
-import { ResType } from "common/types";
+import { Query, ResType } from "common/types";
+import { commentsQueryRepository } from "modules/comments/repositories";
+import { ResComment, ResComments } from "modules/comments/comment";
+import { commentsService } from "modules/comments/services/comments-service";
+import { commentByPostIdValidation } from "modules/comments/routes/validation";
 
 import {
   ReqBodyPost,
@@ -9,10 +13,16 @@ import {
   ReqQueryPost,
   ResPost,
   ResPosts,
+  ReqBodyCommentByPostId,
 } from "../post";
 import { postsQueryRepository } from "../repositories";
 import { postsService } from "../services/posts-service";
-import { postValidation, checkBasicAuth, postsQueryValidation } from "./validation";
+import {
+  postValidation,
+  checkBasicAuth,
+  postsQueryValidation,
+  commentsByPostQueryValidation,
+} from "./validation";
 
 export const postsRouter = Router({});
 
@@ -60,5 +70,54 @@ postsRouter.delete(
 
     if (isDeleted) res.sendStatus(HTTP_STATUSES.NO_CONTENT_204);
     else res.sendStatus(HTTP_STATUSES.NOT_FOUND_404);
+  }
+);
+
+postsRouter.get(
+  "/:id/comments",
+  commentsByPostQueryValidation,
+  async (
+    req: Request<ParamPost, {}, {}, Query>,
+    res: Response<ResComments>
+  ) => {
+    const { id: postId } = req.params;
+
+    if (!postId || !(await postsQueryRepository.findPostById(postId))) {
+      res.sendStatus(HTTP_STATUSES.NOT_FOUND_404);
+      return;
+    }
+
+    const comments = await commentsQueryRepository.getComments({
+      ...req.query,
+      postId,
+    });
+
+    if (comments) res.send(comments);
+    else res.sendStatus(HTTP_STATUSES.NOT_FOUND_404);
+  }
+);
+
+postsRouter.post(
+  "/:id/comments",
+  commentByPostIdValidation,
+  async (
+    req: Request<ParamPost, {}, ReqBodyCommentByPostId>,
+    res: Response<ResComment>
+  ) => {
+    const { id: postId } = req.params;
+
+    if (!postId || !(await postsQueryRepository.findPostById(postId))) {
+      res.sendStatus(HTTP_STATUSES.NOT_FOUND_404);
+      return;
+    }
+
+    const newComment = await commentsService.createComment({
+      ...req.body,
+      postId,
+      userId: req.requestContext.user!.id,
+      userLogin: req.requestContext.user!.login,
+    });
+
+    res.status(HTTP_STATUSES.CREATED_201).send(newComment);
   }
 );

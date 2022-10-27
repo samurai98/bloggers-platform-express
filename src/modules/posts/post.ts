@@ -21,6 +21,8 @@ export type ParamPost = { id: Post["id"] };
 
 export type ReqQueryPost = Query & { blogId?: string };
 
+export type ReqBodyCommentByPostId = { content: string };
+
 export type ResPosts = ResType<Pagination<Post>>;
 
 export type ResPost = ResType<Post>;

@@ -62,4 +62,6 @@ export const postByBlogIdValidation = [
   inputValidation,
 ];
 
+export const commentsByPostQueryValidation = getQueryValidation();;
+
 export { checkBasicAuth };
