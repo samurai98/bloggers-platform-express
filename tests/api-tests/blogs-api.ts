@@ -2,11 +2,7 @@ import request from "supertest";
 
 import { app } from "../../src/index";
 import { HTTP_STATUSES } from "../../src/common/http-statuses";
-import {
-  blogs_router,
-  delete_all_router,
-  posts_router,
-} from "../../src/routers";
+import { blogs_router, delete_all_router } from "../../src/routers";
 import {
   Blog,
   ReqBodyBlog,
@@ -14,7 +10,12 @@ import {
 } from "../../src/modules/blogs/blog";
 import { Post } from "../../src/modules/posts/post";
 
-import { incorrectQuery, basicAuth, validBlogs, validPosts } from "../common/data";
+import {
+  incorrectQuery,
+  basicAuth,
+  validBlogs,
+  validPosts,
+} from "../common/data";
 import {
   anyString,
   dateISORegEx,
@@ -23,6 +24,7 @@ import {
   getPaginationItems,
   sortByField,
 } from "../common/helpers";
+import { createBlog } from "../common/tests-helpers";
 
 const createdBlogs: Blog[] = [];
 
@@ -66,7 +68,10 @@ export const testBlogsApi = () =>
     });
 
     it("Create blog. Incorrect body cases. Should return 400 and errorsMessages", async () => {
-      const firstRes = await request(app).post(blogs_router).set(basicAuth).send();
+      const firstRes = await request(app)
+        .post(blogs_router)
+        .set(basicAuth)
+        .send();
 
       expect(firstRes.statusCode).toEqual(HTTP_STATUSES.BAD_REQUEST_400);
       expect(firstRes.body).toEqual(
@@ -105,20 +110,7 @@ export const testBlogsApi = () =>
     });
 
     it("Create blog. Should return 201 and new blog", async () => {
-      const res = await request(app)
-        .post(blogs_router)
-        .set(basicAuth)
-        .send(validBlogs[0]);
-
-      const createdBlog = res.body;
-
-      expect(res.statusCode).toEqual(HTTP_STATUSES.CREATED_201);
-      expect(createdBlog).toEqual({
-        ...validBlogs[0],
-        id: anyString,
-        createdAt: dateISORegEx,
-      });
-
+      const createdBlog = await createBlog();
       createdBlogs.push(createdBlog);
 
       await request(app)
@@ -135,7 +127,10 @@ export const testBlogsApi = () =>
 
     it("Create blogs. Should create new blogs", async () => {
       for (const blog of validBlogs.slice(1)) {
-        const res = await request(app).post(blogs_router).set(basicAuth).send(blog);
+        const res = await request(app)
+          .post(blogs_router)
+          .set(basicAuth)
+          .send(blog);
         createdBlogs.push(res.body);
       }
 
@@ -406,13 +401,6 @@ export const testBlogsApi = () =>
       await request(app)
         .get(`${blogs_router}/fakeBlogId/posts`)
         .expect(HTTP_STATUSES.NOT_FOUND_404);
-    });
-
-    it("Delete post. Should return 204", async () => {
-      await request(app)
-        .delete(`${posts_router}/${createdPostByBlogId.id}`)
-        .set(basicAuth)
-        .expect(HTTP_STATUSES.NO_CONTENT_204);
     });
 
     afterAll(async () => {

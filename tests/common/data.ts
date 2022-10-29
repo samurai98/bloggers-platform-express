@@ -1,4 +1,5 @@
 import { ReqBodyBlog } from "../../src/modules/blogs/blog";
+import { ReqBodyComment } from "../../src/modules/comments/comment";
 import { ReqBodyPost } from "../../src/modules/posts/post";
 import { ReqBodyUser } from "../../src/modules/users/user";
 
@@ -46,6 +47,17 @@ export const validPosts: Partial<ReqBodyPost>[] = [
     content: "Lorem ipsum dolor sit amet, consectetur adipiscing elit",
     shortDescription: "ipsum dolor sit",
   },
+];
+
+export const validComments: Partial<ReqBodyComment>[] = [
+  { content: "Lorem ipsum dolor sit amet, consectetur adipiscing" },
+  { content: "2 Lorem ipsum dolor sit amet, consectetur adipiscing" },
+  {
+    content:
+      "consectetur adipiscing ipsum dolor sit amet, Lorem ipsum dolor sit amet, Lorem ipsum dolor sit amet,  Lorem ipsum dolor sit amet,  Lorem ipsum dolor sit amet,  Lorem ipsum dolor sit amet,  Lorem ipsum dolor sit amet,  Lorem ipsum dolor sit amet",
+  },
+  { content: "2 consectetur adipiscing ipsum dolor sit amet" },
+  { content: "3 consectetur adipiscing ipsum dolor sit amet" },
 ];
 
 export const validUsers: ReqBodyUser[] = [

@@ -2,42 +2,20 @@ import request from "supertest";
 
 import { app } from "../../src/index";
 import { HTTP_STATUSES } from "../../src/common/http-statuses";
-import {
-  auth_router,
-  delete_all_router,
-  users_router,
-} from "../../src/routers";
+import { auth_router, delete_all_router } from "../../src/routers";
 import { ReqBodyAuth, User } from "../../src/modules/users/user";
 import { jwtService } from "../../src/common/services/jwt-service";
 
-import { basicAuth, bearerAuth, validUsers } from "../common/data";
-import {
-  anyString,
-  dateISORegEx,
-  getErrorsMessages,
-  setBearerAuth,
-} from "../common/helpers";
+import { bearerAuth, validUsers } from "../common/data";
+import { getErrorsMessages, setBearerAuth } from "../common/helpers";
+import { createUser } from "../common/tests-helpers";
 
 let createdUser = {} as User;
 
 export const testAuthApi = () =>
   describe("Test auth api", () => {
     beforeAll(async () => {
-      /** Creating user for next tests */
-      const res = await request(app)
-        .post(users_router)
-        .set(basicAuth)
-        .send(validUsers[0]);
-
-      expect(res.statusCode).toEqual(HTTP_STATUSES.CREATED_201);
-      expect(res.body).toEqual({
-        ...validUsers[0],
-        password: undefined,
-        id: anyString,
-        createdAt: dateISORegEx,
-      });
-
-      createdUser = { ...res.body };
+      createdUser = await createUser({ isLogin: false });
     });
 
     it("Auth user. Should return 401", async () => {

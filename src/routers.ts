@@ -44,6 +44,7 @@ export const useRouters = (app: Express) => {
 export {
   blogs_router,
   posts_router,
+  comments_router,
   users_router,
   auth_router,
   delete_all_router,
