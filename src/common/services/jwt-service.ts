@@ -5,9 +5,11 @@ import { SETTINGS } from "settings/config";
 
 export const jwtService = {
   async createJWT(user: UserDB) {
-    const accessToken = jwt.sign({ userId: user.id }, SETTINGS.JWT_SECRET, {
-      expiresIn: "1h",
-    });
+    const accessToken = jwt.sign(
+      { userId: user.accountData.id },
+      SETTINGS.JWT_SECRET,
+      { expiresIn: "1h" }
+    );
 
     return { accessToken };
   },

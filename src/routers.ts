@@ -6,13 +6,13 @@ import { blogsRouter } from "./modules/blogs/routes/blogs-router";
 import { postsRouter } from "./modules/posts/routes/posts-router";
 import { deleteAllRouter } from "./common/routes/delete-router";
 import { usersRouter } from "./modules/users/routes/users-router";
-import { authRouter } from "./modules/users/routes/auth-router";
+import { authRouter } from "./modules/auth/routes/auth-router";
 import { commentsRouter } from "modules/comments/routes/comments-router";
 
 const router = {
   products: "/products",
   addresses: "/addresses",
-  ht_06: "/hometask_06/api",
+  ht_07: "/hometask_07/api",
   blogs: "/blogs",
   posts: "/posts",
   comments: "/comments",
@@ -21,12 +21,12 @@ const router = {
   delete_all: "/testing/all-data",
 } as const;
 
-const blogs_router = `${router.ht_06}${router.blogs}` as const;
-const posts_router = `${router.ht_06}${router.posts}` as const;
-const users_router = `${router.ht_06}${router.users}` as const;
-const comments_router = `${router.ht_06}${router.comments}` as const;
-const auth_router = `${router.ht_06}${router.auth}` as const;
-const delete_all_router = `${router.ht_06}${router.delete_all}` as const;
+const blogs_router = `${router.ht_07}${router.blogs}` as const;
+const posts_router = `${router.ht_07}${router.posts}` as const;
+const users_router = `${router.ht_07}${router.users}` as const;
+const comments_router = `${router.ht_07}${router.comments}` as const;
+const auth_router = `${router.ht_07}${router.auth}` as const;
+const delete_all_router = `${router.ht_07}${router.delete_all}` as const;
 
 export const useRouters = (app: Express) => {
   app.use(router.products, productsRouter);

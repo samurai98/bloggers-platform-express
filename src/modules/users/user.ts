@@ -18,9 +18,20 @@ export type ReqBodyAuth = {
   password: string;
 };
 
-export type UserDB = User & {
+export type UserDB = {
+  accountData: UserAccountData;
+  emailConfirmation: UserEmailConfirmation;
+};
+
+type UserAccountData = User & {
   passHash: string;
   passSalt: string;
+};
+
+export type UserEmailConfirmation = {
+  confirmationCode: string;
+  expirationDate: Date;
+  isConfirmed: boolean;
 };
 
 export type ParamUser = { id: User["id"] };

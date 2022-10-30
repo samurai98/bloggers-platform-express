@@ -12,7 +12,11 @@ import {
   ResUser,
   ResUsers,
 } from "../user";
-import { userValidation, usersQueryValidation, checkBasicAuth } from "./validation";
+import {
+  userValidation,
+  usersQueryValidation,
+  checkBasicAuth,
+} from "./validation";
 
 export const usersRouter = Router({});
 
@@ -30,7 +34,8 @@ usersRouter.post(
   async (req: Request<{}, {}, ReqBodyUser>, res: Response<ResUser>) => {
     const newUser = await usersService.createUser(req.body);
 
-    res.status(HTTP_STATUSES.CREATED_201).send(newUser);
+    if (newUser) res.status(HTTP_STATUSES.CREATED_201).send(newUser);
+    else res.sendStatus(HTTP_STATUSES.BAD_REQUEST_400);
   }
 );
 
