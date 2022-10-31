@@ -1,13 +1,34 @@
+import { add } from "date-fns";
+import { v4 as uuIdv4 } from "uuid";
+
 import {
   usersQueryRepository,
   usersRepository,
 } from "modules/users/repositories";
-import { UserDB } from "modules/users/user";
+import { ReqBodyAuth, UserDB, UserEmailConfirmation } from "modules/users/user";
+import { generateHash } from "common/helpers/utils";
 
 import { emailsManager } from "../managers/emails-manager";
 
 export const authService = {
-  async sendConfirmEmail(user: UserDB): Promise<boolean> {    
+  async authUser({
+    login: loginOrEmail,
+    password,
+  }: ReqBodyAuth): Promise<UserDB | false> {
+    const user = await usersQueryRepository.findUserByLoginOrEmail(
+      loginOrEmail
+    );
+
+    if (!user || !user.emailConfirmation.isConfirmed) return false;
+
+    const passHash = await generateHash(password, user.accountData.passSalt);
+
+    if (user.accountData.passHash !== passHash) return false;
+
+    return user;
+  },
+
+  async sendConfirmEmail(user: UserDB): Promise<boolean> {
     try {
       await emailsManager.sendEmailConfirmationMessage(user);
     } catch (error) {
@@ -20,7 +41,7 @@ export const authService = {
 
   async confirmEmail(code: string): Promise<boolean> {
     const user = await usersQueryRepository.findUserByConfirmationCode(code);
-    
+
     if (
       !user ||
       user.emailConfirmation.confirmationCode !== code ||
@@ -30,5 +51,21 @@ export const authService = {
       return false;
 
     return await usersRepository.confirmEmail(user.accountData.id);
+  },
+
+  async updateEmailConfirmation(user: UserDB): Promise<UserDB | null> {
+    const newConfirmationData: Partial<UserEmailConfirmation> = {
+      confirmationCode: uuIdv4(),
+      expirationDate: add(new Date(), { hours: 1 }),
+    };
+
+    const isUpdated = usersRepository.updateEmailConfirmationData(
+      user.accountData.id,
+      newConfirmationData
+    );
+
+    if (!isUpdated) return null;
+
+    return usersQueryRepository.findUserByLoginOrEmail(user.accountData.email);
   },
 };

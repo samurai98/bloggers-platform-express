@@ -18,6 +18,6 @@ export type Query = {
 
 type ValueOf<T> = T[keyof T];
 
-export type ResType<T = unknown> = T | ValueOf<typeof HTTP_STATUSES>;
+export type ResType<T = never> = T | ValueOf<typeof HTTP_STATUSES>;
 
 export type SortDirection = "asc" | "desc";

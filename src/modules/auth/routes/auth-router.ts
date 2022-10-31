@@ -9,6 +9,7 @@ import { checkBearerAuth } from "middlewares";
 import { ReqBodyAuth, ReqBodyUser, User } from "../../users/user";
 import { usersService } from "../../users/services/users-service";
 import { authService } from "../services/auth-service";
+import { ReqBodyConfirm, ReqBodyResending, ResLogin, ResMe } from "../auth";
 import {
   authValidation,
   registrationValidation,
@@ -19,21 +20,10 @@ import {
 export const authRouter = Router({});
 
 authRouter.post(
-  "/registration",
-  registrationValidation,
-  async (req: Request<{}, {}, ReqBodyUser>, res: Response) => {
-    const user = await usersService.createUser(req.body);
-
-    if (user) res.sendStatus(HTTP_STATUSES.NO_CONTENT_204);
-    else res.sendStatus(HTTP_STATUSES.BAD_REQUEST_400);
-  }
-);
-
-authRouter.post(
   "/login",
   authValidation,
-  async (req: Request<{}, {}, ReqBodyAuth>, res: Response<ResType>) => {
-    const user = await usersService.authUser(req.body);
+  async (req: Request<{}, {}, ReqBodyAuth>, res: Response<ResLogin>) => {
+    const user = await authService.authUser(req.body);
 
     if (user) {
       const result = await jwtService.createJWT(user);
@@ -43,9 +33,20 @@ authRouter.post(
 );
 
 authRouter.post(
+  "/registration",
+  registrationValidation,
+  async (req: Request<{}, {}, ReqBodyUser>, res: Response<ResType>) => {
+    const user = await usersService.createUser(req.body);
+
+    if (user) res.sendStatus(HTTP_STATUSES.NO_CONTENT_204);
+    else res.sendStatus(HTTP_STATUSES.BAD_REQUEST_400);
+  }
+);
+
+authRouter.post(
   "/registration-confirmation",
   confirmationValidation,
-  async (req: Request, res: Response) => {
+  async (req: Request<{}, {}, ReqBodyConfirm>, res: Response<ResType>) => {
     const result = await authService.confirmEmail(req.body.code);
 
     if (result) res.sendStatus(HTTP_STATUSES.CREATED_201);
@@ -56,7 +57,7 @@ authRouter.post(
 authRouter.post(
   "/registration-email-resending",
   resendingValidation,
-  async (req: Request, res: Response) => {
+  async (req: Request<{}, {}, ReqBodyResending>, res: Response<ResType>) => {
     const user = await usersQueryRepository.findUserByLoginOrEmail(
       req.body.email
     );
@@ -66,10 +67,11 @@ authRouter.post(
       return;
     }
 
-    const updatedUser = await usersService.updateEmailConfirmation(user)
-    const isSend = updatedUser && await authService.sendConfirmEmail(updatedUser);
+    const updatedUser = await authService.updateEmailConfirmation(user);
+    const isSend =
+      updatedUser && (await authService.sendConfirmEmail(updatedUser));
 
-    if (isSend) res.sendStatus(HTTP_STATUSES.CREATED_201);
+    if (isSend) res.sendStatus(HTTP_STATUSES.NO_CONTENT_204);
     else res.sendStatus(HTTP_STATUSES.BAD_REQUEST_400);
   }
 );
@@ -77,7 +79,7 @@ authRouter.post(
 authRouter.get(
   "/me",
   checkBearerAuth,
-  async (req: Request, res: Response<ResType>) => {
+  async (req: Request, res: Response<ResMe>) => {
     const { id: userId, login, email } = req.requestContext.user as User;
     res.status(HTTP_STATUSES.OK_200).send({ userId, login, email });
   }
