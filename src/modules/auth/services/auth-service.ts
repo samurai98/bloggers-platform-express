@@ -22,7 +22,7 @@ export const authService = {
       loginOrEmail
     );
 
-    if (!user) return false;
+    if (!user || !user.emailConfirmation.isConfirmed) return false;
 
     const passHash = await generateHash(password, user.accountData.passSalt);
 
