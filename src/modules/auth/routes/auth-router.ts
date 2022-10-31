@@ -49,7 +49,7 @@ authRouter.post(
   async (req: Request<{}, {}, ReqBodyConfirm>, res: Response<ResType>) => {
     const result = await authService.confirmEmail(req.body.code);
 
-    if (result) res.sendStatus(HTTP_STATUSES.CREATED_201);
+    if (result) res.sendStatus(HTTP_STATUSES.NO_CONTENT_204);
     else res.sendStatus(HTTP_STATUSES.BAD_REQUEST_400);
   }
 );
