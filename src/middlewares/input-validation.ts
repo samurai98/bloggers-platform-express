@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from "express";
 import { ValidationError, validationResult } from "express-validator";
 
 import { HTTP_STATUSES } from "common/http-statuses";
+import { ErrorsMessages } from "common/types";
 
 const errorFormatter = ({ msg, param }: ValidationError) => ({
   field: param,
@@ -10,7 +11,7 @@ const errorFormatter = ({ msg, param }: ValidationError) => ({
 
 export const inputValidation = (
   req: Request,
-  res: Response,
+  res: Response<ErrorsMessages>,
   next: NextFunction
 ) => {
   const errors = validationResult(req).formatWith(errorFormatter);

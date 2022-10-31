@@ -16,6 +16,12 @@ export type Query = {
   sortDirection: 1 | -1;
 };
 
+export type ErrorsMessages = {
+  errorsMessages: { field: string; message: string }[];
+};
+
+export type ResErrorsMessages = ResType<ErrorsMessages>;
+
 type ValueOf<T> = T[keyof T];
 
 export type ResType<T = never> = T | ValueOf<typeof HTTP_STATUSES>;

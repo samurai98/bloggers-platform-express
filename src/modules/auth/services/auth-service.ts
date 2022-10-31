@@ -53,6 +53,17 @@ export const authService = {
     return await usersRepository.confirmEmail(user.accountData.id);
   },
 
+  async resendingEmail(email: string): Promise<boolean> {
+    const user = await usersQueryRepository.findUserByLoginOrEmail(email);
+
+    if (!user || user.emailConfirmation.isConfirmed) return false;
+
+    const updatedUser = await this.updateEmailConfirmation(user);
+    const isSend = updatedUser && (await this.sendConfirmEmail(updatedUser));
+
+    return Boolean(isSend);
+  },
+
   async updateEmailConfirmation(user: UserDB): Promise<UserDB | null> {
     const newConfirmationData: Partial<UserEmailConfirmation> = {
       confirmationCode: uuIdv4(),

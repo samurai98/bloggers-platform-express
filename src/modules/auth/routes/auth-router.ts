@@ -1,9 +1,8 @@
 import { Router, Request, Response } from "express";
 
 import { HTTP_STATUSES } from "common/http-statuses";
-import { ResType } from "common/types";
+import { ResErrorsMessages, ResType } from "common/types";
 import { jwtService } from "common/services/jwt-service";
-import { usersQueryRepository } from "modules/users/repositories";
 import { checkBearerAuth } from "middlewares";
 
 import { ReqBodyAuth, ReqBodyUser, User } from "../../users/user";
@@ -16,6 +15,7 @@ import {
   confirmationValidation,
   resendingValidation,
 } from "./validation";
+import { getErrorsMessages } from "common/helpers/utils";
 
 export const authRouter = Router({});
 
@@ -46,33 +46,38 @@ authRouter.post(
 authRouter.post(
   "/registration-confirmation",
   confirmationValidation,
-  async (req: Request<{}, {}, ReqBodyConfirm>, res: Response<ResType>) => {
+  async (
+    req: Request<{}, {}, ReqBodyConfirm>,
+    res: Response<ResErrorsMessages>
+  ) => {
     const result = await authService.confirmEmail(req.body.code);
 
     if (result) res.sendStatus(HTTP_STATUSES.NO_CONTENT_204);
-    else res.sendStatus(HTTP_STATUSES.BAD_REQUEST_400);
+    else
+      res
+        .status(HTTP_STATUSES.BAD_REQUEST_400)
+        .send(
+          getErrorsMessages<ReqBodyConfirm>({ code: "Incorrect confirm code" })
+        );
   }
 );
 
 authRouter.post(
   "/registration-email-resending",
   resendingValidation,
-  async (req: Request<{}, {}, ReqBodyResending>, res: Response<ResType>) => {
-    const user = await usersQueryRepository.findUserByLoginOrEmail(
-      req.body.email
-    );
+  async (
+    req: Request<{}, {}, ReqBodyResending>,
+    res: Response<ResErrorsMessages>
+  ) => {
+    const isResending = await authService.resendingEmail(req.body.email);
 
-    if (!user || user.emailConfirmation.isConfirmed) {
-      res.sendStatus(HTTP_STATUSES.BAD_REQUEST_400);
-      return;
-    }
-
-    const updatedUser = await authService.updateEmailConfirmation(user);
-    const isSend =
-      updatedUser && (await authService.sendConfirmEmail(updatedUser));
-
-    if (isSend) res.sendStatus(HTTP_STATUSES.NO_CONTENT_204);
-    else res.sendStatus(HTTP_STATUSES.BAD_REQUEST_400);
+    if (isResending) res.sendStatus(HTTP_STATUSES.NO_CONTENT_204);
+    else
+      res
+        .status(HTTP_STATUSES.BAD_REQUEST_400)
+        .send(
+          getErrorsMessages<ReqBodyResending>({ email: "Incorrect email" })
+        );
   }
 );
 
