@@ -13,6 +13,8 @@ import { Blog } from "../../src/modules/blogs/blog";
 import { User } from "../../src/modules/users/user";
 import { Post } from "../../src/modules/posts/post";
 import { Comment } from "../../src/modules/comments/comment";
+import { authPath } from "../../src/modules/auth/routes/auth-router";
+import { usersQueryRepository } from "../../src/modules/users/repositories";
 
 import {
   basicAuth,
@@ -40,12 +42,24 @@ export const createUser = async ({ isLogin = false, validUserIndex = 0 }) => {
 
   const createdUser: User = { ...res.body };
 
+  // Conformation user 
+  const userDB = await usersQueryRepository.findUserByLoginOrEmail(
+    createdUser.email
+  );
+
+  await request(app)
+    .post(`${auth_router}${authPath.confirmRegistration}`)
+    .send({ code: userDB?.emailConfirmation.confirmationCode })
+    .expect(HTTP_STATUSES.NO_CONTENT_204);
+
   if (!isLogin) return createdUser;
 
-  const loginRes = await request(app).post(`${auth_router}/login`).send({
-    login: validUsers[validUserIndex].email,
-    password: validUsers[validUserIndex].password,
-  });
+  const loginRes = await request(app)
+    .post(`${auth_router}${authPath.login}`)
+    .send({
+      login: validUsers[validUserIndex].email,
+      password: validUsers[validUserIndex].password,
+    });
 
   const expectedToken = await jwtService.getUserIdByToken(
     loginRes.body.accessToken

@@ -1,10 +1,8 @@
 import { UserDB } from "modules/users/user";
 import { SETTINGS } from "settings/config";
-import { emailAdapter } from "../adapters/email-adapter";
 
-const url = SETTINGS.IS_LOCAL_VERSION
-  ? `http://localhost:${SETTINGS.PORT}`
-  : SETTINGS.PORT;
+import { emailAdapter } from "../adapters/email-adapter";
+import { authPath } from "../routes/auth-router";
 
 export const emailsManager = {
   async sendEmailConfirmationMessage(user: UserDB) {
@@ -14,7 +12,7 @@ export const emailsManager = {
       message: `
       <h1>Thank for your registration</h1>
       <p>To finish registration please follow the link below:
-         <a href='${url}/registration-confirmation?code=${user.emailConfirmation.confirmationCode}'>
+         <a href='${SETTINGS.CLIENT_URL}${authPath.confirmRegistration}?code=${user.emailConfirmation.confirmationCode}'>
             complete registration
          </a>
      </p>

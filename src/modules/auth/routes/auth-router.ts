@@ -19,8 +19,16 @@ import { getErrorsMessages } from "common/helpers/utils";
 
 export const authRouter = Router({});
 
+export const authPath = {
+  login: "/login",
+  registration: "/registration",
+  confirmRegistration: "/registration-confirmation",
+  resendingEmail: "/registration-email-resending",
+  me: "/me",
+} as const;
+
 authRouter.post(
-  "/login",
+  authPath.login,
   authValidation,
   async (req: Request<{}, {}, ReqBodyAuth>, res: Response<ResLogin>) => {
     const user = await authService.authUser(req.body);
@@ -33,7 +41,7 @@ authRouter.post(
 );
 
 authRouter.post(
-  "/registration",
+  authPath.registration,
   registrationValidation,
   async (req: Request<{}, {}, ReqBodyUser>, res: Response<ResType>) => {
     const user = await usersService.createUser(req.body);
@@ -44,7 +52,7 @@ authRouter.post(
 );
 
 authRouter.post(
-  "/registration-confirmation",
+  authPath.confirmRegistration,
   confirmationValidation,
   async (
     req: Request<{}, {}, ReqBodyConfirm>,
@@ -63,7 +71,7 @@ authRouter.post(
 );
 
 authRouter.post(
-  "/registration-email-resending",
+  authPath.resendingEmail,
   resendingValidation,
   async (
     req: Request<{}, {}, ReqBodyResending>,
@@ -82,7 +90,7 @@ authRouter.post(
 );
 
 authRouter.get(
-  "/me",
+  authPath.me,
   checkBearerAuth,
   async (req: Request, res: Response<ResMe>) => {
     const { id: userId, login, email } = req.requestContext.user as User;

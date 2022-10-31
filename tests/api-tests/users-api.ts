@@ -51,7 +51,10 @@ export const testUsersApi = () =>
     });
 
     it("Create user. Incorrect body cases. Should return 400 and errorsMessages", async () => {
-      const firstRes = await request(app).post(users_router).set(basicAuth).send();
+      const firstRes = await request(app)
+        .post(users_router)
+        .set(basicAuth)
+        .send();
 
       expect(firstRes.statusCode).toEqual(HTTP_STATUSES.BAD_REQUEST_400);
       expect(firstRes.body).toEqual(
@@ -122,7 +125,10 @@ export const testUsersApi = () =>
 
     it("Create users. Should create new users", async () => {
       for (const user of validUsers.slice(1)) {
-        const res = await request(app).post(users_router).set(basicAuth).send(user);
+        const res = await request(app)
+          .post(users_router)
+          .set(basicAuth)
+          .send(user);
         createdUsers.push(res.body);
       }
 

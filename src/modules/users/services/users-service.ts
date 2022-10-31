@@ -3,10 +3,10 @@ import { v4 as uuIdv4 } from "uuid";
 import { add } from "date-fns";
 
 import { generateHash, getCurrentDateISO } from "common/helpers/utils";
+import { authService } from "modules/auth/services/auth-service";
 
 import { usersRepository } from "../repositories";
 import { User, ReqBodyUser, UserDB } from "../user";
-import { authService } from "modules/auth/services/auth-service";
 
 export const usersService = {
   async createUser({
@@ -36,7 +36,7 @@ export const usersService = {
 
     const isSend = await authService.sendConfirmEmail(newUser);
 
-    if (isSend) return usersRepository.createUser(newUser);
+    if (isSend) return await usersRepository.createUser(newUser);
 
     return null;
   },

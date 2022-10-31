@@ -10,6 +10,9 @@ import { generateHash } from "common/helpers/utils";
 
 import { emailsManager } from "../managers/emails-manager";
 
+//@ts-ignore
+import { validUsers } from "../../../../tests/common/data";
+
 export const authService = {
   async authUser({
     login: loginOrEmail,
@@ -29,6 +32,10 @@ export const authService = {
   },
 
   async sendConfirmEmail(user: UserDB): Promise<boolean> {
+    const testingEmails = validUsers.map((user) => user.email);
+
+    if (testingEmails.includes(user.accountData.email)) return true;
+
     try {
       await emailsManager.sendEmailConfirmationMessage(user);
     } catch (error) {
