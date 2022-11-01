@@ -1,5 +1,5 @@
 {
-  "version": 1,
+  "version": 2,
   "name": "bloggers-platform-express",
   "buildCommand": "yarn tsc",
   "builds": [{ "src": "src/index.ts", "use": "@vercel/node" }],
