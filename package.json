@@ -4,10 +4,10 @@
   "main": "index.js",
   "license": "MIT",
   "scripts": {
-    "dev": "nodemon --inspect src/index.ts",
-    "build": "tsc",
-    "test": "jest",
-    "test-w": "jest --watch"
+    "prebuild": "rimraf dist",
+    "build": "sucrase ./src -d ./dist --transforms typescript,imports",
+    "pre-prod": "rimraf dist && sucrase ./src -d ./dist --transforms typescript,imports",
+    "dev": "nodemon src/index.ts"
   },
   "dependencies": {
     "bcrypt": "^5.1.0",
