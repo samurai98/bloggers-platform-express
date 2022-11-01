@@ -4,10 +4,8 @@
   "main": "index.js",
   "license": "MIT",
   "scripts": {
-    "watch": "tsc -w",
     "dev": "nodemon --inspect src/index.ts",
     "build": "tsc",
-    "start": "NODE_PATH=dist node dist/index.js",
     "test": "jest",
     "test-w": "jest --watch"
   },
