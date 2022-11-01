@@ -2,7 +2,7 @@ import request from "supertest";
 
 import { app } from "../../src/index";
 import { HTTP_STATUSES } from "../../src/common/http-statuses";
-import { delete_all_router, users_router } from "../../src/routers";
+import { router } from "../../src/routers";
 import { User, ReqBodyUser } from "../../src/modules/users/user";
 
 import { incorrectQuery, basicAuth, validUsers } from "../common/data";
@@ -21,38 +21,38 @@ export const testUsersApi = () =>
   describe("Test users api", () => {
     it("Users without auth. Should return 401", async () => {
       await request(app)
-        .post(users_router)
+        .post(router.users)
         .send({})
         .expect(HTTP_STATUSES.UNAUTHORIZED_401);
 
       await request(app)
-        .delete(`${users_router}/fakeUserId`)
+        .delete(`${router.users}/fakeUserId`)
         .expect(HTTP_STATUSES.UNAUTHORIZED_401);
     });
 
     it("Get users. Should return 200 and empty array", async () => {
       await request(app)
-        .get(users_router)
+        .get(router.users)
         .expect(HTTP_STATUSES.OK_200, getPaginationItems());
     });
 
     it("Get users. Incorrect query cases. Should return 200 and empty array", async () => {
       await request(app)
         .get(
-          `${users_router}?${incorrectQuery.empty}&searchLoginTerm=&searchEmailTerm=`
+          `${router.users}?${incorrectQuery.empty}&searchLoginTerm=&searchEmailTerm=`
         )
         .expect(HTTP_STATUSES.OK_200, getPaginationItems());
 
       await request(app)
         .get(
-          `${users_router}?${incorrectQuery.incorrect}&searchLoginTerm[]=&searchEmailTerm[]=`
+          `${router.users}?${incorrectQuery.incorrect}&searchLoginTerm[]=&searchEmailTerm[]=`
         )
         .expect(HTTP_STATUSES.OK_200, getPaginationItems());
     });
 
     it("Create user. Incorrect body cases. Should return 400 and errorsMessages", async () => {
       const firstRes = await request(app)
-        .post(users_router)
+        .post(router.users)
         .set(basicAuth)
         .send();
 
@@ -63,7 +63,7 @@ export const testUsersApi = () =>
       expect(firstRes.body.errorsMessages).toHaveLength(3);
 
       const secondRes = await request(app)
-        .post(users_router)
+        .post(router.users)
         .set(basicAuth)
         .send({
           email: "pochta@gmailcom",
@@ -78,7 +78,7 @@ export const testUsersApi = () =>
       expect(secondRes.body.errorsMessages).toHaveLength(3);
 
       const thirdRes = await request(app)
-        .post(users_router)
+        .post(router.users)
         .set(basicAuth)
         .send({ email: "valid@gmail.com", login: "12", password: "12345" });
 
@@ -89,13 +89,13 @@ export const testUsersApi = () =>
       expect(thirdRes.body.errorsMessages).toHaveLength(2);
 
       await request(app)
-        .get(users_router)
+        .get(router.users)
         .expect(HTTP_STATUSES.OK_200, getPaginationItems());
     });
 
     it("Create user. Should return 201 and new user", async () => {
       const res = await request(app)
-        .post(users_router)
+        .post(router.users)
         .set(basicAuth)
         .send(validUsers[0]);
 
@@ -112,7 +112,7 @@ export const testUsersApi = () =>
       createdUsers.push(createdUser);
 
       await request(app)
-        .get(users_router)
+        .get(router.users)
         .expect(
           HTTP_STATUSES.OK_200,
           getPaginationItems({
@@ -126,13 +126,13 @@ export const testUsersApi = () =>
     it("Create users. Should create new users", async () => {
       for (const user of validUsers.slice(1)) {
         const res = await request(app)
-          .post(users_router)
+          .post(router.users)
           .set(basicAuth)
           .send(user);
         createdUsers.push(res.body);
       }
 
-      const res = await request(app).get(users_router);
+      const res = await request(app).get(router.users);
 
       expect(res.statusCode).toEqual(HTTP_STATUSES.OK_200);
       expect(res.body).toEqual(
@@ -152,7 +152,7 @@ export const testUsersApi = () =>
 
       await request(app)
         .get(
-          `${users_router}?searchLoginTerm=nick&searchEmailTerm=.COM&sortBy=email&sortDirection=asc`
+          `${router.users}?searchLoginTerm=nick&searchEmailTerm=.COM&sortBy=email&sortDirection=asc`
         )
         .expect(
           HTTP_STATUSES.OK_200,
@@ -164,7 +164,7 @@ export const testUsersApi = () =>
         );
 
       await request(app)
-        .get(`${users_router}?pageNumber=2&pageSize=3`)
+        .get(`${router.users}?pageNumber=2&pageSize=3`)
         .expect(
           HTTP_STATUSES.OK_200,
           getPaginationItems({
@@ -177,7 +177,7 @@ export const testUsersApi = () =>
         );
 
       await request(app)
-        .get(`${users_router}?pageNumber=99`)
+        .get(`${router.users}?pageNumber=99`)
         .expect(
           HTTP_STATUSES.OK_200,
           getPaginationItems({
@@ -190,23 +190,23 @@ export const testUsersApi = () =>
 
     it("Delete user. Should delete user and return 204", async () => {
       await request(app)
-        .delete(`${users_router}/${createdUsers[2].id}`)
+        .delete(`${router.users}/${createdUsers[2].id}`)
         .set(basicAuth)
         .expect(HTTP_STATUSES.NO_CONTENT_204);
 
       await request(app)
-        .get(`${users_router}/${createdUsers[2].id}`)
+        .get(`${router.users}/${createdUsers[2].id}`)
         .expect(HTTP_STATUSES.NOT_FOUND_404);
     });
 
     it("Delete user. Should return 404", async () => {
       await request(app)
-        .delete(`${users_router}/fakeUserId`)
+        .delete(`${router.users}/fakeUserId`)
         .set(basicAuth)
         .expect(HTTP_STATUSES.NOT_FOUND_404);
     });
 
     afterAll(async () => {
-      await request(app).delete(delete_all_router);
+      await request(app).delete(router.delete_all);
     });
   });

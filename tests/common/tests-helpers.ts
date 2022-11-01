@@ -3,12 +3,7 @@ import request from "supertest";
 import { app } from "../../src";
 import { HTTP_STATUSES } from "../../src/common/http-statuses";
 import { jwtService } from "../../src/common/services/jwt-service";
-import {
-  auth_router,
-  blogs_router,
-  posts_router,
-  users_router,
-} from "../../src/routers";
+import { router } from "../../src/routers";
 import { Blog } from "../../src/modules/blogs/blog";
 import { User } from "../../src/modules/users/user";
 import { Post } from "../../src/modules/posts/post";
@@ -28,7 +23,7 @@ import { anyString, dateISORegEx, setBearerAuth } from "./helpers";
 
 export const createUser = async ({ isLogin = false, validUserIndex = 0 }) => {
   const res = await request(app)
-    .post(users_router)
+    .post(router.users)
     .set(basicAuth)
     .send(validUsers[validUserIndex]);
 
@@ -42,20 +37,20 @@ export const createUser = async ({ isLogin = false, validUserIndex = 0 }) => {
 
   const createdUser: User = { ...res.body };
 
-  // Conformation user 
+  // Conformation user
   const userDB = await usersQueryRepository.findUserByLoginOrEmail(
     createdUser.email
   );
 
   await request(app)
-    .post(`${auth_router}${authPath.confirmRegistration}`)
+    .post(`${router.auth}${authPath.confirmRegistration}`)
     .send({ code: userDB?.emailConfirmation.confirmationCode })
     .expect(HTTP_STATUSES.NO_CONTENT_204);
 
   if (!isLogin) return createdUser;
 
   const loginRes = await request(app)
-    .post(`${auth_router}${authPath.login}`)
+    .post(`${router.auth}${authPath.login}`)
     .send({
       login: validUsers[validUserIndex].email,
       password: validUsers[validUserIndex].password,
@@ -75,7 +70,7 @@ export const createUser = async ({ isLogin = false, validUserIndex = 0 }) => {
 
 export const createBlog = async () => {
   const res = await request(app)
-    .post(blogs_router)
+    .post(router.blogs)
     .set(basicAuth)
     .send(validBlogs[0]);
 
@@ -95,7 +90,7 @@ export const createPost = async (createdBlog: Blog) => {
   const newPost = { ...validPosts[0], blogId: createdBlog.id };
 
   const res = await request(app)
-    .post(posts_router)
+    .post(router.posts)
     .set(basicAuth)
     .send(newPost);
 
@@ -115,7 +110,7 @@ export const createPost = async (createdBlog: Blog) => {
 export const createComment = async (createdPost: Post, createdUser: User) => {
   const comment = validComments[0];
   const res = await request(app)
-    .post(`${posts_router}/${createdPost.id}/comments`)
+    .post(`${router.posts}/${createdPost.id}/comments`)
     .set(bearerAuth)
     .send(comment);
 

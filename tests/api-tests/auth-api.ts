@@ -2,7 +2,7 @@ import request from "supertest";
 
 import { app } from "../../src/index";
 import { HTTP_STATUSES } from "../../src/common/http-statuses";
-import { auth_router, delete_all_router } from "../../src/routers";
+import { router } from "../../src/routers";
 import { ReqBodyAuth, ReqBodyUser, User } from "../../src/modules/users/user";
 import { jwtService } from "../../src/common/services/jwt-service";
 import { authPath } from "../../src/modules/auth/routes/auth-router";
@@ -18,7 +18,7 @@ export const testAuthApi = () =>
   describe("Test auth api", () => {
     it("Registration user. Incorrect body cases. Should return 400 and errorsMessages", async () => {
       const firstRes = await request(app)
-        .post(`${auth_router}${authPath.registration}`)
+        .post(`${router.auth}${authPath.registration}`)
         .send();
 
       expect(firstRes.statusCode).toEqual(HTTP_STATUSES.BAD_REQUEST_400);
@@ -28,7 +28,7 @@ export const testAuthApi = () =>
       expect(firstRes.body.errorsMessages).toHaveLength(3);
 
       const secondRes = await request(app)
-        .post(`${auth_router}${authPath.registration}`)
+        .post(`${router.auth}${authPath.registration}`)
         .send({ login: "valid", password: "" });
 
       expect(secondRes.statusCode).toEqual(HTTP_STATUSES.BAD_REQUEST_400);
@@ -40,7 +40,7 @@ export const testAuthApi = () =>
 
     it("Confirm registration. Incorrect body cases. Should return 400 and errorsMessages", async () => {
       const firstRes = await request(app)
-        .post(`${auth_router}${authPath.confirmRegistration}`)
+        .post(`${router.auth}${authPath.confirmRegistration}`)
         .send();
 
       expect(firstRes.statusCode).toEqual(HTTP_STATUSES.BAD_REQUEST_400);
@@ -48,7 +48,7 @@ export const testAuthApi = () =>
       expect(firstRes.body.errorsMessages).toHaveLength(1);
 
       const secondRes = await request(app)
-        .post(`${auth_router}${authPath.confirmRegistration}`)
+        .post(`${router.auth}${authPath.confirmRegistration}`)
         .send({ code: "not valid code" });
 
       expect(secondRes.statusCode).toEqual(HTTP_STATUSES.BAD_REQUEST_400);
@@ -58,7 +58,7 @@ export const testAuthApi = () =>
 
     it("Registration user and confirm registration. Should return 204", async () => {
       await request(app)
-        .post(`${auth_router}${authPath.registration}`)
+        .post(`${router.auth}${authPath.registration}`)
         .send(validUsers[0])
         .expect(HTTP_STATUSES.NO_CONTENT_204);
 
@@ -67,7 +67,7 @@ export const testAuthApi = () =>
       );
 
       await request(app)
-        .post(`${auth_router}${authPath.confirmRegistration}`)
+        .post(`${router.auth}${authPath.confirmRegistration}`)
         .send({ code: userDB!.emailConfirmation.confirmationCode })
         .expect(HTTP_STATUSES.NO_CONTENT_204);
 
@@ -76,14 +76,14 @@ export const testAuthApi = () =>
 
     it("Login user. Should return 401", async () => {
       await request(app)
-        .post(`${auth_router}${authPath.login}`)
+        .post(`${router.auth}${authPath.login}`)
         .send({ login: "some user", password: "123456" })
         .expect(HTTP_STATUSES.UNAUTHORIZED_401);
     });
 
     it("Login user. Incorrect body cases. Should return 400 and errorsMessages", async () => {
       const firstRes = await request(app)
-        .post(`${auth_router}${authPath.login}`)
+        .post(`${router.auth}${authPath.login}`)
         .send();
 
       expect(firstRes.statusCode).toEqual(HTTP_STATUSES.BAD_REQUEST_400);
@@ -93,7 +93,7 @@ export const testAuthApi = () =>
       expect(firstRes.body.errorsMessages).toHaveLength(2);
 
       const secondRes = await request(app)
-        .post(`${auth_router}${authPath.login}`)
+        .post(`${router.auth}${authPath.login}`)
         .send({ login: "valid", password: "" });
 
       expect(secondRes.statusCode).toEqual(HTTP_STATUSES.BAD_REQUEST_400);
@@ -105,7 +105,7 @@ export const testAuthApi = () =>
 
     it("Login user. Should return 204", async () => {
       const firstRes = await request(app)
-        .post(`${auth_router}${authPath.login}`)
+        .post(`${router.auth}${authPath.login}`)
         .send({ login: validUsers[0].login, password: validUsers[0].password });
 
       const firstExpectedToken = await jwtService.getUserIdByToken(
@@ -116,7 +116,7 @@ export const testAuthApi = () =>
       expect(firstExpectedToken).toEqual(createdUser.id);
 
       const secondRes = await request(app)
-        .post(`${auth_router}${authPath.login}`)
+        .post(`${router.auth}${authPath.login}`)
         .send({ login: validUsers[0].email, password: validUsers[0].password });
 
       const secondExpectedToken = await jwtService.getUserIdByToken(
@@ -133,26 +133,26 @@ export const testAuthApi = () =>
       const { id: userId, email, login } = createdUser;
 
       await request(app)
-        .get(`${auth_router}${authPath.me}`)
+        .get(`${router.auth}${authPath.me}`)
         .set(bearerAuth)
         .expect(HTTP_STATUSES.OK_200, { userId, email, login });
     });
 
     it("Get user information (me). Should return 401", async () => {
       await request(app)
-        .get(`${auth_router}${authPath.me}`)
+        .get(`${router.auth}${authPath.me}`)
         .set({ Authorization: "Bearer fakeToken" })
         .expect(HTTP_STATUSES.UNAUTHORIZED_401);
 
       await request(app)
-        .get(`${auth_router}${authPath.me}`)
+        .get(`${router.auth}${authPath.me}`)
         .set({ Authorization: "fakeBearerToken" })
         .expect(HTTP_STATUSES.UNAUTHORIZED_401);
     });
 
     it("Resending email. Incorrect body cases. Should return 400 and errorsMessages", async () => {
       const firstRes = await request(app)
-        .post(`${auth_router}${authPath.resendingEmail}`)
+        .post(`${router.auth}${authPath.resendingEmail}`)
         .send({ email: createdUser.email })
         .expect(HTTP_STATUSES.BAD_REQUEST_400);
 
@@ -163,7 +163,7 @@ export const testAuthApi = () =>
       expect(firstRes.body.errorsMessages).toHaveLength(1);
 
       const secondRes = await request(app)
-        .post(`${auth_router}${authPath.resendingEmail}`)
+        .post(`${router.auth}${authPath.resendingEmail}`)
         .send()
         .expect(HTTP_STATUSES.BAD_REQUEST_400);
 
@@ -176,17 +176,17 @@ export const testAuthApi = () =>
 
     it("Resending email. Should return 204", async () => {
       await request(app)
-        .post(`${auth_router}${authPath.registration}`)
+        .post(`${router.auth}${authPath.registration}`)
         .send(validUsers[1])
         .expect(HTTP_STATUSES.NO_CONTENT_204);
 
       await request(app)
-        .post(`${auth_router}${authPath.resendingEmail}`)
+        .post(`${router.auth}${authPath.resendingEmail}`)
         .send({ email: validUsers[1].email })
         .expect(HTTP_STATUSES.NO_CONTENT_204);
     });
 
     afterAll(async () => {
-      await request(app).delete(delete_all_router);
+      await request(app).delete(router.delete_all);
     });
   });

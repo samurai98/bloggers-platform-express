@@ -2,7 +2,7 @@ import request from "supertest";
 
 import { app } from "../../src/index";
 import { HTTP_STATUSES } from "../../src/common/http-statuses";
-import { delete_all_router, posts_router } from "../../src/routers";
+import { router } from "../../src/routers";
 import {
   Post,
   ReqBodyCommentByPostId,
@@ -47,39 +47,39 @@ export const testPostsApi = () =>
 
     it("Posts without auth. Should return 401", async () => {
       await request(app)
-        .post(posts_router)
+        .post(router.posts)
         .send({})
         .expect(HTTP_STATUSES.UNAUTHORIZED_401);
 
       await request(app)
-        .put(`${posts_router}/fakePostId`)
+        .put(`${router.posts}/fakePostId`)
         .send({})
         .expect(HTTP_STATUSES.UNAUTHORIZED_401);
 
       await request(app)
-        .delete(`${posts_router}/fakePostId`)
+        .delete(`${router.posts}/fakePostId`)
         .expect(HTTP_STATUSES.UNAUTHORIZED_401);
     });
 
     it("Get posts. Should return 200 and empty array", async () => {
       await request(app)
-        .get(posts_router)
+        .get(router.posts)
         .expect(HTTP_STATUSES.OK_200, getPaginationItems());
     });
 
     it("Get posts. Incorrect query cases. Should return 200 and empty array", async () => {
       await request(app)
-        .get(`${posts_router}?${incorrectQuery.empty}`)
+        .get(`${router.posts}?${incorrectQuery.empty}`)
         .expect(HTTP_STATUSES.OK_200, getPaginationItems());
 
       await request(app)
-        .get(`${posts_router}?${incorrectQuery.incorrect}`)
+        .get(`${router.posts}?${incorrectQuery.incorrect}`)
         .expect(HTTP_STATUSES.OK_200, getPaginationItems());
     });
 
     it("Create post. Incorrect body cases. Should return 400 and errorsMessages", async () => {
       const firstRes = await request(app)
-        .post(posts_router)
+        .post(router.posts)
         .set(basicAuth)
         .send();
 
@@ -95,7 +95,7 @@ export const testPostsApi = () =>
       expect(firstRes.body.errorsMessages).toHaveLength(4);
 
       const secondRes = await request(app)
-        .post(posts_router)
+        .post(router.posts)
         .set(basicAuth)
         .send({
           title: getOverMaxLength(30),
@@ -116,7 +116,7 @@ export const testPostsApi = () =>
       expect(secondRes.body.errorsMessages).toHaveLength(4);
 
       const thirdRes = await request(app)
-        .post(posts_router)
+        .post(router.posts)
         .set(basicAuth)
         .send({ title: "valid", content: "valid" });
 
@@ -127,7 +127,7 @@ export const testPostsApi = () =>
       expect(thirdRes.body.errorsMessages).toHaveLength(2);
 
       await request(app)
-        .get(posts_router)
+        .get(router.posts)
         .expect(HTTP_STATUSES.OK_200, getPaginationItems());
     });
 
@@ -137,7 +137,7 @@ export const testPostsApi = () =>
       createdPosts.push(createdPost);
 
       await request(app)
-        .get(posts_router)
+        .get(router.posts)
         .expect(
           HTTP_STATUSES.OK_200,
           getPaginationItems({
@@ -151,13 +151,13 @@ export const testPostsApi = () =>
     it("Create posts. Should create new posts", async () => {
       for (const post of validPosts.slice(1)) {
         const res = await request(app)
-          .post(posts_router)
+          .post(router.posts)
           .set(basicAuth)
           .send({ ...post, blogId: createdBlogs[0].id });
         createdPosts.push(res.body);
       }
 
-      const res = await request(app).get(posts_router);
+      const res = await request(app).get(router.posts);
 
       expect(res.statusCode).toEqual(HTTP_STATUSES.OK_200);
       expect(res.body).toEqual(
@@ -173,7 +173,7 @@ export const testPostsApi = () =>
       const sortedPosts = sortByField<Post>(createdPosts, "title", "asc");
 
       await request(app)
-        .get(`${posts_router}?sortBy=title&sortDirection=asc`)
+        .get(`${router.posts}?sortBy=title&sortDirection=asc`)
         .expect(
           HTTP_STATUSES.OK_200,
           getPaginationItems({
@@ -184,7 +184,7 @@ export const testPostsApi = () =>
         );
 
       await request(app)
-        .get(`${posts_router}?pageNumber=2&pageSize=3`)
+        .get(`${router.posts}?pageNumber=2&pageSize=3`)
         .expect(
           HTTP_STATUSES.OK_200,
           getPaginationItems({
@@ -197,7 +197,7 @@ export const testPostsApi = () =>
         );
 
       await request(app)
-        .get(`${posts_router}?pageNumber=99`)
+        .get(`${router.posts}?pageNumber=99`)
         .expect(
           HTTP_STATUSES.OK_200,
           getPaginationItems({
@@ -210,13 +210,13 @@ export const testPostsApi = () =>
 
     it("Get post by id. Should return 200 and post", async () => {
       await request(app)
-        .get(`${posts_router}/${createdPosts[1].id}`)
+        .get(`${router.posts}/${createdPosts[1].id}`)
         .expect(HTTP_STATUSES.OK_200, createdPosts[1]);
     });
 
     it("Get post by id. Should return 404", async () => {
       await request(app)
-        .get(`${posts_router}/fakePostId`)
+        .get(`${router.posts}/fakePostId`)
         .expect(HTTP_STATUSES.NOT_FOUND_404);
     });
 
@@ -229,19 +229,19 @@ export const testPostsApi = () =>
       };
 
       await request(app)
-        .put(`${posts_router}/${createdPosts[2].id}`)
+        .put(`${router.posts}/${createdPosts[2].id}`)
         .set(basicAuth)
         .send(updateData)
         .expect(HTTP_STATUSES.NO_CONTENT_204);
 
       await request(app)
-        .get(`${posts_router}/${createdPosts[2].id}`)
+        .get(`${router.posts}/${createdPosts[2].id}`)
         .expect(HTTP_STATUSES.OK_200, { ...createdPosts[2], ...updateData });
     });
 
     it("Update post. Should return 404", async () => {
       await request(app)
-        .put(`${posts_router}/fakePostId`)
+        .put(`${router.posts}/fakePostId`)
         .set(basicAuth)
         .send({
           title: "new title",
@@ -254,7 +254,7 @@ export const testPostsApi = () =>
 
     it("Update post. Incorrect body cases. Should return 400 and errorsMessages", async () => {
       const firstRes = await request(app)
-        .put(`${posts_router}/${createdPosts[3].id}`)
+        .put(`${router.posts}/${createdPosts[3].id}`)
         .set(basicAuth)
         .send();
 
@@ -270,7 +270,7 @@ export const testPostsApi = () =>
       expect(firstRes.body.errorsMessages).toHaveLength(4);
 
       const secondRes = await request(app)
-        .put(`${posts_router}/${createdPosts[3].id}`)
+        .put(`${router.posts}/${createdPosts[3].id}`)
         .set(basicAuth)
         .send({
           title: getOverMaxLength(30),
@@ -291,7 +291,7 @@ export const testPostsApi = () =>
       expect(secondRes.body.errorsMessages).toHaveLength(4);
 
       const thirdRes = await request(app)
-        .put(`${posts_router}/${createdPosts[3].id}`)
+        .put(`${router.posts}/${createdPosts[3].id}`)
         .set(basicAuth)
         .send({ title: "valid", content: "valid" });
 
@@ -302,24 +302,24 @@ export const testPostsApi = () =>
       expect(thirdRes.body.errorsMessages).toHaveLength(2);
 
       await request(app)
-        .get(`${posts_router}/${createdPosts[3].id}`)
+        .get(`${router.posts}/${createdPosts[3].id}`)
         .expect(HTTP_STATUSES.OK_200, createdPosts[3]);
     });
 
     it("Delete post. Should delete post and return 204", async () => {
       await request(app)
-        .delete(`${posts_router}/${createdPosts[4].id}`)
+        .delete(`${router.posts}/${createdPosts[4].id}`)
         .set(basicAuth)
         .expect(HTTP_STATUSES.NO_CONTENT_204);
 
       await request(app)
-        .get(`${posts_router}/${createdPosts[4].id}`)
+        .get(`${router.posts}/${createdPosts[4].id}`)
         .expect(HTTP_STATUSES.NOT_FOUND_404);
     });
 
     it("Delete post. Should return 404", async () => {
       await request(app)
-        .delete(`${posts_router}/fakePostId`)
+        .delete(`${router.posts}/fakePostId`)
         .set(basicAuth)
         .expect(HTTP_STATUSES.NOT_FOUND_404);
     });
@@ -328,14 +328,14 @@ export const testPostsApi = () =>
 
     it("Create comment by postId. Should return 401", async () => {
       await request(app)
-        .post(`${posts_router}/${createdPosts[0].id}/comments`)
+        .post(`${router.posts}/${createdPosts[0].id}/comments`)
         .send({ content: "valid valid valid valid" })
         .expect(HTTP_STATUSES.UNAUTHORIZED_401);
     });
 
     it("Create comment by postId. Should return 404", async () => {
       await request(app)
-        .post(`${posts_router}/fakePostId/comments`)
+        .post(`${router.posts}/fakePostId/comments`)
         .set(bearerAuth)
         .send({ content: "valid valid valid valid" })
         .expect(HTTP_STATUSES.NOT_FOUND_404);
@@ -343,7 +343,7 @@ export const testPostsApi = () =>
 
     it("Create comment by postId. Should return 400 and errorsMessages", async () => {
       const firstRes = await request(app)
-        .post(`${posts_router}/${createdPosts[0].id}/comments`)
+        .post(`${router.posts}/${createdPosts[0].id}/comments`)
         .set(bearerAuth)
         .send();
 
@@ -354,7 +354,7 @@ export const testPostsApi = () =>
       expect(firstRes.body.errorsMessages).toHaveLength(1);
 
       const secondRes = await request(app)
-        .post(`${posts_router}/${createdPosts[0].id}/comments`)
+        .post(`${router.posts}/${createdPosts[0].id}/comments`)
         .set(bearerAuth)
         .send({ content: getOverMaxLength(300) });
 
@@ -365,7 +365,7 @@ export const testPostsApi = () =>
       expect(secondRes.body.errorsMessages).toHaveLength(1);
 
       const thirdRes = await request(app)
-        .post(`${posts_router}/${createdPosts[0].id}/comments`)
+        .post(`${router.posts}/${createdPosts[0].id}/comments`)
         .set(bearerAuth)
         .send({ content: "not valid" });
 
@@ -376,7 +376,7 @@ export const testPostsApi = () =>
       expect(thirdRes.body.errorsMessages).toHaveLength(1);
 
       await request(app)
-        .get(`${posts_router}/${createdPosts[0].id}/comments`)
+        .get(`${router.posts}/${createdPosts[0].id}/comments`)
         .expect(HTTP_STATUSES.OK_200, getPaginationItems());
     });
 
@@ -387,7 +387,7 @@ export const testPostsApi = () =>
 
     it("Get comments by postId. Should return 200 and 1 comment", async () => {
       await request(app)
-        .get(`${posts_router}/${createdPosts[0].id}/comments`)
+        .get(`${router.posts}/${createdPosts[0].id}/comments`)
         .expect(
           HTTP_STATUSES.OK_200,
           getPaginationItems({
@@ -407,13 +407,13 @@ export const testPostsApi = () =>
 
       await request(app)
         .get(
-          `${posts_router}/${createdPosts[0].id}/comments?${incorrectQuery.empty}`
+          `${router.posts}/${createdPosts[0].id}/comments?${incorrectQuery.empty}`
         )
         .expect(HTTP_STATUSES.OK_200, expectedRes);
 
       await request(app)
         .get(
-          `${posts_router}/${createdPosts[0].id}/comments?${incorrectQuery.incorrect}`
+          `${router.posts}/${createdPosts[0].id}/comments?${incorrectQuery.incorrect}`
         )
         .expect(HTTP_STATUSES.OK_200, expectedRes);
     });
@@ -421,14 +421,14 @@ export const testPostsApi = () =>
     it("Create comments by postId. Should create new comments", async () => {
       for (const comment of validComments.slice(1)) {
         const res = await request(app)
-          .post(`${posts_router}/${createdPosts[0].id}/comments`)
+          .post(`${router.posts}/${createdPosts[0].id}/comments`)
           .set(bearerAuth)
           .send(comment);
         createdCommentsByPostId.push(res.body);
       }
 
       const res = await request(app).get(
-        `${posts_router}/${createdPosts[0].id}/comments`
+        `${router.posts}/${createdPosts[0].id}/comments`
       );
 
       expect(res.statusCode).toEqual(HTTP_STATUSES.OK_200);
@@ -450,7 +450,7 @@ export const testPostsApi = () =>
 
       await request(app)
         .get(
-          `${posts_router}/${createdPosts[0].id}/comments?sortBy=content&sortDirection=asc`
+          `${router.posts}/${createdPosts[0].id}/comments?sortBy=content&sortDirection=asc`
         )
         .expect(
           HTTP_STATUSES.OK_200,
@@ -463,7 +463,7 @@ export const testPostsApi = () =>
 
       await request(app)
         .get(
-          `${posts_router}/${createdPosts[0].id}/comments?pageNumber=2&pageSize=3`
+          `${router.posts}/${createdPosts[0].id}/comments?pageNumber=2&pageSize=3`
         )
         .expect(
           HTTP_STATUSES.OK_200,
@@ -480,7 +480,7 @@ export const testPostsApi = () =>
         );
 
       await request(app)
-        .get(`${posts_router}/${createdPosts[0].id}/comments?pageNumber=99`)
+        .get(`${router.posts}/${createdPosts[0].id}/comments?pageNumber=99`)
         .expect(
           HTTP_STATUSES.OK_200,
           getPaginationItems({
@@ -493,11 +493,11 @@ export const testPostsApi = () =>
 
     it("Get comments by postId. Should return 404", async () => {
       await request(app)
-        .get(`${posts_router}/fakeBlogId/comments`)
+        .get(`${router.posts}/fakeBlogId/comments`)
         .expect(HTTP_STATUSES.NOT_FOUND_404);
     });
 
     afterAll(async () => {
-      await request(app).delete(delete_all_router);
+      await request(app).delete(router.delete_all);
     });
   });

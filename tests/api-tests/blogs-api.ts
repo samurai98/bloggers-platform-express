@@ -2,7 +2,7 @@ import request from "supertest";
 
 import { app } from "../../src/index";
 import { HTTP_STATUSES } from "../../src/common/http-statuses";
-import { blogs_router, delete_all_router } from "../../src/routers";
+import { router } from "../../src/routers";
 import {
   Blog,
   ReqBodyBlog,
@@ -32,44 +32,44 @@ export const testBlogsApi = () =>
   describe("Test blogs api", () => {
     it("Blogs without auth. Should return 401", async () => {
       await request(app)
-        .post(blogs_router)
+        .post(router.blogs)
         .send({})
         .expect(HTTP_STATUSES.UNAUTHORIZED_401);
 
       await request(app)
-        .post(`${blogs_router}/fakeBlogId/posts`)
+        .post(`${router.blogs}/fakeBlogId/posts`)
         .send({})
         .expect(HTTP_STATUSES.UNAUTHORIZED_401);
 
       await request(app)
-        .put(`${blogs_router}/fakeBlogId`)
+        .put(`${router.blogs}/fakeBlogId`)
         .send({})
         .expect(HTTP_STATUSES.UNAUTHORIZED_401);
 
       await request(app)
-        .delete(`${blogs_router}/fakeBlogId`)
+        .delete(`${router.blogs}/fakeBlogId`)
         .expect(HTTP_STATUSES.UNAUTHORIZED_401);
     });
 
     it("Get blogs. Should return 200 and empty array", async () => {
       await request(app)
-        .get(blogs_router)
+        .get(router.blogs)
         .expect(HTTP_STATUSES.OK_200, getPaginationItems());
     });
 
     it("Get blogs. Incorrect query cases. Should return 200 and empty array", async () => {
       await request(app)
-        .get(`${blogs_router}?${incorrectQuery.empty}&searchNameTerm=`)
+        .get(`${router.blogs}?${incorrectQuery.empty}&searchNameTerm=`)
         .expect(HTTP_STATUSES.OK_200, getPaginationItems());
 
       await request(app)
-        .get(`${blogs_router}?${incorrectQuery.incorrect}&searchNameTerm[]=`)
+        .get(`${router.blogs}?${incorrectQuery.incorrect}&searchNameTerm[]=`)
         .expect(HTTP_STATUSES.OK_200, getPaginationItems());
     });
 
     it("Create blog. Incorrect body cases. Should return 400 and errorsMessages", async () => {
       const firstRes = await request(app)
-        .post(blogs_router)
+        .post(router.blogs)
         .set(basicAuth)
         .send();
 
@@ -80,7 +80,7 @@ export const testBlogsApi = () =>
       expect(firstRes.body.errorsMessages).toHaveLength(2);
 
       const secondRes = await request(app)
-        .post(blogs_router)
+        .post(router.blogs)
         .set(basicAuth)
         .send({
           name: getOverMaxLength(15),
@@ -94,7 +94,7 @@ export const testBlogsApi = () =>
       expect(secondRes.body.errorsMessages).toHaveLength(2);
 
       const thirdRes = await request(app)
-        .post(blogs_router)
+        .post(router.blogs)
         .set(basicAuth)
         .send({ name: "valid", youtubeUrl: "https://badurl" });
 
@@ -105,7 +105,7 @@ export const testBlogsApi = () =>
       expect(thirdRes.body.errorsMessages).toHaveLength(1);
 
       await request(app)
-        .get(blogs_router)
+        .get(router.blogs)
         .expect(HTTP_STATUSES.OK_200, getPaginationItems());
     });
 
@@ -114,7 +114,7 @@ export const testBlogsApi = () =>
       createdBlogs.push(createdBlog);
 
       await request(app)
-        .get(blogs_router)
+        .get(router.blogs)
         .expect(
           HTTP_STATUSES.OK_200,
           getPaginationItems({
@@ -128,13 +128,13 @@ export const testBlogsApi = () =>
     it("Create blogs. Should create new blogs", async () => {
       for (const blog of validBlogs.slice(1)) {
         const res = await request(app)
-          .post(blogs_router)
+          .post(router.blogs)
           .set(basicAuth)
           .send(blog);
         createdBlogs.push(res.body);
       }
 
-      const res = await request(app).get(blogs_router);
+      const res = await request(app).get(router.blogs);
 
       expect(res.statusCode).toEqual(HTTP_STATUSES.OK_200);
       expect(res.body).toEqual(
@@ -154,7 +154,7 @@ export const testBlogsApi = () =>
 
       await request(app)
         .get(
-          `${blogs_router}?searchNameTerm=bl&sortBy=youtubeUrl&sortDirection=asc`
+          `${router.blogs}?searchNameTerm=bl&sortBy=youtubeUrl&sortDirection=asc`
         )
         .expect(
           HTTP_STATUSES.OK_200,
@@ -166,7 +166,7 @@ export const testBlogsApi = () =>
         );
 
       await request(app)
-        .get(`${blogs_router}?pageNumber=2&pageSize=3`)
+        .get(`${router.blogs}?pageNumber=2&pageSize=3`)
         .expect(
           HTTP_STATUSES.OK_200,
           getPaginationItems({
@@ -179,7 +179,7 @@ export const testBlogsApi = () =>
         );
 
       await request(app)
-        .get(`${blogs_router}?pageNumber=99`)
+        .get(`${router.blogs}?pageNumber=99`)
         .expect(
           HTTP_STATUSES.OK_200,
           getPaginationItems({
@@ -192,13 +192,13 @@ export const testBlogsApi = () =>
 
     it("Get blog by id. Should return 200 and blog", async () => {
       await request(app)
-        .get(`${blogs_router}/${createdBlogs[0].id}`)
+        .get(`${router.blogs}/${createdBlogs[0].id}`)
         .expect(HTTP_STATUSES.OK_200, createdBlogs[0]);
     });
 
     it("Get blog by id. Should return 404", async () => {
       await request(app)
-        .get(`${blogs_router}/fakeBlogId`)
+        .get(`${router.blogs}/fakeBlogId`)
         .expect(HTTP_STATUSES.NOT_FOUND_404);
     });
 
@@ -206,19 +206,19 @@ export const testBlogsApi = () =>
       const updateData = { name: "Updated", youtubeUrl: "https://new.url" };
 
       await request(app)
-        .put(`${blogs_router}/${createdBlogs[1].id}`)
+        .put(`${router.blogs}/${createdBlogs[1].id}`)
         .set(basicAuth)
         .send(updateData)
         .expect(HTTP_STATUSES.NO_CONTENT_204);
 
       await request(app)
-        .get(`${blogs_router}/${createdBlogs[1].id}`)
+        .get(`${router.blogs}/${createdBlogs[1].id}`)
         .expect(HTTP_STATUSES.OK_200, { ...createdBlogs[1], ...updateData });
     });
 
     it("Update blog. Should return 404", async () => {
       await request(app)
-        .put(`${blogs_router}/fakeBlogId`)
+        .put(`${router.blogs}/fakeBlogId`)
         .set(basicAuth)
         .send({ name: "Updated", youtubeUrl: "https://new.url" })
         .expect(HTTP_STATUSES.NOT_FOUND_404);
@@ -226,7 +226,7 @@ export const testBlogsApi = () =>
 
     it("Update blog. Incorrect body cases. Should return 400 and errorsMessages", async () => {
       const firstRes = await request(app)
-        .put(`${blogs_router}/${createdBlogs[2].id}`)
+        .put(`${router.blogs}/${createdBlogs[2].id}`)
         .set(basicAuth)
         .send();
 
@@ -237,7 +237,7 @@ export const testBlogsApi = () =>
       expect(firstRes.body.errorsMessages).toHaveLength(2);
 
       const secondRes = await request(app)
-        .put(`${blogs_router}/${createdBlogs[2].id}`)
+        .put(`${router.blogs}/${createdBlogs[2].id}`)
         .set(basicAuth)
         .send({
           name: getOverMaxLength(15),
@@ -251,7 +251,7 @@ export const testBlogsApi = () =>
       expect(secondRes.body.errorsMessages).toHaveLength(2);
 
       const thirdRes = await request(app)
-        .put(`${blogs_router}/${createdBlogs[2].id}`)
+        .put(`${router.blogs}/${createdBlogs[2].id}`)
         .set(basicAuth)
         .send({ name: "valid", youtubeUrl: "https://badurl" });
 
@@ -262,24 +262,24 @@ export const testBlogsApi = () =>
       expect(thirdRes.body.errorsMessages).toHaveLength(1);
 
       await request(app)
-        .get(`${blogs_router}/${createdBlogs[2].id}`)
+        .get(`${router.blogs}/${createdBlogs[2].id}`)
         .expect(HTTP_STATUSES.OK_200, createdBlogs[2]);
     });
 
     it("Delete blog. Should delete blog and return 204", async () => {
       await request(app)
-        .delete(`${blogs_router}/${createdBlogs[3].id}`)
+        .delete(`${router.blogs}/${createdBlogs[3].id}`)
         .set(basicAuth)
         .expect(HTTP_STATUSES.NO_CONTENT_204);
 
       await request(app)
-        .get(`${blogs_router}/${createdBlogs[3].id}`)
+        .get(`${router.blogs}/${createdBlogs[3].id}`)
         .expect(HTTP_STATUSES.NOT_FOUND_404);
     });
 
     it("Delete blog. Should return 404", async () => {
       await request(app)
-        .delete(`${blogs_router}/fakeBlogId`)
+        .delete(`${router.blogs}/fakeBlogId`)
         .set(basicAuth)
         .expect(HTTP_STATUSES.NOT_FOUND_404);
     });
@@ -288,7 +288,7 @@ export const testBlogsApi = () =>
 
     it("Create post by blogId. Should return 404", async () => {
       await request(app)
-        .post(`${blogs_router}/fakeBlogId/posts`)
+        .post(`${router.blogs}/fakeBlogId/posts`)
         .set(basicAuth)
         .send({ title: "valid", shortDescription: "valid", content: "valid" })
         .expect(HTTP_STATUSES.NOT_FOUND_404);
@@ -296,7 +296,7 @@ export const testBlogsApi = () =>
 
     it("Create post by blogId. Should return 400 and errorsMessages", async () => {
       const firstRes = await request(app)
-        .post(`${blogs_router}/${createdBlogs[0].id}/posts`)
+        .post(`${router.blogs}/${createdBlogs[0].id}/posts`)
         .set(basicAuth)
         .send();
 
@@ -311,7 +311,7 @@ export const testBlogsApi = () =>
       expect(firstRes.body.errorsMessages).toHaveLength(3);
 
       const secondRes = await request(app)
-        .post(`${blogs_router}/${createdBlogs[0].id}/posts`)
+        .post(`${router.blogs}/${createdBlogs[0].id}/posts`)
         .set(basicAuth)
         .send({
           title: getOverMaxLength(30),
@@ -330,7 +330,7 @@ export const testBlogsApi = () =>
       expect(secondRes.body.errorsMessages).toHaveLength(3);
 
       const thirdRes = await request(app)
-        .post(`${blogs_router}/${createdBlogs[0].id}/posts`)
+        .post(`${router.blogs}/${createdBlogs[0].id}/posts`)
         .set(basicAuth)
         .send({ title: "valid", shortDescription: "" });
 
@@ -341,14 +341,14 @@ export const testBlogsApi = () =>
       expect(thirdRes.body.errorsMessages).toHaveLength(2);
 
       await request(app)
-        .get(`${blogs_router}/${createdBlogs[0].id}/posts`)
+        .get(`${router.blogs}/${createdBlogs[0].id}/posts`)
         .expect(HTTP_STATUSES.OK_200, getPaginationItems());
     });
 
     it("Create post by blogId. Should return 201 and new post", async () => {
       const post = validPosts[0];
       const res = await request(app)
-        .post(`${blogs_router}/${createdBlogs[0].id}/posts`)
+        .post(`${router.blogs}/${createdBlogs[0].id}/posts`)
         .set(basicAuth)
         .send(post);
 
@@ -366,7 +366,7 @@ export const testBlogsApi = () =>
 
     it("Get posts by blogId. Should return 200 and 1 post", async () => {
       await request(app)
-        .get(`${blogs_router}/${createdBlogs[0].id}/posts`)
+        .get(`${router.blogs}/${createdBlogs[0].id}/posts`)
         .expect(
           HTTP_STATUSES.OK_200,
           getPaginationItems({
@@ -386,24 +386,24 @@ export const testBlogsApi = () =>
 
       await request(app)
         .get(
-          `${blogs_router}/${createdBlogs[0].id}/posts?${incorrectQuery.empty}`
+          `${router.blogs}/${createdBlogs[0].id}/posts?${incorrectQuery.empty}`
         )
         .expect(HTTP_STATUSES.OK_200, expectedRes);
 
       await request(app)
         .get(
-          `${blogs_router}/${createdBlogs[0].id}/posts?${incorrectQuery.incorrect}`
+          `${router.blogs}/${createdBlogs[0].id}/posts?${incorrectQuery.incorrect}`
         )
         .expect(HTTP_STATUSES.OK_200, expectedRes);
     });
 
     it("Get posts by blogId. Should return 404", async () => {
       await request(app)
-        .get(`${blogs_router}/fakeBlogId/posts`)
+        .get(`${router.blogs}/fakeBlogId/posts`)
         .expect(HTTP_STATUSES.NOT_FOUND_404);
     });
 
     afterAll(async () => {
-      await request(app).delete(delete_all_router);
+      await request(app).delete(router.delete_all);
     });
   });
