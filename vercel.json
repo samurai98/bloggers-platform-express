@@ -1,7 +1,8 @@
 {
   "version": 2,
   "name": "bloggers-platform-express",
-  "buildCommand": "yarn tsc",
-  "builds": [{ "src": "src=dist node dist/index.js", "use": "@vercel/node" }],
+  "buildCommand": "yarn run tsc",
+  "devCommand": "nodemon src/index.ts",
+  "builds": [{ "src": "src/index.ts", "use": "@vercel/node" }],
   "routes": [{ "src": "/(.*)", "dest": "src/index.ts" }]
 }
