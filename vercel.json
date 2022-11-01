@@ -1,5 +1,6 @@
 {
   "version": 2,
   "name": "bloggers-platform-express",
-  "builds": [{ "src": "package.json", "use": "@vercel/node" }]
+  "builds": [{ "src": "src/index.ts", "use": "@vercel/node" }],
+  "routes": [{ "src": "/(.*)", "dest": "src/index.ts" }]
 }
