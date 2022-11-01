@@ -8,7 +8,7 @@ import { SETTINGS } from "settings/config";
 
 const client = new MongoClient(SETTINGS.MONGO_DB_URI);
 
-const bloggersPlatformDB = client.db("bloggers-platform-express");
+const bloggersPlatformDB = client.db();
 
 export const blogsCollection = bloggersPlatformDB.collection<Blog>("blogs");
 export const postsCollection = bloggersPlatformDB.collection<Post>("posts");
