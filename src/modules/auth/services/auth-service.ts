@@ -160,7 +160,7 @@ export const authService = {
 
     const newRefreshSession: RefreshSession = {
       userId: user.accountData.id,
-      refreshToken: uuidv4(),
+      refreshToken: await jwtService.createJWT(user, "20s"),
       expiresIn: refreshTokenExpiresInMs,
       ip,
     };
@@ -168,7 +168,7 @@ export const authService = {
     await sessionsService.addRefreshSession(newRefreshSession);
 
     return {
-      ...(await jwtService.createJWT(user, accessTokenLifeTime)),
+      accessToken: await jwtService.createJWT(user, accessTokenLifeTime),
       cookie: {
         name: "refreshToken",
         value: newRefreshSession.refreshToken,
