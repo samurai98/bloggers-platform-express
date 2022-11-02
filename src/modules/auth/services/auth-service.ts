@@ -183,8 +183,8 @@ export const authService = {
           httpOnly: true,
           // TODO: use cookie-parser middleware for use signed cookies
           // signed: true,
-          // secure: true,
-          sameSite: true,
+          secure: true,
+          // sameSite: true,
         },
       },
     };
