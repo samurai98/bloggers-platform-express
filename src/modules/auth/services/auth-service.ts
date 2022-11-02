@@ -161,7 +161,10 @@ export const authService = {
 
     const newRefreshSession: RefreshSession = {
       userId: user.accountData.id,
-      refreshToken: await jwtService.createJWT(user, refreshTokenLifeTimeString),
+      refreshToken: await jwtService.createJWT(
+        user,
+        refreshTokenLifeTimeString
+      ),
       expiresIn: refreshTokenExpiresInMs,
       ip,
     };
@@ -180,7 +183,7 @@ export const authService = {
           httpOnly: true,
           // TODO: use cookie-parser middleware for use signed cookies
           // signed: true,
-          secure: true,
+          // secure: true,
           sameSite: true,
         },
       },
