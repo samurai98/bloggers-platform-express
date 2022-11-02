@@ -1,5 +1,5 @@
 import bcrypt from "bcrypt";
-import { v4 as uuIdv4 } from "uuid";
+import { v4 as uuidv4 } from "uuid";
 import { add } from "date-fns";
 
 import { generateHash, getCurrentDateISO } from "common/helpers/utils";
@@ -28,7 +28,7 @@ export const usersService = {
         createdAt: currentDate,
       },
       emailConfirmation: {
-        confirmationCode: uuIdv4(),
+        confirmationCode: uuidv4(),
         expirationDate: add(new Date(), { hours: 1 }),
         isConfirmed: false,
       },

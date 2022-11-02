@@ -7,26 +7,14 @@ export type User = {
   createdAt: string;
 };
 
-export type ReqBodyUser = {
-  email: string;
-  login: string;
-  password: string;
-};
-
-export type ReqBodyAuth = {
-  login: string;
-  password: string;
-};
+export type ReqBodyUser = { email: string; login: string; password: string };
 
 export type UserDB = {
   accountData: UserAccountData;
   emailConfirmation: UserEmailConfirmation;
 };
 
-type UserAccountData = User & {
-  passHash: string;
-  passSalt: string;
-};
+type UserAccountData = User & { passHash: string; passSalt: string };
 
 export type UserEmailConfirmation = {
   confirmationCode: string;

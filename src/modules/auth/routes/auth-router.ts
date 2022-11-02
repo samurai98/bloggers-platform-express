@@ -1,29 +1,36 @@
 import { Router, Request, Response } from "express";
 
+import { checkBearerAuth } from "middlewares";
 import { HTTP_STATUSES } from "common/http-statuses";
 import { ResErrorsMessages, ResType } from "common/types";
-import { jwtService } from "common/services/jwt-service";
-import { checkBearerAuth } from "middlewares";
+import { getErrorsMessages } from "common/helpers/utils";
 
-import { ReqBodyAuth, ReqBodyUser, User } from "../../users/user";
+import { ReqBodyUser, User } from "../../users/user";
 import { usersService } from "../../users/services/users-service";
 import { authService } from "../services/auth-service";
-import { ReqBodyConfirm, ReqBodyResending, ResLogin, ResMe } from "../auth";
+import {
+  ReqBodyConfirm,
+  ReqBodyResending,
+  ResLogin,
+  ResMe,
+  ReqBodyAuth,
+} from "../auth";
 import {
   authValidation,
   registrationValidation,
   confirmationValidation,
   resendingValidation,
 } from "./validation";
-import { getErrorsMessages } from "common/helpers/utils";
 
 export const authRouter = Router({});
 
 export const authPath = {
   login: "/login",
   registration: "/registration",
+  refreshToken: "/refresh-token",
   confirmRegistration: "/registration-confirmation",
   resendingEmail: "/registration-email-resending",
+  logout: "/logout",
   me: "/me",
 } as const;
 
@@ -31,11 +38,15 @@ authRouter.post(
   authPath.login,
   authValidation,
   async (req: Request<{}, {}, ReqBodyAuth>, res: Response<ResLogin>) => {
-    const user = await authService.authUser(req.body);
+    const result = await authService.loginUser({ ...req.body, ip: req.ip });
 
-    if (user) {
-      const result = await jwtService.createJWT(user);
-      res.status(HTTP_STATUSES.OK_200).send(result);
+    if (result) {
+      const { name, value, options } = result.cookie;
+
+      res
+        .status(HTTP_STATUSES.OK_200)
+        .cookie(name, value, options)
+        .send({ accessToken: result.accessToken });
     } else res.sendStatus(HTTP_STATUSES.UNAUTHORIZED_401);
   }
 );
@@ -48,6 +59,25 @@ authRouter.post(
 
     if (user) res.sendStatus(HTTP_STATUSES.NO_CONTENT_204);
     else res.sendStatus(HTTP_STATUSES.BAD_REQUEST_400);
+  }
+);
+
+authRouter.post(
+  authPath.refreshToken,
+  async (req: Request, res: Response<ResLogin>) => {
+    const result = await authService.refreshToken(
+      req.cookies?.refreshToken,
+      req.ip
+    );
+
+    if (result) {
+      const { name, value, options } = result.cookie;
+
+      res
+        .status(HTTP_STATUSES.OK_200)
+        .cookie(name, value, options)
+        .send({ accessToken: result.accessToken });
+    } else res.sendStatus(HTTP_STATUSES.UNAUTHORIZED_401);
   }
 );
 
@@ -86,6 +116,16 @@ authRouter.post(
         .send(
           getErrorsMessages<ReqBodyResending>({ email: "Incorrect email" })
         );
+  }
+);
+
+authRouter.post(
+  authPath.logout,
+  async (req: Request, res: Response<ResLogin>) => {
+    const isLogout = await authService.logout(req.cookies?.refreshToken);
+
+    if (isLogout) res.status(HTTP_STATUSES.NO_CONTENT_204);
+    else res.sendStatus(HTTP_STATUSES.UNAUTHORIZED_401);
   }
 );
 

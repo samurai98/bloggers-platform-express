@@ -3,11 +3,11 @@ import request from "supertest";
 import { app } from "../../src/index";
 import { HTTP_STATUSES } from "../../src/common/http-statuses";
 import { router } from "../../src/routers";
-import { ReqBodyAuth, ReqBodyUser, User } from "../../src/modules/users/user";
+import { ReqBodyUser, User } from "../../src/modules/users/user";
 import { jwtService } from "../../src/common/services/jwt-service";
 import { authPath } from "../../src/modules/auth/routes/auth-router";
 import { usersQueryRepository } from "../../src/modules/users/repositories";
-import { ReqBodyConfirm, ReqBodyResending } from "../../src/modules/auth/auth";
+import { ReqBodyAuth, ReqBodyConfirm, ReqBodyResending } from "../../src/modules/auth/auth";
 
 import { bearerAuth, validUsers } from "../common/data";
 import { getErrorsMessages, setBearerAuth } from "../common/helpers";

@@ -4,6 +4,7 @@ import { Blog } from "modules/blogs/blog";
 import { Post } from "modules/posts/post";
 import { CommentDB } from "modules/comments/comment";
 import { UserDB } from "modules/users/user";
+import { RefreshSession } from "modules/auth/auth";
 import { SETTINGS } from "settings/config";
 
 const client = new MongoClient(SETTINGS.MONGO_DB_URI);
@@ -14,6 +15,7 @@ export const blogsCollection = bloggersPlatformDB.collection<Blog>("blogs");
 export const postsCollection = bloggersPlatformDB.collection<Post>("posts");
 export const commentsCollection = bloggersPlatformDB.collection<CommentDB>("comments");
 export const usersCollection = bloggersPlatformDB.collection<UserDB>("users");
+export const sessionsCollection = bloggersPlatformDB.collection<RefreshSession>("sessions");
 
 export async function runDB() {
   try {
