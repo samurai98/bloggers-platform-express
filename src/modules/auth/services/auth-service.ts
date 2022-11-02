@@ -18,6 +18,7 @@ import { sessionsService } from "./sessions-service";
 
 const accessTokenLifeTime = "10s";
 const refreshTokenLifeTime: Duration = { seconds: 20 };
+const refreshTokenLifeTimeString = "20s";
 const confirmEmailCodeLifeTime: Duration = { hours: 1 };
 
 export const authService = {
@@ -160,7 +161,7 @@ export const authService = {
 
     const newRefreshSession: RefreshSession = {
       userId: user.accountData.id,
-      refreshToken: await jwtService.createJWT(user, "20s"),
+      refreshToken: await jwtService.createJWT(user, refreshTokenLifeTimeString),
       expiresIn: refreshTokenExpiresInMs,
       ip,
     };
@@ -177,7 +178,7 @@ export const authService = {
           path: "/auth",
           maxAge: refreshTokenExpiresInSeconds,
           httpOnly: true,
-          // TODO: install cookie-parser middleware for use signed cookies
+          // TODO: use cookie-parser middleware for use signed cookies
           // signed: true,
           secure: true,
           sameSite: true,

@@ -1,4 +1,5 @@
 import express from "express";
+import cookieParser from "cookie-parser";
 
 import { addRequestContext } from "middlewares";
 import { SETTINGS } from "settings/config";
@@ -11,6 +12,7 @@ const port = SETTINGS.PORT;
 
 app.use(express.json());
 app.use(addRequestContext());
+app.use(cookieParser());
 
 useRouters(app);
 
