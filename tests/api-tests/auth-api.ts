@@ -7,12 +7,25 @@ import { ReqBodyUser, User } from "../../src/modules/users/user";
 import { jwtService } from "../../src/common/services/jwt-service";
 import { authPath } from "../../src/modules/auth/routes/auth-router";
 import { usersQueryRepository } from "../../src/modules/users/repositories";
-import { ReqBodyAuth, ReqBodyConfirm, ReqBodyResending } from "../../src/modules/auth/auth";
+import {
+  ReqBodyAuth,
+  ReqBodyConfirm,
+  ReqBodyResending,
+} from "../../src/modules/auth/auth";
 
 import { bearerAuth, validUsers } from "../common/data";
-import { getErrorsMessages, setBearerAuth } from "../common/helpers";
+import { anyString, getErrorsMessages, setBearerAuth } from "../common/helpers";
 
 let createdUser = {} as User;
+
+const checkCookie = (cookie: string) => {
+  const cookieSplit = cookie.split("; ");
+
+  expect(cookieSplit.includes("Secure")).toEqual(true);
+  expect(cookieSplit.includes("HttpOnly")).toEqual(true);
+  expect(cookieSplit[0].split("=")[0]).toEqual("refreshToken");
+  expect(cookieSplit[0].split("=")[1]).toEqual(anyString);
+};
 
 export const testAuthApi = () =>
   describe("Test auth api", () => {
@@ -103,30 +116,57 @@ export const testAuthApi = () =>
       expect(secondRes.body.errorsMessages).toHaveLength(1);
     });
 
-    it("Login user. Should return 204", async () => {
+    it("Login user. Should return 200, accessToken in body and refreshToken in cookie", async () => {
       const firstRes = await request(app)
         .post(`${router.auth}${authPath.login}`)
         .send({ login: validUsers[0].login, password: validUsers[0].password });
 
-      const firstExpectedToken = await jwtService.getUserIdByToken(
+      const firstUserIdByToken = await jwtService.getUserIdByToken(
         firstRes.body.accessToken
       );
 
+      checkCookie(firstRes.header["set-cookie"][0]);
       expect(firstRes.statusCode).toEqual(HTTP_STATUSES.OK_200);
-      expect(firstExpectedToken).toEqual(createdUser.id);
+      expect(firstUserIdByToken).toEqual(createdUser.id);
 
       const secondRes = await request(app)
         .post(`${router.auth}${authPath.login}`)
         .send({ login: validUsers[0].email, password: validUsers[0].password });
 
-      const secondExpectedToken = await jwtService.getUserIdByToken(
+      const secondCookie = secondRes.header["set-cookie"][0];
+      const secondUserIdByToken = await jwtService.getUserIdByToken(
         secondRes.body.accessToken
       );
 
+      checkCookie(secondCookie);
       expect(secondRes.statusCode).toEqual(HTTP_STATUSES.OK_200);
-      expect(secondExpectedToken).toEqual(createdUser.id);
+      expect(secondUserIdByToken).toEqual(createdUser.id);
 
-      setBearerAuth(secondRes.body.accessToken);
+      setBearerAuth(secondRes.body.accessToken, secondCookie);
+    });
+
+    it("Refresh token. Should return 200, accessToken in body and refreshToken in cookie", async () => {
+      const res = await request(app)
+        .post(`${router.auth}${authPath.refreshToken}`)
+        .set(bearerAuth);
+
+      const userIdByToken = await jwtService.getUserIdByToken(
+        res.body.accessToken
+      );
+
+      const cookie = res.header["set-cookie"][0];
+
+      checkCookie(cookie);
+      expect(res.statusCode).toEqual(HTTP_STATUSES.OK_200);
+      expect(userIdByToken).toEqual(createdUser.id);
+
+      setBearerAuth(res.body.accessToken, cookie);
+    });
+
+    it("Refresh token. Should return 401", async () => {
+      await request(app)
+        .post(`${router.auth}${authPath.refreshToken}`)
+        .expect(HTTP_STATUSES.UNAUTHORIZED_401);
     });
 
     it("Get user information (me). Should return 200 and user information", async () => {
@@ -184,6 +224,24 @@ export const testAuthApi = () =>
         .post(`${router.auth}${authPath.resendingEmail}`)
         .send({ email: validUsers[1].email })
         .expect(HTTP_STATUSES.NO_CONTENT_204);
+    });
+
+    it("Logout. Should return 401", async () => {
+      await request(app)
+        .post(`${router.auth}${authPath.logout}`)
+        .expect(HTTP_STATUSES.UNAUTHORIZED_401);
+    });
+
+    it("Logout. Should return 204 and revoke refreshToken", async () => {
+      await request(app)
+        .post(`${router.auth}${authPath.logout}`)
+        .set(bearerAuth)
+        .expect(HTTP_STATUSES.NO_CONTENT_204);
+
+      await request(app)
+        .post(`${router.auth}${authPath.refreshToken}`)
+        .set(bearerAuth)
+        .expect(HTTP_STATUSES.UNAUTHORIZED_401);
     });
 
     afterAll(async () => {

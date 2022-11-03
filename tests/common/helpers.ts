@@ -48,6 +48,7 @@ export const getPaginationItems = ({
   items,
 });
 
-export const setBearerAuth = (token: string) => {
+export const setBearerAuth = (token: string, cookie: string) => {
   bearerAuth.Authorization = `Bearer ${token}`;
+  bearerAuth.Cookie = cookie;
 };

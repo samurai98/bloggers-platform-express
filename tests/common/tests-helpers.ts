@@ -63,7 +63,7 @@ export const createUser = async ({ isLogin = false, validUserIndex = 0 }) => {
   expect(loginRes.statusCode).toEqual(HTTP_STATUSES.OK_200);
   expect(expectedToken).toEqual(createdUser.id);
 
-  setBearerAuth(loginRes.body.accessToken);
+  setBearerAuth(loginRes.body.accessToken, loginRes.header["set-cookie"][0]);
 
   return createdUser;
 };

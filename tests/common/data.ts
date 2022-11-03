@@ -5,7 +5,7 @@ import { ReqBodyUser } from "../../src/modules/users/user";
 
 export const basicAuth = { Authorization: "Basic YWRtaW46cXdlcnR5" };
 
-export const bearerAuth = {} as { Authorization: string };
+export const bearerAuth = {} as { Authorization: string; Cookie: string };
 
 export const incorrectQuery = {
   empty: "&pageNumber=&pageSize=&sortBy=&sortDirection=",
