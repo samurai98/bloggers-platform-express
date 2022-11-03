@@ -184,7 +184,7 @@ export const authService = {
           // TODO: use cookie-parser middleware for use signed cookies
           // signed: true,
           secure: true,
-          // sameSite: true,
+          sameSite: true,
         },
       },
     };
