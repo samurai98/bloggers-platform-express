@@ -159,6 +159,7 @@ export const testAuthApi = () =>
       checkCookie(cookie);
       expect(res.statusCode).toEqual(HTTP_STATUSES.OK_200);
       expect(userIdByToken).toEqual(createdUser.id);
+      expect(bearerAuth.Cookie).not.toEqual(cookie);
 
       setBearerAuth(res.body.accessToken, cookie);
     });

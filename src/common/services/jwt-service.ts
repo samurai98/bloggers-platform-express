@@ -6,7 +6,8 @@ import { SETTINGS } from "settings/config";
 export const jwtService = {
   async createJWT(user: UserDB, lifeTime: string = "15m"): Promise<string> {
     const accessToken = jwt.sign(
-      { userId: user.accountData.id },
+      // createdAt need for generate unique jwt
+      { userId: user.accountData.id, createdAt: new Date().getTime() },
       SETTINGS.JWT_SECRET,
       { expiresIn: lifeTime }
     );
