@@ -13,7 +13,7 @@ const port = SETTINGS.PORT;
 app.use(express.json());
 app.use(addRequestContext());
 app.use(cookieParser());
-app.set('trust proxy', 1)
+app.set("trust proxy", 1);
 
 useRouters(app);
 

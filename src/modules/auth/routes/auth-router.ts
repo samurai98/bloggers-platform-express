@@ -124,7 +124,7 @@ authRouter.post(
   async (req: Request, res: Response<ResLogin>) => {
     const isLogout = await authService.logout(req.cookies?.refreshToken);
 
-    if (isLogout) res.status(HTTP_STATUSES.NO_CONTENT_204);
+    if (isLogout) res.sendStatus(HTTP_STATUSES.NO_CONTENT_204);
     else res.sendStatus(HTTP_STATUSES.UNAUTHORIZED_401);
   }
 );
