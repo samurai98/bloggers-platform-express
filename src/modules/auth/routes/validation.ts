@@ -7,6 +7,7 @@ import {
   checkBearerAuth,
   checkRefreshSession,
   inputValidation,
+  checkRequestsCount,
 } from "middlewares";
 
 import { sessionsService } from "../services/sessions-service";
@@ -66,7 +67,9 @@ const deviceIdValidation = async (
   res: Response,
   next: NextFunction
 ) => {
-  const session = await sessionsService.getSessionByDeviceId(req.params.deviceId);
+  const session = await sessionsService.getSessionByDeviceId(
+    req.params.deviceId
+  );
 
   if (!session) {
     res.sendStatus(HTTP_STATUSES.NOT_FOUND_404);
@@ -79,6 +82,7 @@ const deviceIdValidation = async (
 };
 
 export const registrationValidation = [
+  checkRequestsCount,
   loginValidation,
   emailValidation,
   passwordValidation,
@@ -86,11 +90,23 @@ export const registrationValidation = [
   inputValidation,
 ];
 
-export const confirmationValidation = [codeValidation, inputValidation];
+export const confirmationValidation = [
+  checkRequestsCount,
+  codeValidation,
+  inputValidation,
+];
 
-export const resendingValidation = [emailValidation, inputValidation];
+export const resendingValidation = [
+  checkRequestsCount,
+  emailValidation,
+  inputValidation,
+];
 
-export const authValidation = [loginAndPassValidation, inputValidation];
+export const authValidation = [
+  checkRequestsCount,
+  loginAndPassValidation,
+  inputValidation,
+];
 
 export const deleteDeviceValidation = [
   checkRefreshSession,
