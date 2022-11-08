@@ -1,11 +1,30 @@
 import { sessionRepository } from "../repositories/session-repository";
-import { RefreshSession } from "../auth";
+import { Device, RefreshSession } from "../auth";
 
 const MAX_REFRESH_SESSIONS_COUNT = 5;
 
 export const sessionsService = {
   async getByRefreshToken(token: string): Promise<RefreshSession | null> {
     return await sessionRepository.getSession({ refreshToken: token });
+  },
+
+  async getActiveSessions(
+    userId: string | undefined
+  ): Promise<Device[] | false> {
+    if (!userId) return false;
+
+    const sessions = await sessionRepository.getSessions({ userId });
+
+    return sessions.map((session) => ({
+      ip: session.ip,
+      deviceId: session.deviceId,
+      title: session.deviceName,
+      lastActiveDate: new Date(session.issuedAt).toISOString(),
+    }));
+  },
+
+  async getSessionByDeviceId(deviceId: string): Promise<RefreshSession | null> {
+    return await sessionRepository.getSession({ deviceId });
   },
 
   async addRefreshSession(refreshSession: RefreshSession): Promise<boolean> {
@@ -18,8 +37,23 @@ export const sessionsService = {
     return true;
   },
 
-  async deleteSession(token: string): Promise<boolean> {
-    return await sessionRepository.removeOneWhere({ refreshToken: token });
+  async deleteSession(refreshToken: string): Promise<boolean> {
+    return await sessionRepository.removeOneWhere({ refreshToken });
+  },
+
+  async deleteSessionByDeviceId(deviceId: string): Promise<boolean> {
+    return await sessionRepository.removeOneWhere({ deviceId });
+  },
+
+  async deleteAllSessionsExcludeCurrent(
+    refreshToken: string | undefined,
+    userId: string | undefined
+  ): Promise<boolean> {
+    if (!refreshToken || !userId) return false;
+
+    return await sessionRepository.removeAllWhere({
+      $and: [{ userId }, { refreshToken: { $ne: refreshToken } }],
+    });
   },
 
   async verifyRefreshSession(

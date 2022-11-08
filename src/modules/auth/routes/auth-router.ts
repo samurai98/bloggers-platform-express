@@ -65,10 +65,11 @@ authRouter.post(
 authRouter.post(
   authPath.refreshToken,
   async (req: Request, res: Response<ResLogin>) => {
-    const result = await authService.refreshToken(
-      req.cookies?.refreshToken,
-      req.ip
-    );
+    const result = await authService.updateRefreshToken({
+      refreshToken: req.cookies?.refreshToken,
+      ip: req.ip,
+      ua: req.headers["user-agent"],
+    });
 
     if (result) {
       const { name, value, options } = result.cookie;

@@ -5,6 +5,7 @@ import { postsRouter } from "./modules/posts/routes/posts-router";
 import { deleteAllRouter } from "./common/routes/delete-router";
 import { usersRouter } from "./modules/users/routes/users-router";
 import { authRouter } from "./modules/auth/routes/auth-router";
+import { securityDevicesRouter } from "modules/auth/routes/security-devices-router";
 import { commentsRouter } from "modules/comments/routes/comments-router";
 
 export const router = {
@@ -13,6 +14,7 @@ export const router = {
   comments: "/comments",
   users: "/users",
   auth: "/auth",
+  securityDevices: "/security/devices",
   delete_all: "/testing/all-data",
 } as const;
 
@@ -22,6 +24,7 @@ export const useRouters = (app: Express) => {
   app.use(router.comments, commentsRouter);
   app.use(router.users, usersRouter);
   app.use(router.auth, authRouter);
+  app.use(router.securityDevices, securityDevicesRouter);
 
   app.use(router.delete_all, deleteAllRouter);
 };

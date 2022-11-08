@@ -26,36 +26,47 @@ export const authService = {
     login: loginOrEmail,
     password,
     ip,
+    ua,
   }: LoginUserData): Promise<ResLoginWithCookie | false> {
     const user = await this._getUserByCredentials(loginOrEmail, password);
 
     if (!user) return false;
 
-    return this._createNewRefreshSession(user, ip);
+    return this._createNewRefreshSession({
+      userId: user.accountData.id,
+      ip,
+      ua,
+    });
   },
 
-  async refreshToken(
-    reqRefreshToken: string,
-    ip: string
-  ): Promise<ResLoginWithCookie | false> {
-    if (!reqRefreshToken) return false;
+  async updateRefreshToken({
+    refreshToken,
+    ip,
+    ua,
+  }: {
+    refreshToken: string;
+    ip: string;
+    ua?: string;
+  }): Promise<ResLoginWithCookie | false> {
+    if (!refreshToken) return false;
 
     const oldRefreshSession = await sessionsService.getByRefreshToken(
-      reqRefreshToken
+      refreshToken
     );
     const isVerify =
       !!oldRefreshSession &&
       (await sessionsService.verifyRefreshSession(oldRefreshSession, ip));
 
-    await sessionsService.deleteSession(reqRefreshToken);
+    await sessionsService.deleteSession(refreshToken);
 
     if (!oldRefreshSession || !isVerify) return false;
 
-    const user = await usersQueryRepository.findDBUserById(
-      oldRefreshSession.userId
-    );
-
-    return !!user && this._createNewRefreshSession(user, ip);
+    return await this._createNewRefreshSession({
+      userId: oldRefreshSession.userId,
+      currentDeviceId: oldRefreshSession.deviceId,
+      ip,
+      ua,
+    });
   },
 
   async sendConfirmEmail(user: UserDB): Promise<boolean> {
@@ -114,10 +125,10 @@ export const authService = {
     return usersQueryRepository.findUserByLoginOrEmail(user.accountData.email);
   },
 
-  async logout(reqRefreshToken: string): Promise<boolean> {
-    if (!reqRefreshToken) return false;
+  async logout(refreshToken: string): Promise<boolean> {
+    if (!refreshToken) return false;
 
-    return await sessionsService.deleteSession(reqRefreshToken);
+    return await sessionsService.deleteSession(refreshToken);
   },
 
   async _getUserByCredentials(
@@ -136,6 +147,7 @@ export const authService = {
       ));
 
     if (isCorrectPass) return user;
+
     return null;
   },
 
@@ -147,10 +159,17 @@ export const authService = {
     return (await generateHash(pass, passSalt)) === hash;
   },
 
-  async _createNewRefreshSession(
-    user: UserDB,
-    ip: string
-  ): Promise<ResLoginWithCookie> {
+  async _createNewRefreshSession({
+    userId,
+    ip,
+    currentDeviceId,
+    ua,
+  }: {
+    userId: string;
+    ip: string;
+    currentDeviceId?: string;
+    ua?: string;
+  }): Promise<ResLoginWithCookie> {
     const refreshTokenExpiresInMs = add(
       new Date(),
       refreshTokenLifeTime
@@ -159,25 +178,35 @@ export const authService = {
       refreshTokenExpiresInMs / 1000
     );
 
+    const deviceId = currentDeviceId || uuidv4();
+    const refreshToken = await jwtService.createJWT(
+      { userId, deviceId },
+      refreshTokenLifeTimeString
+    );
+
     const newRefreshSession: RefreshSession = {
-      userId: user.accountData.id,
-      refreshToken: await jwtService.createJWT(
-        user,
-        refreshTokenLifeTimeString
-      ),
-      expiresIn: refreshTokenExpiresInMs,
       ip,
+      userId,
+      issuedAt: new Date().getTime(),
+      expiresIn: refreshTokenExpiresInMs,
+      deviceId,
+      deviceName: ua || "User-Agent not defined",
+      refreshToken,
     };
 
     await sessionsService.addRefreshSession(newRefreshSession);
 
+    const accessToken = await jwtService.createJWT(
+      { userId },
+      accessTokenLifeTime
+    );
+
     return {
-      accessToken: await jwtService.createJWT(user, accessTokenLifeTime),
+      accessToken,
       cookie: {
         name: "refreshToken",
         value: newRefreshSession.refreshToken,
         options: {
-          // domain: "localhost",
           path: "/auth",
           maxAge: refreshTokenExpiresInSeconds,
           httpOnly: true,

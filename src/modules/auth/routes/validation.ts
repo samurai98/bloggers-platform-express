@@ -1,8 +1,15 @@
 import { Request, Response, NextFunction } from "express";
 import { body } from "express-validator";
-import { inputValidation } from "middlewares";
 
+import { HTTP_STATUSES } from "common/http-statuses";
 import { usersQueryRepository } from "modules/users/repositories";
+import {
+  checkBearerAuth,
+  checkRefreshSession,
+  inputValidation,
+} from "middlewares";
+
+import { sessionsService } from "../services/sessions-service";
 
 export const loginValidation = body("login")
   .trim()
@@ -54,6 +61,23 @@ const codeValidation = body("code")
   .notEmpty()
   .withMessage("Code incorrect");
 
+const deviceIdValidation = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const session = await sessionsService.getSessionByDeviceId(req.params.deviceId);
+
+  if (!session) {
+    res.sendStatus(HTTP_STATUSES.NOT_FOUND_404);
+    return;
+  }
+
+  if (session.userId !== req.requestContext.user?.id) {
+    res.sendStatus(HTTP_STATUSES.FORBIDDEN_403);
+  } else next();
+};
+
 export const registrationValidation = [
   loginValidation,
   emailValidation,
@@ -67,3 +91,9 @@ export const confirmationValidation = [codeValidation, inputValidation];
 export const resendingValidation = [emailValidation, inputValidation];
 
 export const authValidation = [loginAndPassValidation, inputValidation];
+
+export const deleteDeviceValidation = [
+  checkRefreshSession,
+  checkBearerAuth,
+  deviceIdValidation,
+];

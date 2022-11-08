@@ -71,13 +71,6 @@ export const usersQueryRepository = {
     return user ? userMapper(user) : null;
   },
 
-  async findDBUserById(id: string): Promise<UserDB | null> {
-    return await usersCollection.findOne(
-      { "accountData.id": id },
-      { projection }
-    );
-  },
-
   async findUserByLoginOrEmail(loginOrEmail: string): Promise<UserDB | null> {
     return usersCollection.findOne(
       {

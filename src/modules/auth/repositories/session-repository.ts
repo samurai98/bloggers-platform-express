@@ -11,8 +11,16 @@ export const sessionRepository = {
     return true;
   },
 
-  async getSession(filter: Filter<RefreshSession>): Promise<RefreshSession | null> {
+  async getSession(
+    filter: Filter<RefreshSession>
+  ): Promise<RefreshSession | null> {
     return await sessionsCollection.findOne(filter);
+  },
+
+  async getSessions(filter: Filter<RefreshSession>): Promise<RefreshSession[]> {
+    return await sessionsCollection
+      .find(filter, { projection: { _id: false } })
+      .toArray();
   },
 
   async getCountSessions(filter: Filter<RefreshSession>): Promise<number> {
