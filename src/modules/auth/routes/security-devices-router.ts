@@ -1,6 +1,9 @@
 import { Router, Request, Response } from "express";
 
-import { checkRefreshSession, checkBearerAuth } from "middlewares";
+import {
+  checkRefreshSession,
+  setUserToRequestContextBySession,
+} from "middlewares";
 import { HTTP_STATUSES } from "common/http-statuses";
 import { ResType } from "common/types";
 
@@ -13,6 +16,7 @@ export const securityDevicesRouter = Router({});
 securityDevicesRouter.get(
   "/",
   checkRefreshSession,
+  setUserToRequestContextBySession,
   async (req: Request, res: Response<ResDevices>) => {
     const sessions = await sessionsService.getActiveSessions(
       req.requestContext.user?.id
@@ -26,6 +30,7 @@ securityDevicesRouter.get(
 securityDevicesRouter.delete(
   "/",
   checkRefreshSession,
+  setUserToRequestContextBySession,
   async (req: Request, res: Response<ResType>) => {
     const isDeleted = await sessionsService.deleteAllSessionsExcludeCurrent(
       req.cookies?.refreshToken,

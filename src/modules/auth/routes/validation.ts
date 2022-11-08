@@ -4,10 +4,10 @@ import { body } from "express-validator";
 import { HTTP_STATUSES } from "common/http-statuses";
 import { usersQueryRepository } from "modules/users/repositories";
 import {
-  checkBearerAuth,
   checkRefreshSession,
   inputValidation,
   checkRequestsCount,
+  setUserToRequestContextBySession,
 } from "middlewares";
 
 import { sessionsService } from "../services/sessions-service";
@@ -108,4 +108,8 @@ export const authValidation = [
   inputValidation,
 ];
 
-export const deleteDeviceValidation = [checkRefreshSession, deviceIdValidation];
+export const deleteDeviceValidation = [
+  checkRefreshSession,
+  setUserToRequestContextBySession,
+  deviceIdValidation,
+];
