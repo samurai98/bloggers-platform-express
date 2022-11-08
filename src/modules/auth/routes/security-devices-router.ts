@@ -13,7 +13,6 @@ export const securityDevicesRouter = Router({});
 securityDevicesRouter.get(
   "/",
   checkRefreshSession,
-  checkBearerAuth,
   async (req: Request, res: Response<ResDevices>) => {
     const sessions = await sessionsService.getActiveSessions(
       req.requestContext.user?.id
@@ -27,7 +26,6 @@ securityDevicesRouter.get(
 securityDevicesRouter.delete(
   "/",
   checkRefreshSession,
-  checkBearerAuth,
   async (req: Request, res: Response<ResType>) => {
     const isDeleted = await sessionsService.deleteAllSessionsExcludeCurrent(
       req.cookies?.refreshToken,

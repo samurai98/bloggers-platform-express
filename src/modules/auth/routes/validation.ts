@@ -108,8 +108,4 @@ export const authValidation = [
   inputValidation,
 ];
 
-export const deleteDeviceValidation = [
-  checkRefreshSession,
-  checkBearerAuth,
-  deviceIdValidation,
-];
+export const deleteDeviceValidation = [checkRefreshSession, deviceIdValidation];
