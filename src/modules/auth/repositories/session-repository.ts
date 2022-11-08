@@ -36,12 +36,12 @@ export const sessionRepository = {
   async removeAllWhere(filter: Filter<RefreshSession>): Promise<boolean> {
     const result = await sessionsCollection.deleteMany(filter);
 
-    return result.deletedCount === 1;
+    return result.deletedCount >= 1;
   },
 
   async deleteAll(): Promise<boolean> {
     const result = await sessionsCollection.deleteMany({});
 
-    return result.deletedCount === 1;
+    return result.deletedCount >= 1;
   },
 };

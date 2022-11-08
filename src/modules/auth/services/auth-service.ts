@@ -8,6 +8,7 @@ import {
 import { UserDB, UserEmailConfirmation } from "modules/users/user";
 import { generateHash } from "common/helpers/utils";
 import { jwtService } from "common/services/jwt-service";
+import { SETTINGS } from "settings/config";
 
 import { emailsManager } from "../managers/emails-manager";
 import { LoginUserData, RefreshSession, ResLoginWithCookie } from "../auth";
@@ -207,12 +208,11 @@ export const authService = {
         name: "refreshToken",
         value: newRefreshSession.refreshToken,
         options: {
-          path: "/auth",
           maxAge: refreshTokenExpiresInSeconds,
           httpOnly: true,
           // TODO: use cookie-parser middleware for use signed cookies
           // signed: true,
-          secure: true,
+          secure: !SETTINGS.IS_LOCAL_VERSION,
           sameSite: true,
         },
       },

@@ -28,6 +28,6 @@ export const commentsRepository = {
   async deleteAll(): Promise<boolean> {
     const result = await commentsCollection.deleteMany({});
 
-    return result.deletedCount === 1;
+    return result.deletedCount >= 1;
   },
 };

@@ -34,7 +34,7 @@ securityDevicesRouter.delete(
       req.requestContext.user?.id
     );
 
-    if (isDeleted) res.status(HTTP_STATUSES.NO_CONTENT_204);
+    if (isDeleted) res.sendStatus(HTTP_STATUSES.NO_CONTENT_204);
     else res.sendStatus(HTTP_STATUSES.UNAUTHORIZED_401);
   }
 );
@@ -47,7 +47,7 @@ securityDevicesRouter.delete(
       req.params.deviceId
     );
 
-    if (isDeleted) res.status(HTTP_STATUSES.NO_CONTENT_204);
+    if (isDeleted) res.sendStatus(HTTP_STATUSES.NO_CONTENT_204);
     else res.sendStatus(HTTP_STATUSES.NOT_FOUND_404);
   }
 );

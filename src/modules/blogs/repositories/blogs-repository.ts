@@ -24,6 +24,6 @@ export const blogsRepository = {
   async deleteAll(): Promise<boolean> {
     const result = await blogsCollection.deleteMany({});
 
-    return result.deletedCount === 1;
+    return result.deletedCount >= 1;
   },
 };

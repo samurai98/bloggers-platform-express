@@ -45,6 +45,6 @@ export const usersRepository = {
   async deleteAll(): Promise<boolean> {
     const result = await usersCollection.deleteMany({});
 
-    return result.deletedCount === 1;
+    return result.deletedCount >= 1;
   },
 };
