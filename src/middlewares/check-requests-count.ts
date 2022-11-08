@@ -8,7 +8,7 @@ const ipList: Record<
 > = {};
 
 const MAX_COUNT_REQUESTS = 5;
-const LIMIT_SECONDS = 7;
+const LIMIT_SECONDS = 4;
 
 export const checkRequestsCount = async (
   req: Request,
