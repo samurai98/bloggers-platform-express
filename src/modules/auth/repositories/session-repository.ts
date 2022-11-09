@@ -1,46 +1,46 @@
-import { Filter } from "mongodb";
+import { FilterQuery } from "mongoose";
 
-import { sessionsCollection } from "common/db";
+import { SessionModel } from "common/db";
 
 import { RefreshSession } from "../auth";
 
 export const sessionRepository = {
   async addSession(refreshSession: RefreshSession): Promise<boolean> {
-    await sessionsCollection.insertOne(refreshSession);
+    await SessionModel.insertMany(refreshSession);
 
     return true;
   },
 
   async getSession(
-    filter: Filter<RefreshSession>
+    filter: FilterQuery<RefreshSession>
   ): Promise<RefreshSession | null> {
-    return await sessionsCollection.findOne(filter);
+    return await SessionModel.findOne(filter);
   },
 
-  async getSessions(filter: Filter<RefreshSession>): Promise<RefreshSession[]> {
-    return await sessionsCollection
-      .find(filter, { projection: { _id: false } })
-      .toArray();
+  async getSessions(
+    filter: FilterQuery<RefreshSession>
+  ): Promise<RefreshSession[]> {
+    return await SessionModel.find(filter, { _id: false, __v: false }).lean();
   },
 
-  async getCountSessions(filter: Filter<RefreshSession>): Promise<number> {
-    return await sessionsCollection.countDocuments(filter);
+  async getCountSessions(filter: FilterQuery<RefreshSession>): Promise<number> {
+    return await SessionModel.countDocuments(filter);
   },
 
-  async removeOneWhere(filter: Filter<RefreshSession>): Promise<boolean> {
-    const result = await sessionsCollection.deleteOne(filter);
+  async removeOneWhere(filter: FilterQuery<RefreshSession>): Promise<boolean> {
+    const result = await SessionModel.deleteOne(filter);
 
     return result.deletedCount === 1;
   },
 
-  async removeAllWhere(filter: Filter<RefreshSession>): Promise<boolean> {
-    const result = await sessionsCollection.deleteMany(filter);
+  async removeAllWhere(filter: FilterQuery<RefreshSession>): Promise<boolean> {
+    const result = await SessionModel.deleteMany(filter);
 
     return result.deletedCount >= 1;
   },
 
   async deleteAll(): Promise<boolean> {
-    const result = await sessionsCollection.deleteMany({});
+    const result = await SessionModel.deleteMany({});
 
     return result.deletedCount >= 1;
   },

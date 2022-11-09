@@ -9,7 +9,7 @@ const ipList: Record<
 > = {};
 
 const MAX_COUNT_REQUESTS = SETTINGS.IS_RUN_TEST ? 25 : 5;
-const LIMIT_SECONDS = SETTINGS.IS_RUN_TEST ? 99 : 8;
+const LIMIT_SECONDS = SETTINGS.IS_RUN_TEST ? 99 : 10;
 
 export const checkRequestsCount = async (
   req: Request,

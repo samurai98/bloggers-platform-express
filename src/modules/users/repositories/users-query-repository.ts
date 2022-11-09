@@ -1,12 +1,13 @@
-import { Filter } from "mongodb";
+import { FilterQuery } from "mongoose";
 
-import { usersCollection } from "common/db";
+import { UserModel } from "common/db";
 import { getPagesCount, getSkipCount } from "common/helpers/pagination";
 
 import { User, UserDB, ReqQueryUser, ResUsers } from "../user";
 
 const projection = {
   _id: false,
+  __v: false,
   "accountData.passHash": false,
   "accountData.passSalt": false,
 };
@@ -26,7 +27,7 @@ export const usersQueryRepository = {
     searchEmailTerm,
     searchLoginTerm,
   }: ReqQueryUser): Promise<ResUsers> {
-    const filter: Filter<UserDB> = {
+    const filter: FilterQuery<UserDB> = {
       $or: [
         {
           "accountData.email": {
@@ -41,17 +42,16 @@ export const usersQueryRepository = {
       ],
     };
 
-    const totalCount = await usersCollection.countDocuments(filter);
+    const totalCount = await UserModel.countDocuments(filter);
 
     const skipCount = getSkipCount(pageNumber, pageSize);
     const pagesCount = getPagesCount(totalCount, pageSize);
 
-    const items = await usersCollection
-      .find(filter, { projection })
+    const items = await UserModel.find(filter, { ...projection })
       .sort({ [`accountData.${sortBy}`]: sortDirection })
       .skip(skipCount)
       .limit(pageSize)
-      .toArray();
+      .lean();
 
     return {
       pagesCount,
@@ -63,23 +63,23 @@ export const usersQueryRepository = {
   },
 
   async findUserById(id: string): Promise<User | null> {
-    const user = await usersCollection.findOne(
+    const user = await UserModel.findOne(
       { "accountData.id": id },
-      { projection }
+      { ...projection }
     );
 
     return user ? userMapper(user) : null;
   },
 
   async findUserByLoginOrEmail(loginOrEmail: string): Promise<UserDB | null> {
-    return usersCollection.findOne(
+    return UserModel.findOne(
       {
         $or: [
           { "accountData.email": loginOrEmail },
           { "accountData.login": loginOrEmail },
         ],
       },
-      { projection: { _id: false } }
+      { _id: false, __v: false }
     );
   },
 
@@ -87,18 +87,18 @@ export const usersQueryRepository = {
     login: string,
     email: string
   ): Promise<User | null> {
-    const user = await usersCollection.findOne(
+    const user = await UserModel.findOne(
       { $or: [{ "accountData.email": email }, { "accountData.login": login }] },
-      { projection: { _id: false, passHash: false, passSalt: false } }
+      { _id: false, __v: false, passHash: false, passSalt: false }
     );
 
     return user ? userMapper(user) : null;
   },
 
   async findUserByConfirmationCode(code: string): Promise<UserDB | null> {
-    return await usersCollection.findOne(
+    return await UserModel.findOne(
       { "emailConfirmation.confirmationCode": code },
-      { projection }
+      { ...projection }
     );
   },
 };

@@ -1,6 +1,6 @@
-import { Filter } from "mongodb";
+import { FilterQuery } from "mongoose";
 
-import { postsCollection } from "common/db";
+import { PostModel } from "common/db";
 import { getPagesCount, getSkipCount } from "common/helpers/pagination";
 
 import { Post, ReqQueryPost } from "../post";
@@ -13,18 +13,17 @@ export const postsQueryRepository = {
     sortDirection,
     blogId,
   }: ReqQueryPost) {
-    const filter: Filter<Post> = blogId ? { blogId } : {};
-    const totalCount = await postsCollection.countDocuments(filter);
+    const filter: FilterQuery<Post> = blogId ? { blogId } : {};
+    const totalCount = await PostModel.countDocuments(filter);
 
     const skipCount = getSkipCount(pageNumber, pageSize);
     const pagesCount = getPagesCount(totalCount, pageSize);
 
-    const items = (await postsCollection
-      .find(filter, { projection: { _id: false } })
+    const items = (await PostModel.find(filter, { _id: false, __v: false })
       .sort({ [sortBy]: sortDirection })
       .skip(skipCount)
       .limit(pageSize)
-      .toArray()) as Post[];
+      .lean()) as Post[];
 
     return {
       pagesCount,
@@ -36,6 +35,6 @@ export const postsQueryRepository = {
   },
 
   async findPostById(id: string) {
-    return postsCollection.findOne({ id }, { projection: { _id: false } });
+    return PostModel.findOne({ id }, { _id: false, __v: false });
   },
 };

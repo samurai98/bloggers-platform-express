@@ -2,11 +2,11 @@ import { Express } from "express";
 
 import { blogsRouter } from "./modules/blogs/routes/blogs-router";
 import { postsRouter } from "./modules/posts/routes/posts-router";
-import { deleteAllRouter } from "./common/routes/delete-router";
 import { usersRouter } from "./modules/users/routes/users-router";
 import { authRouter } from "./modules/auth/routes/auth-router";
 import { securityDevicesRouter } from "modules/auth/routes/security-devices-router";
 import { commentsRouter } from "modules/comments/routes/comments-router";
+import { deleteAllRouter } from "./common/routes/delete-router";
 
 export const router = {
   blogs: "/blogs",

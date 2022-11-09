@@ -1,17 +1,17 @@
-import { commentsCollection } from "common/db";
+import { CommentModel } from "common/db";
 
 import { Comment, CommentDB, ReqBodyComment } from "../comment";
 
 export const commentsRepository = {
   async createComment(comment: CommentDB): Promise<Comment> {
-    await commentsCollection.insertOne({ ...comment });
+    await CommentModel.insertMany({ ...comment });
 
     const { postId, ...clearComment } = comment;
     return clearComment;
   },
 
   async updateComment(id: string, comment: ReqBodyComment): Promise<boolean> {
-    const result = await commentsCollection.updateOne(
+    const result = await CommentModel.updateOne(
       { id },
       { $set: comment }
     );
@@ -20,13 +20,13 @@ export const commentsRepository = {
   },
 
   async deleteComment(id: string): Promise<boolean> {
-    const result = await commentsCollection.deleteOne({ id });
+    const result = await CommentModel.deleteOne({ id });
 
     return result.deletedCount === 1;
   },
 
   async deleteAll(): Promise<boolean> {
-    const result = await commentsCollection.deleteMany({});
+    const result = await CommentModel.deleteMany({});
 
     return result.deletedCount >= 1;
   },

@@ -1,23 +1,23 @@
-import { usersCollection } from "common/db";
+import { UserModel } from "common/db";
 
 import { User, UserDB, UserEmailConfirmation } from "../user";
 
 export const usersRepository = {
   async createUser(user: UserDB): Promise<User> {
-    await usersCollection.insertOne(user);
+    await UserModel.insertMany(user);
 
     const { passHash, passSalt, ...clearUser } = user.accountData;
     return clearUser;
   },
 
   async deleteUser(id: string): Promise<boolean> {
-    const result = await usersCollection.deleteOne({ "accountData.id": id });
+    const result = await UserModel.deleteOne({ "accountData.id": id });
 
     return result.deletedCount === 1;
   },
 
   async confirmEmail(id: string): Promise<boolean> {
-    const result = await usersCollection.updateOne(
+    const result = await UserModel.updateOne(
       { "accountData.id": id },
       { $set: { "emailConfirmation.isConfirmed": true } }
     );
@@ -29,7 +29,7 @@ export const usersRepository = {
     id: string,
     { expirationDate, confirmationCode }: Partial<UserEmailConfirmation>
   ): Promise<boolean> {
-    const result = await usersCollection.updateOne(
+    const result = await UserModel.updateOne(
       { "accountData.id": id },
       {
         $set: {
@@ -43,7 +43,7 @@ export const usersRepository = {
   },
 
   async deleteAll(): Promise<boolean> {
-    const result = await usersCollection.deleteMany({});
+    const result = await UserModel.deleteMany({});
 
     return result.deletedCount >= 1;
   },

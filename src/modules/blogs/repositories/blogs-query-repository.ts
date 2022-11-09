@@ -1,6 +1,6 @@
-import { Filter } from "mongodb";
+import { FilterQuery } from "mongoose";
 
-import { blogsCollection } from "common/db";
+import { BlogModel } from "common/db";
 import { getPagesCount, getSkipCount } from "common/helpers/pagination";
 
 import { Blog, ReqQueryBlog, ResBlogs } from "../blog";
@@ -13,20 +13,19 @@ export const blogsQueryRepository = {
     sortDirection,
     searchNameTerm,
   }: ReqQueryBlog): Promise<ResBlogs> {
-    const filter: Filter<Blog> = {
+    const filter: FilterQuery<Blog> = {
       name: { $regex: new RegExp(`${searchNameTerm}`, "i") },
     };
-    const totalCount = await blogsCollection.countDocuments(filter);
+    const totalCount = await BlogModel.countDocuments(filter);
 
     const skipCount = getSkipCount(pageNumber, pageSize);
     const pagesCount = getPagesCount(totalCount, pageSize);
 
-    const items = (await blogsCollection
-      .find(filter, { projection: { _id: false } })
+    const items = await BlogModel.find(filter, { _id: false, __v: false })
       .sort({ [sortBy]: sortDirection })
       .skip(skipCount)
       .limit(pageSize)
-      .toArray()) as Blog[];
+      .lean();
 
     return {
       pagesCount,
@@ -38,6 +37,6 @@ export const blogsQueryRepository = {
   },
 
   async findBlogById(id: string): Promise<Blog | null> {
-    return blogsCollection.findOne({ id }, { projection: { _id: false } });
+    return BlogModel.findOne({ id }, { _id: false, __v: false });
   },
 };
