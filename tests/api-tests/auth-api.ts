@@ -10,11 +10,17 @@ import { usersQueryRepository } from "../../src/modules/users/repositories";
 import {
   ReqBodyAuth,
   ReqBodyConfirm,
+  ReqBodyNewPassword,
   ReqBodyResending,
 } from "../../src/modules/auth/auth";
 
 import { bearerAuth, validUsers } from "../common/data";
-import { anyString, getErrorsMessages, setBearerAuth } from "../common/helpers";
+import {
+  anyString,
+  dateISORegEx,
+  getErrorsMessages,
+  setBearerAuth,
+} from "../common/helpers";
 
 let createdUser = {} as User;
 
@@ -243,6 +249,102 @@ export const testAuthApi = () =>
         .post(`${router.auth}${authPath.refreshToken}`)
         .set(bearerAuth)
         .expect(HTTP_STATUSES.UNAUTHORIZED_401);
+    });
+
+    it("Password recovery. Should return 400", async () => {
+      const firstRes = await request(app)
+        .post(`${router.auth}${authPath.passwordRecovery}`)
+        .send();
+
+      expect(firstRes.status).toEqual(HTTP_STATUSES.BAD_REQUEST_400);
+      expect(firstRes.body).toEqual(
+        getErrorsMessages<ReqBodyResending>("email")
+      );
+
+      const secondRes = await request(app)
+        .post(`${router.auth}${authPath.passwordRecovery}`)
+        .send({ email: "fake.mail.ru" });
+
+      expect(secondRes.status).toEqual(HTTP_STATUSES.BAD_REQUEST_400);
+      expect(secondRes.body).toEqual(
+        getErrorsMessages<ReqBodyResending>("email")
+      );
+    });
+
+    let passwordRecoveryCode = "";
+
+    it("Password recovery. Should return 204, even if current email is not registered", async () => {
+      await request(app)
+        .post(`${router.auth}${authPath.passwordRecovery}`)
+        .send({ email: createdUser.email })
+        .expect(HTTP_STATUSES.NO_CONTENT_204);
+
+      await request(app)
+        .post(`${router.auth}${authPath.passwordRecovery}`)
+        .send({ email: "fakeusermail@gm.ru" })
+        .expect(HTTP_STATUSES.NO_CONTENT_204);
+
+      const user = await usersQueryRepository.findUserByLoginOrEmail(
+        createdUser.email
+      );
+
+      passwordRecoveryCode = user?.passwordRecovery?.recoveryCode as string;
+
+      expect(user?.passwordRecovery?.expirationDate.toISOString()).toEqual(
+        dateISORegEx
+      );
+      expect(passwordRecoveryCode).toEqual(anyString);
+    });
+
+    it("Set new password. Should return 400", async () => {
+      const firstRes = await request(app)
+        .post(`${router.auth}${authPath.newPassword}`)
+        .send();
+
+      expect(firstRes.status).toEqual(HTTP_STATUSES.BAD_REQUEST_400);
+      expect(firstRes.body).toEqual(
+        getErrorsMessages<ReqBodyNewPassword>("newPassword", "recoveryCode")
+      );
+
+      const secondRes = await request(app)
+        .post(`${router.auth}${authPath.newPassword}`)
+        .send({ newPassword: "validPassword", recoveryCode: "fakecode" });
+
+      expect(secondRes.status).toEqual(HTTP_STATUSES.BAD_REQUEST_400);
+      expect(secondRes.body).toEqual(
+        getErrorsMessages<ReqBodyNewPassword>("recoveryCode")
+      );
+    });
+
+    it("Set new password. Should return 204 and update password", async () => {
+      const newPassword = "validPassword";
+
+      await request(app)
+        .post(`${router.auth}${authPath.newPassword}`)
+        .send({ newPassword, recoveryCode: passwordRecoveryCode })
+        .expect(HTTP_STATUSES.NO_CONTENT_204);
+
+      const user = await usersQueryRepository.findUserByLoginOrEmail(
+        createdUser.email
+      );
+
+      expect(user?.passwordRecovery).toEqual(undefined);
+
+      await request(app)
+        .post(`${router.auth}${authPath.login}`)
+        .send({ login: createdUser.email, password: validUsers[0].password })
+        .expect(HTTP_STATUSES.UNAUTHORIZED_401);
+
+      const loginRes = await request(app)
+        .post(`${router.auth}${authPath.login}`)
+        .send({ login: createdUser.email, password: newPassword });
+
+      const expectedToken = await jwtService.getUserIdByToken(
+        loginRes.body.accessToken
+      );
+
+      expect(loginRes.statusCode).toEqual(HTTP_STATUSES.OK_200);
+      expect(expectedToken).toEqual(createdUser.id);
     });
 
     afterAll(async () => {
