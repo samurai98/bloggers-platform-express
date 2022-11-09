@@ -157,13 +157,21 @@ authRouter.post(
 authRouter.post(
   authPath.newPassword,
   newPasswordValidation,
-  async (req: Request<{}, {}, ReqBodyNewPassword>, res: Response<ResType>) => {
+  async (
+    req: Request<{}, {}, ReqBodyNewPassword>,
+    res: Response<ResErrorsMessages>
+  ) => {
     const result = await authService.setNewPassword(
       req.body.recoveryCode,
       req.body.newPassword
     );
 
     if (result) res.sendStatus(HTTP_STATUSES.NO_CONTENT_204);
-    else res.sendStatus(HTTP_STATUSES.BAD_REQUEST_400);
+    else
+      res.status(HTTP_STATUSES.BAD_REQUEST_400).send(
+        getErrorsMessages<ReqBodyNewPassword>({
+          recoveryCode: "Incorrect recoveryCode",
+        } as ReqBodyNewPassword)
+      );
   }
 );
