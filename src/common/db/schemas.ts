@@ -42,9 +42,13 @@ export const usersSchema = new mongoose.Schema<UserDB>({
     passSalt: { type: String, required: true },
   },
   emailConfirmation: {
-    confirmationCode: { type: String, required: true },
-    expirationDate: { type: Date, required: true },
+    confirmationCode: String,
+    expirationDate: Date,
     isConfirmed: { type: Boolean, required: true },
+  },
+  passwordRecovery: {
+    recoveryCode: String,
+    expirationDate: Date,
   },
 });
 

@@ -1,6 +1,6 @@
 import { UserModel } from "common/db";
 
-import { User, UserDB, UserEmailConfirmation } from "../user";
+import { PasswordRecovery, User, UserDB, UserEmailConfirmation } from "../user";
 
 export const usersRepository = {
   async createUser(user: UserDB): Promise<User> {
@@ -35,6 +35,44 @@ export const usersRepository = {
         $set: {
           "emailConfirmation.expirationDate": expirationDate,
           "emailConfirmation.confirmationCode": confirmationCode,
+        },
+      }
+    );
+
+    return result.modifiedCount === 1;
+  },
+
+  async updatePasswordRecoveryData(
+    id: string,
+    passwordRecovery: PasswordRecovery | undefined
+  ): Promise<boolean> {
+    const setCommand = passwordRecovery
+      ? {
+          $set: {
+            "passwordRecovery.expirationDate": passwordRecovery.expirationDate,
+            "passwordRecovery.recoveryCode": passwordRecovery.recoveryCode,
+          },
+        }
+      : { $unset: { passwordRecovery: "" } };
+
+    const result = await UserModel.updateOne(
+      { "accountData.id": id },
+      setCommand
+    );
+
+    return result.modifiedCount === 1;
+  },
+
+  async updatePassword(
+    id: string,
+    { passHash, passSalt }: { passHash: string; passSalt: string }
+  ): Promise<boolean> {
+    const result = await UserModel.updateOne(
+      { "accountData.id": id },
+      {
+        $set: {
+          "accountData.passHash": passHash,
+          "accountData.passSalt": passSalt,
         },
       }
     );

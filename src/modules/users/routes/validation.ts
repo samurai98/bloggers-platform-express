@@ -23,7 +23,7 @@ export const userValidation = [
   checkBasicAuth,
   loginValidation,
   emailValidation,
-  passwordValidation,
+  passwordValidation("password"),
   uniqueLoginAndEmailValidation,
   inputValidation,
 ];

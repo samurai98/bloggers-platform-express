@@ -101,4 +101,11 @@ export const usersQueryRepository = {
       { ...projection }
     ).lean();
   },
+
+  async findUserByRecoveryCode(code: string): Promise<UserDB | null> {
+    return await UserModel.findOne(
+      { "passwordRecovery.recoveryCode": code },
+      { ...projection }
+    ).lean();
+  },
 };

@@ -5,22 +5,28 @@ import {
   usersQueryRepository,
   usersRepository,
 } from "modules/users/repositories";
-import { UserDB, UserEmailConfirmation } from "modules/users/user";
+import {
+  UserDB,
+  UserEmailConfirmation,
+  PasswordRecovery,
+} from "modules/users/user";
+import { usersService } from "modules/users/services/users-service";
 import { generateHash } from "common/helpers/utils";
 import { jwtService } from "common/services/jwt-service";
 import { SETTINGS } from "settings/config";
 
 import { emailsManager } from "../managers/emails-manager";
 import { LoginUserData, RefreshSession, ResLoginWithCookie } from "../auth";
+import { sessionsService } from "./sessions-service";
 
 //@ts-ignore
 import { validUsers } from "../../../../tests/common/data";
-import { sessionsService } from "./sessions-service";
 
 const accessTokenLifeTime = "10s";
 const refreshTokenLifeTime: Duration = { seconds: 20 };
 const refreshTokenLifeTimeString = "20s";
 const confirmEmailCodeLifeTime: Duration = { hours: 1 };
+const recoveryCodeLifeTime: Duration = { hours: 1 };
 
 export const authService = {
   async loginUser({
@@ -130,6 +136,64 @@ export const authService = {
     if (!refreshToken) return false;
 
     return await sessionsService.deleteSession(refreshToken);
+  },
+
+  async passwordRecovery(email: string): Promise<boolean> {
+    const user = await usersQueryRepository.findUserByLoginOrEmail(email);
+
+    if (!user) return false;
+
+    const recoveryData: PasswordRecovery = {
+      recoveryCode: uuidv4(),
+      expirationDate: add(new Date(), recoveryCodeLifeTime),
+    };
+
+    const isUpdated = await usersRepository.updatePasswordRecoveryData(
+      user.accountData.id,
+      recoveryData
+    );
+
+    if (!isUpdated) return false;
+
+    const testingEmails = validUsers.map((user) => user.email);
+    if (testingEmails.includes(user.accountData.email)) return true;
+
+    try {
+      await emailsManager.sendEmailPasswordRecovery({
+        ...user,
+        passwordRecovery: recoveryData,
+      });
+    } catch (error) {
+      console.error(error);
+      return false;
+    }
+
+    return true;
+  },
+
+  async setNewPassword(
+    recoveryCode: string,
+    newPassword: string
+  ): Promise<boolean> {
+    const user = await usersQueryRepository.findUserByRecoveryCode(
+      recoveryCode
+    );
+
+    if (!user || user.passwordRecovery!.expirationDate < new Date())
+      return false;
+
+    const isUpdated = await usersService.updateUserPassword(
+      user.accountData.id,
+      newPassword
+    );
+
+    isUpdated &&
+      (await usersRepository.updatePasswordRecoveryData(
+        user.accountData.id,
+        undefined
+      ));
+
+    return isUpdated;
   },
 
   async _getUserByCredentials(

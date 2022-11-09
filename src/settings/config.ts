@@ -8,6 +8,7 @@ export const SETTINGS = {
   IS_LOCAL_VERSION,
   MONGO_DB_URI: process.env.MONGO_DB_URI || "mongodb://0.0.0.0:27017",
   JWT_SECRET: process.env.JWT_SECRET || "secret",
+  ROUNDS_SALT_COUNT: process.env.ROUNDS_SALT_COUNT,
   GMAIL_EMAIL: process.env.GMAIL_EMAIL,
   GMAIL_PASS: process.env.GMAIL_PASS,
   CLIENT_URL: process.env.CLIENT_URL,

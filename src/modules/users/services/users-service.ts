@@ -4,6 +4,7 @@ import { add } from "date-fns";
 
 import { generateHash, getCurrentDateISO } from "common/helpers/utils";
 import { authService } from "modules/auth/services/auth-service";
+import { SETTINGS } from "settings/config";
 
 import { usersRepository } from "../repositories";
 import { User, ReqBodyUser, UserDB } from "../user";
@@ -15,7 +16,7 @@ export const usersService = {
     password,
   }: ReqBodyUser): Promise<User | null> {
     const currentDate = getCurrentDateISO();
-    const passSalt = await bcrypt.genSalt(10);
+    const passSalt = await bcrypt.genSalt(Number(SETTINGS.ROUNDS_SALT_COUNT));
     const passHash = await generateHash(password, passSalt);
 
     const newUser: UserDB = {
@@ -39,6 +40,13 @@ export const usersService = {
     if (isSend) return await usersRepository.createUser(newUser);
 
     return null;
+  },
+
+  async updateUserPassword(id: string, newPassword: string): Promise<boolean> {
+    const passSalt = await bcrypt.genSalt(Number(SETTINGS.ROUNDS_SALT_COUNT));
+    const passHash = await generateHash(newPassword, passSalt);
+
+    return await usersRepository.updatePassword(id, { passHash, passSalt });
   },
 
   async deleteUser(id: string): Promise<boolean> {

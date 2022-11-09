@@ -14,12 +14,15 @@ import {
   ResLogin,
   ResMe,
   ReqBodyAuth,
+  ReqBodyNewPassword,
 } from "../auth";
 import {
   authValidation,
   registrationValidation,
   confirmationValidation,
   resendingValidation,
+  passwordRecoveryValidation,
+  newPasswordValidation,
 } from "./validation";
 
 export const authRouter = Router({});
@@ -32,6 +35,8 @@ export const authPath = {
   resendingEmail: "/registration-email-resending",
   logout: "/logout",
   me: "/me",
+  passwordRecovery: "/password-recovery",
+  newPassword: "/new-password",
 } as const;
 
 authRouter.post(
@@ -136,5 +141,29 @@ authRouter.get(
   async (req: Request, res: Response<ResMe>) => {
     const { id: userId, login, email } = req.requestContext.user as User;
     res.status(HTTP_STATUSES.OK_200).send({ userId, login, email });
+  }
+);
+
+authRouter.post(
+  authPath.passwordRecovery,
+  passwordRecoveryValidation,
+  async (req: Request<{}, {}, ReqBodyResending>, res: Response<ResType>) => {
+    await authService.passwordRecovery(req.body.email);
+
+    res.sendStatus(HTTP_STATUSES.NO_CONTENT_204);
+  }
+);
+
+authRouter.post(
+  authPath.newPassword,
+  newPasswordValidation,
+  async (req: Request<{}, {}, ReqBodyNewPassword>, res: Response<ResType>) => {
+    const result = await authService.setNewPassword(
+      req.body.recoveryCode,
+      req.body.newPassword
+    );
+
+    if (result) res.sendStatus(HTTP_STATUSES.NO_CONTENT_204);
+    else res.sendStatus(HTTP_STATUSES.BAD_REQUEST_400);
   }
 );

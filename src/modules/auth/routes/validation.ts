@@ -24,11 +24,12 @@ export const emailValidation = body("email")
   .isEmail()
   .withMessage("Incorrect email");
 
-export const passwordValidation = body("password")
-  .trim()
-  .notEmpty()
-  .isLength({ min: 6, max: 20 })
-  .withMessage("Password length error");
+export const passwordValidation = (field: "password" | "newPassword") =>
+  body(field)
+    .trim()
+    .notEmpty()
+    .isLength({ min: 6, max: 20 })
+    .withMessage("Password length error");
 
 export const uniqueLoginAndEmailValidation = async (
   req: Request,
@@ -81,11 +82,16 @@ const deviceIdValidation = async (
   } else next();
 };
 
+const recoveryCodeValidation = body("recoveryCode")
+  .trim()
+  .notEmpty()
+  .withMessage("RecoveryCode incorrect");
+
 export const registrationValidation = [
   checkRequestsCount,
   loginValidation,
   emailValidation,
-  passwordValidation,
+  passwordValidation("password"),
   uniqueLoginAndEmailValidation,
   inputValidation,
 ];
@@ -112,4 +118,17 @@ export const deleteDeviceValidation = [
   checkRefreshSession,
   setUserToRequestContextBySession,
   deviceIdValidation,
+];
+
+export const passwordRecoveryValidation = [
+  checkRequestsCount,
+  emailValidation,
+  inputValidation,
+];
+
+export const newPasswordValidation = [
+  checkRequestsCount,
+  recoveryCodeValidation,
+  passwordValidation("newPassword"),
+  inputValidation,
 ];
