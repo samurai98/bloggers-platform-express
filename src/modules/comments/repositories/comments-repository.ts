@@ -4,7 +4,7 @@ import { Comment, CommentDB, ReqBodyComment } from "../comment";
 
 export const commentsRepository = {
   async createComment(comment: CommentDB): Promise<Comment> {
-    await CommentModel.insertMany({ ...comment });
+    await CommentModel.insertMany(comment);
 
     const { postId, ...clearComment } = comment;
     return clearComment;

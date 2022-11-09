@@ -39,9 +39,9 @@ export const commentsQueryRepository = {
   },
 
   async findCommentById(id: string): Promise<Comment | null> {
-    return CommentModel.findOne(
+    return await CommentModel.findOne(
       { id },
       { _id: false, __v: false, postId: false }
-    );
+    ).lean();
   },
 };

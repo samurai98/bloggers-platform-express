@@ -4,7 +4,7 @@ import { ReqBodyPost, Post } from "../post";
 
 export const postsRepository = {
   async createPost(post: Post): Promise<Post> {
-    await PostModel.insertMany({ ...post });
+    await PostModel.insertMany(post);
 
     return post;
   },

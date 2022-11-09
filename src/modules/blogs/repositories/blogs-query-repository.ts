@@ -37,6 +37,6 @@ export const blogsQueryRepository = {
   },
 
   async findBlogById(id: string): Promise<Blog | null> {
-    return BlogModel.findOne({ id }, { _id: false, __v: false });
+    return await BlogModel.findOne({ id }, { _id: false, __v: false }).lean();
   },
 };

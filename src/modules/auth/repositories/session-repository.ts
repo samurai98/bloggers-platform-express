@@ -14,7 +14,7 @@ export const sessionRepository = {
   async getSession(
     filter: FilterQuery<RefreshSession>
   ): Promise<RefreshSession | null> {
-    return await SessionModel.findOne(filter);
+    return await SessionModel.findOne(filter).lean();
   },
 
   async getSessions(

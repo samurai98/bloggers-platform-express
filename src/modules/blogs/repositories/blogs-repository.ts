@@ -4,7 +4,7 @@ import { Blog, ReqBodyBlog } from "../blog";
 
 export const blogsRepository = {
   async createBlog(blog: Blog): Promise<Blog> {
-    await BlogModel.insertMany({ ...blog });
+    await BlogModel.insertMany(blog);
 
     return blog;
   },

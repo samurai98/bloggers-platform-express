@@ -35,6 +35,6 @@ export const postsQueryRepository = {
   },
 
   async findPostById(id: string) {
-    return PostModel.findOne({ id }, { _id: false, __v: false });
+    return await PostModel.findOne({ id }, { _id: false, __v: false }).lean();
   },
 };

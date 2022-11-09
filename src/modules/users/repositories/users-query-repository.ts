@@ -66,13 +66,13 @@ export const usersQueryRepository = {
     const user = await UserModel.findOne(
       { "accountData.id": id },
       { ...projection }
-    );
+    ).lean();
 
     return user ? userMapper(user) : null;
   },
 
   async findUserByLoginOrEmail(loginOrEmail: string): Promise<UserDB | null> {
-    return UserModel.findOne(
+    return await UserModel.findOne(
       {
         $or: [
           { "accountData.email": loginOrEmail },
@@ -80,7 +80,7 @@ export const usersQueryRepository = {
         ],
       },
       { _id: false, __v: false }
-    );
+    ).lean();
   },
 
   async findUserByLoginAndEmail(
@@ -90,7 +90,7 @@ export const usersQueryRepository = {
     const user = await UserModel.findOne(
       { $or: [{ "accountData.email": email }, { "accountData.login": login }] },
       { _id: false, __v: false, passHash: false, passSalt: false }
-    );
+    ).lean();
 
     return user ? userMapper(user) : null;
   },
@@ -99,6 +99,6 @@ export const usersQueryRepository = {
     return await UserModel.findOne(
       { "emailConfirmation.confirmationCode": code },
       { ...projection }
-    );
+    ).lean();
   },
 };
