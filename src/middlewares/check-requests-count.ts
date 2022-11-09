@@ -1,36 +1,37 @@
 import { Request, Response, NextFunction } from "express";
 
 import { HTTP_STATUSES } from "common/http-statuses";
+import { SETTINGS } from "settings/config";
 
 const ipList: Record<
   string,
   { firstRequestTime: number; requestsCount: number }
 > = {};
 
-const MAX_COUNT_REQUESTS = 5;
-const LIMIT_SECONDS = 8;
+const MAX_COUNT_REQUESTS = SETTINGS.IS_RUN_TEST ? 25 : 5;
+const LIMIT_SECONDS = SETTINGS.IS_RUN_TEST ? 99 : 8;
 
 export const checkRequestsCount = async (
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
-  const ip = req.ip;
+  const listKey = `${req.ip} ${req.path}`;
   const nowTime = new Date().getTime();
   const isLimitTimePassed =
-    nowTime - ipList[ip]?.firstRequestTime > LIMIT_SECONDS * 1000;
+    nowTime - ipList[listKey]?.firstRequestTime > LIMIT_SECONDS * 1000;
 
-  if (!Object.keys(ipList).includes(ip) || isLimitTimePassed) {
-    ipList[ip] = { firstRequestTime: nowTime, requestsCount: 1 };
+  if (!Object.keys(ipList).includes(listKey) || isLimitTimePassed) {
+    ipList[listKey] = { firstRequestTime: nowTime, requestsCount: 1 };
     next();
     return;
   }
 
-  if (ipList[ip].requestsCount === MAX_COUNT_REQUESTS) {
+  if (ipList[listKey].requestsCount === MAX_COUNT_REQUESTS) {
     res.sendStatus(HTTP_STATUSES.MANY_REQUESTS_429);
     return;
   }
 
-  ipList[ip].requestsCount += 1;
+  ipList[listKey].requestsCount += 1;
   next();
 };

@@ -212,7 +212,7 @@ export const authService = {
           httpOnly: true,
           // TODO: use cookie-parser middleware for use signed cookies
           // signed: true,
-          secure: !SETTINGS.IS_LOCAL_VERSION,
+          secure: SETTINGS.IS_RUN_TEST || !SETTINGS.IS_LOCAL_VERSION,
           sameSite: true,
         },
       },

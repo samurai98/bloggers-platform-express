@@ -11,4 +11,5 @@ export const SETTINGS = {
   GMAIL_EMAIL: process.env.GMAIL_EMAIL,
   GMAIL_PASS: process.env.GMAIL_PASS,
   CLIENT_URL: process.env.CLIENT_URL,
+  IS_RUN_TEST: process.env.NODE_ENV === "test",
 };
