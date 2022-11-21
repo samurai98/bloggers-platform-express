@@ -4,12 +4,17 @@ import { blogsRepository } from "../repositories/blogs-repository";
 import { Blog, ReqBodyBlog } from "../blog";
 
 export const blogsService = {
-  async createBlog({ name, youtubeUrl }: ReqBodyBlog): Promise<Blog> {
+  async createBlog({
+    name,
+    websiteUrl,
+    description,
+  }: ReqBodyBlog): Promise<Blog> {
     const currentDate = getCurrentDateISO();
     const newBlog: Blog = {
       id: currentDate,
       name,
-      youtubeUrl,
+      websiteUrl,
+      description,
       createdAt: currentDate,
     };
 

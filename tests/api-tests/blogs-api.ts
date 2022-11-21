@@ -75,34 +75,35 @@ export const testBlogsApi = () =>
 
       expect(firstRes.statusCode).toEqual(HTTP_STATUSES.BAD_REQUEST_400);
       expect(firstRes.body).toEqual(
-        getErrorsMessages<ReqBodyBlog>("name", "youtubeUrl")
+        getErrorsMessages<ReqBodyBlog>("name", "websiteUrl", "description")
       );
-      expect(firstRes.body.errorsMessages).toHaveLength(2);
+      expect(firstRes.body.errorsMessages).toHaveLength(3);
 
       const secondRes = await request(app)
         .post(router.blogs)
         .set(basicAuth)
         .send({
           name: getOverMaxLength(15),
-          youtubeUrl: getOverMaxLength(100),
+          websiteUrl: getOverMaxLength(100),
+          description: getOverMaxLength(500),
         });
 
       expect(secondRes.statusCode).toEqual(HTTP_STATUSES.BAD_REQUEST_400);
       expect(secondRes.body).toEqual(
-        getErrorsMessages<ReqBodyBlog>("name", "youtubeUrl")
+        getErrorsMessages<ReqBodyBlog>("name", "websiteUrl", "description")
       );
-      expect(secondRes.body.errorsMessages).toHaveLength(2);
+      expect(secondRes.body.errorsMessages).toHaveLength(3);
 
       const thirdRes = await request(app)
         .post(router.blogs)
         .set(basicAuth)
-        .send({ name: "valid", youtubeUrl: "https://badurl" });
+        .send({ name: "valid", websiteUrl: "https://badurl" });
 
       expect(thirdRes.statusCode).toEqual(HTTP_STATUSES.BAD_REQUEST_400);
       expect(thirdRes.body).toEqual(
-        getErrorsMessages<ReqBodyBlog>("youtubeUrl")
+        getErrorsMessages<ReqBodyBlog>("websiteUrl", "description")
       );
-      expect(thirdRes.body.errorsMessages).toHaveLength(1);
+      expect(thirdRes.body.errorsMessages).toHaveLength(2);
 
       await request(app)
         .get(router.blogs)
@@ -150,11 +151,11 @@ export const testBlogsApi = () =>
       const filteredBlogs = createdBlogs.filter((blog) =>
         blog.name.match(/bl/i)
       );
-      const sortedBlogs = sortByField<Blog>(filteredBlogs, "youtubeUrl", "asc");
+      const sortedBlogs = sortByField<Blog>(filteredBlogs, "websiteUrl", "asc");
 
       await request(app)
         .get(
-          `${router.blogs}?searchNameTerm=bl&sortBy=youtubeUrl&sortDirection=asc`
+          `${router.blogs}?searchNameTerm=bl&sortBy=websiteUrl&sortDirection=asc`
         )
         .expect(
           HTTP_STATUSES.OK_200,
@@ -203,7 +204,11 @@ export const testBlogsApi = () =>
     });
 
     it("Update blog. Should update blog and return 204", async () => {
-      const updateData = { name: "Updated", youtubeUrl: "https://new.url" };
+      const updateData = {
+        name: "Updated",
+        websiteUrl: "https://new.url",
+        description: "Updated description",
+      };
 
       await request(app)
         .put(`${router.blogs}/${createdBlogs[1].id}`)
@@ -220,7 +225,11 @@ export const testBlogsApi = () =>
       await request(app)
         .put(`${router.blogs}/fakeBlogId`)
         .set(basicAuth)
-        .send({ name: "Updated", youtubeUrl: "https://new.url" })
+        .send({
+          name: "Updated",
+          websiteUrl: "https://new.url",
+          description: "Updated description",
+        })
         .expect(HTTP_STATUSES.NOT_FOUND_404);
     });
 
@@ -232,34 +241,35 @@ export const testBlogsApi = () =>
 
       expect(firstRes.statusCode).toEqual(HTTP_STATUSES.BAD_REQUEST_400);
       expect(firstRes.body).toEqual(
-        getErrorsMessages<ReqBodyBlog>("name", "youtubeUrl")
+        getErrorsMessages<ReqBodyBlog>("name", "websiteUrl", "description")
       );
-      expect(firstRes.body.errorsMessages).toHaveLength(2);
+      expect(firstRes.body.errorsMessages).toHaveLength(3);
 
       const secondRes = await request(app)
         .put(`${router.blogs}/${createdBlogs[2].id}`)
         .set(basicAuth)
         .send({
           name: getOverMaxLength(15),
-          youtubeUrl: getOverMaxLength(100),
+          websiteUrl: getOverMaxLength(100),
+          description: getOverMaxLength(500),
         });
 
       expect(secondRes.statusCode).toEqual(HTTP_STATUSES.BAD_REQUEST_400);
       expect(secondRes.body).toEqual(
-        getErrorsMessages<ReqBodyBlog>("name", "youtubeUrl")
+        getErrorsMessages<ReqBodyBlog>("name", "websiteUrl", "description")
       );
-      expect(secondRes.body.errorsMessages).toHaveLength(2);
+      expect(secondRes.body.errorsMessages).toHaveLength(3);
 
       const thirdRes = await request(app)
         .put(`${router.blogs}/${createdBlogs[2].id}`)
         .set(basicAuth)
-        .send({ name: "valid", youtubeUrl: "https://badurl" });
+        .send({ name: "valid", websiteUrl: "https://badurl" });
 
       expect(thirdRes.statusCode).toEqual(HTTP_STATUSES.BAD_REQUEST_400);
       expect(thirdRes.body).toEqual(
-        getErrorsMessages<ReqBodyBlog>("youtubeUrl")
+        getErrorsMessages<ReqBodyBlog>("websiteUrl", "description")
       );
-      expect(thirdRes.body.errorsMessages).toHaveLength(1);
+      expect(thirdRes.body.errorsMessages).toHaveLength(2);
 
       await request(app)
         .get(`${router.blogs}/${createdBlogs[2].id}`)

@@ -9,7 +9,8 @@ import { RefreshSession } from "modules/auth/auth";
 export const blogSchema = new mongoose.Schema<Blog>({
   id: { type: String, required: true },
   name: { type: String, required: true },
-  youtubeUrl: { type: String, required: true },
+  websiteUrl: { type: String, required: true },
+  description: { type: String, required: true },
   createdAt: { type: String, required: true },
 });
 

@@ -3,13 +3,15 @@ import { Pagination, Query, ResType } from "common/types";
 export type Blog = {
   id: string;
   name: string;
-  youtubeUrl: string;
+  websiteUrl: string;
+  description: string;
   createdAt: string;
 };
 
 export type ReqBodyBlog = {
   name: string;
-  youtubeUrl: string;
+  websiteUrl: string;
+  description: string;
 };
 
 export type ReqBodyPostByBlogId = {

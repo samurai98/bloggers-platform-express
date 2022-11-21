@@ -96,7 +96,7 @@ export const testAuthApi = () =>
     it("Login user. Should return 401", async () => {
       await request(app)
         .post(`${router.auth}${authPath.login}`)
-        .send({ login: "some user", password: "123456" })
+        .send({ loginOrEmail: "some user", password: "123456" })
         .expect(HTTP_STATUSES.UNAUTHORIZED_401);
     });
 
@@ -107,13 +107,13 @@ export const testAuthApi = () =>
 
       expect(firstRes.statusCode).toEqual(HTTP_STATUSES.BAD_REQUEST_400);
       expect(firstRes.body).toEqual(
-        getErrorsMessages<ReqBodyAuth>("login", "password")
+        getErrorsMessages<ReqBodyAuth>("loginOrEmail", "password")
       );
       expect(firstRes.body.errorsMessages).toHaveLength(2);
 
       const secondRes = await request(app)
         .post(`${router.auth}${authPath.login}`)
-        .send({ login: "valid", password: "" });
+        .send({ loginOrEmail: "valid", password: "" });
 
       expect(secondRes.statusCode).toEqual(HTTP_STATUSES.BAD_REQUEST_400);
       expect(secondRes.body).toEqual(
@@ -125,7 +125,7 @@ export const testAuthApi = () =>
     it("Login user. Should return 200, accessToken in body and refreshToken in cookie", async () => {
       const firstRes = await request(app)
         .post(`${router.auth}${authPath.login}`)
-        .send({ login: validUsers[0].login, password: validUsers[0].password });
+        .send({ loginOrEmail: validUsers[0].login, password: validUsers[0].password });
 
       const firstUserIdByToken = await jwtService.getUserIdByToken(
         firstRes.body.accessToken
@@ -137,7 +137,7 @@ export const testAuthApi = () =>
 
       const secondRes = await request(app)
         .post(`${router.auth}${authPath.login}`)
-        .send({ login: validUsers[0].email, password: validUsers[0].password });
+        .send({ loginOrEmail: validUsers[0].email, password: validUsers[0].password });
 
       const secondCookie = secondRes.header["set-cookie"][0];
       const secondUserIdByToken = await jwtService.getUserIdByToken(
@@ -332,12 +332,12 @@ export const testAuthApi = () =>
 
       await request(app)
         .post(`${router.auth}${authPath.login}`)
-        .send({ login: createdUser.email, password: validUsers[0].password })
+        .send({ loginOrEmail: createdUser.email, password: validUsers[0].password })
         .expect(HTTP_STATUSES.UNAUTHORIZED_401);
 
       const loginRes = await request(app)
         .post(`${router.auth}${authPath.login}`)
-        .send({ login: createdUser.email, password: newPassword });
+        .send({ loginOrEmail: createdUser.email, password: newPassword });
 
       const expectedToken = await jwtService.getUserIdByToken(
         loginRes.body.accessToken

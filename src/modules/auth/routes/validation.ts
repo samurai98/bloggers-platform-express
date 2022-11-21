@@ -53,7 +53,7 @@ export const uniqueLoginAndEmailValidation = async (
   next();
 };
 
-const loginAndPassValidation = body(["login", "password"])
+const loginAndPassValidation = body(["loginOrEmail", "password"])
   .trim()
   .notEmpty()
   .withMessage("Login or password incorrect");

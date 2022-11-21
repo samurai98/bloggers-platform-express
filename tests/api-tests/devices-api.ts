@@ -23,18 +23,18 @@ export const testDevicesApi = () =>
       createdUser = await createUser({ isLogin: true });
 
       await request(app).post(`${router.auth}${authPath.login}`).send({
-        login: validUsers[0].email,
+        loginOrEmail: validUsers[0].email,
         password: validUsers[0].password,
       });
       await request(app).post(`${router.auth}${authPath.login}`).send({
-        login: validUsers[0].email,
+        loginOrEmail: validUsers[0].email,
         password: validUsers[0].password,
       });
 
       const loginRes = await request(app)
         .post(`${router.auth}${authPath.login}`)
         .send({
-          login: validUsers[0].email,
+          loginOrEmail: validUsers[0].email,
           password: validUsers[0].password,
         });
 

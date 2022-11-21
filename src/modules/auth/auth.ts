@@ -2,7 +2,7 @@ import { CookieOptions } from "express";
 
 import { ResType } from "common/types";
 
-export type ReqBodyAuth = { login: string; password: string };
+export type ReqBodyAuth = { loginOrEmail: string; password: string };
 
 export type LoginUserData = ReqBodyAuth & { ip: string; ua?: string };
 

@@ -14,11 +14,31 @@ export const incorrectQuery = {
 } as const;
 
 export const validBlogs: ReqBodyBlog[] = [
-  { name: "Blog 1", youtubeUrl: "https://youtube.com" },
-  { name: "Second", youtubeUrl: "https://youtube.com" },
-  { name: "Blog3", youtubeUrl: "https://1youtube.com" },
-  { name: "abc blog", youtubeUrl: "https://2youtube.com" },
-  { name: "valid", youtubeUrl: "https://3youtube.com" },
+  {
+    name: "Blog 1",
+    websiteUrl: "https://youtube.com",
+    description: "Lorem Ipsum",
+  },
+  {
+    name: "Second",
+    websiteUrl: "https://youtube.com",
+    description: "Lorem Ipsum is simply dummy text of the printing",
+  },
+  {
+    name: "Blog3",
+    websiteUrl: "https://1youtube.com",
+    description: "Lorem Ipsum is simply dummy text of the printing",
+  },
+  {
+    name: "abc blog",
+    websiteUrl: "https://2youtube.com",
+    description: "Lorem Ipsum is simply dummy text of the printing",
+  },
+  {
+    name: "valid",
+    websiteUrl: "https://3youtube.com",
+    description: "Lorem Ipsum is simply dummy text of the printing",
+  },
 ];
 
 export const validPosts: Partial<ReqBodyPost>[] = [

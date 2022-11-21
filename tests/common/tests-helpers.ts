@@ -52,7 +52,7 @@ export const createUser = async ({ isLogin = false, validUserIndex = 0 }) => {
   const loginRes = await request(app)
     .post(`${router.auth}${authPath.login}`)
     .send({
-      login: validUsers[validUserIndex].email,
+      loginOrEmail: validUsers[validUserIndex].email,
       password: validUsers[validUserIndex].password,
     });
 

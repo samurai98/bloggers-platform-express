@@ -12,13 +12,19 @@ const nameValidation = body("name")
   .isLength({ max: 15 })
   .withMessage("Name length error");
 
-const youtubeUrlValidation = body("youtubeUrl")
+const descriptionValidation = body("description")
+  .trim()
+  .notEmpty()
+  .isLength({ max: 500 })
+  .withMessage("Description length error");
+
+const websiteUrlValidation = body("websiteUrl")
   .trim()
   .notEmpty()
   .isURL()
-  .withMessage("YoutubeUrl incorrect")
+  .withMessage("WebsiteUrl incorrect")
   .isLength({ max: 100 })
-  .withMessage("YoutubeUrl length error");
+  .withMessage("WebsiteUrl length error");
 
 export const blogsQueryValidation = getQueryValidation((query) => {
   const { searchNameTerm } = query;
@@ -32,7 +38,8 @@ export const postsByBlogQueryValidation = getQueryValidation();
 export const blogValidation = [
   checkBasicAuth,
   nameValidation,
-  youtubeUrlValidation,
+  websiteUrlValidation,
+  descriptionValidation,
   inputValidation,
 ];
 

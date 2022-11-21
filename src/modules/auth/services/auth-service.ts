@@ -30,7 +30,7 @@ const recoveryCodeLifeTime: Duration = { hours: 1 };
 
 export const authService = {
   async loginUser({
-    login: loginOrEmail,
+    loginOrEmail,
     password,
     ip,
     ua,
