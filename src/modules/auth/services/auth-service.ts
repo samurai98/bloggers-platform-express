@@ -22,9 +22,9 @@ import { sessionsService } from "./sessions-service";
 //@ts-ignore
 import { validUsers } from "../../../../tests/common/data";
 
-const accessTokenLifeTime = "10s";
-const refreshTokenLifeTime: Duration = { seconds: 20 };
-const refreshTokenLifeTimeString = "20s";
+const accessTokenLifeTime = `${SETTINGS.ACCESS_TOKEN_LIFE_TIME_SECONDS}s`;
+const refreshTokenLifeTime: Duration = { hours: Number(SETTINGS.REFRESH_TOKEN_LIFE_TIME_HOURS) };
+const refreshTokenLifeTimeString = `${SETTINGS.REFRESH_TOKEN_LIFE_TIME_HOURS}h`;
 const confirmEmailCodeLifeTime: Duration = { hours: 1 };
 const recoveryCodeLifeTime: Duration = { hours: 1 };
 
