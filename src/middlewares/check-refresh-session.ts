@@ -28,8 +28,8 @@ export const setUserToContextBySession = async (req: Request, res: Response, nex
   const refreshToken = req.cookies?.refreshToken;
   const currentSession = await sessionsService.getByRefreshToken(refreshToken);
 
-  if (req.requestContext.user?.id !== currentSession!.userId)
-    req.requestContext.user = (await usersQueryRepository.findUserById(currentSession!.userId)) as User;
+  if (currentSession && req.requestContext.user?.id !== currentSession.userId)
+    req.requestContext.user = (await usersQueryRepository.findUserById(currentSession.userId)) as User;
 
   next();
 };
