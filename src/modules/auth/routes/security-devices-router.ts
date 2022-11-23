@@ -1,54 +1,37 @@
-import { Router, Request, Response } from "express";
+import { Router, Request, Response } from 'express';
 
-import {
-  checkRefreshSession,
-  setUserToRequestContextBySession,
-} from "middlewares";
-import { HTTP_STATUSES } from "common/http-statuses";
-import { ResType } from "common/types";
+import { checkRefreshSession } from 'middlewares';
+import { HTTP_STATUSES } from 'common/http-statuses';
+import { ResType } from 'common/types';
 
-import { sessionsService } from "../services/sessions-service";
-import { ParamDevice, ResDevices } from "../auth";
-import { deleteDeviceValidation } from "./validation";
+import { sessionsService } from '../services/sessions-service';
+import { ParamDevice, ResDevices } from '../auth';
+import { deleteDeviceValidation } from './validation';
 
 export const securityDevicesRouter = Router({});
 
-securityDevicesRouter.get(
-  "/",
-  checkRefreshSession,
-  setUserToRequestContextBySession,
-  async (req: Request, res: Response<ResDevices>) => {
-    const sessions = await sessionsService.getActiveSessions(
-      req.requestContext.user?.id
-    );
+securityDevicesRouter.get('/', checkRefreshSession, async (req: Request, res: Response<ResDevices>) => {
+  const sessions = await sessionsService.getActiveSessions(req.requestContext.user?.id);
 
-    if (sessions) res.status(HTTP_STATUSES.OK_200).send(sessions);
-    else res.sendStatus(HTTP_STATUSES.UNAUTHORIZED_401);
-  }
-);
+  if (sessions) res.status(HTTP_STATUSES.OK_200).send(sessions);
+  else res.sendStatus(HTTP_STATUSES.UNAUTHORIZED_401);
+});
 
-securityDevicesRouter.delete(
-  "/",
-  checkRefreshSession,
-  setUserToRequestContextBySession,
-  async (req: Request, res: Response<ResType>) => {
-    const isDeleted = await sessionsService.deleteAllSessionsExcludeCurrent(
-      req.cookies?.refreshToken,
-      req.requestContext.user?.id
-    );
+securityDevicesRouter.delete('/', checkRefreshSession, async (req: Request, res: Response<ResType>) => {
+  const isDeleted = await sessionsService.deleteAllSessionsExcludeCurrent(
+    req.cookies?.refreshToken,
+    req.requestContext.user?.id
+  );
 
-    if (isDeleted) res.sendStatus(HTTP_STATUSES.NO_CONTENT_204);
-    else res.sendStatus(HTTP_STATUSES.UNAUTHORIZED_401);
-  }
-);
+  if (isDeleted) res.sendStatus(HTTP_STATUSES.NO_CONTENT_204);
+  else res.sendStatus(HTTP_STATUSES.UNAUTHORIZED_401);
+});
 
 securityDevicesRouter.delete(
-  "/:deviceId",
+  '/:deviceId',
   deleteDeviceValidation,
   async (req: Request<ParamDevice>, res: Response<ResType>) => {
-    const isDeleted = await sessionsService.deleteSessionByDeviceId(
-      req.params.deviceId
-    );
+    const isDeleted = await sessionsService.deleteSessionByDeviceId(req.params.deviceId);
 
     if (isDeleted) res.sendStatus(HTTP_STATUSES.NO_CONTENT_204);
     else res.sendStatus(HTTP_STATUSES.NOT_FOUND_404);
