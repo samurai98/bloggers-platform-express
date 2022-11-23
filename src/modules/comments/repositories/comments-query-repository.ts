@@ -1,47 +1,29 @@
-import { FilterQuery } from "mongoose";
+import { FilterQuery } from 'mongoose';
 
-import { CommentModel } from "common/db";
-import { getPagesCount, getSkipCount } from "common/helpers/pagination";
+import { CommentModel } from 'common/db';
+import { QueryDBFilter } from 'common/types';
 
-import { Comment, CommentDB, ReqQueryComment, ResComments } from "../comment";
+import { CommentDB, Reaction } from '../comment';
 
 export const commentsQueryRepository = {
-  async getComments({
-    pageNumber,
-    pageSize,
-    sortBy,
-    sortDirection,
-    postId,
-  }: ReqQueryComment): Promise<ResComments> {
-    const filter: FilterQuery<CommentDB> = postId ? { postId } : {};
-    const totalCount = await CommentModel.countDocuments(filter);
-
-    const skipCount = getSkipCount(pageNumber, pageSize);
-    const pagesCount = getPagesCount(totalCount, pageSize);
-
-    const items = (await CommentModel.find(filter, {
-      _id: false,
-      __v: false,
-      postId: false,
-    })
+  async findComments(
+    filter: FilterQuery<CommentDB>,
+    { sortBy, sortDirection, skipCount, pageSize }: QueryDBFilter
+  ): Promise<CommentDB[]> {
+    const items = await CommentModel.find(filter, { _id: false, __v: false })
       .sort({ [sortBy]: sortDirection })
       .skip(skipCount)
       .limit(pageSize)
-      .lean()) as Comment[];
+      .lean();
 
-    return {
-      pagesCount,
-      page: pageNumber,
-      pageSize,
-      totalCount,
-      items,
-    };
+    return items;
   },
 
-  async findCommentById(id: string): Promise<Comment | null> {
-    return await CommentModel.findOne(
-      { id },
-      { _id: false, __v: false, postId: false }
-    ).lean();
+  async countTotalComments(filter: FilterQuery<CommentDB>): Promise<number> {
+    return await CommentModel.countDocuments(filter);
+  },
+
+  async findCommentById(id: string): Promise<CommentDB | null> {
+    return await CommentModel.findOne({ id }, { _id: false, __v: false }).lean();
   },
 };

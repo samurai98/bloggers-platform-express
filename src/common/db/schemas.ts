@@ -1,10 +1,10 @@
-import mongoose from "mongoose";
+import mongoose from 'mongoose';
 
-import { Blog } from "modules/blogs/blog";
-import { Post } from "modules/posts/post";
-import { CommentDB } from "modules/comments/comment";
-import { UserDB } from "modules/users/user";
-import { RefreshSession } from "modules/auth/auth";
+import { Blog } from 'modules/blogs/blog';
+import { Post } from 'modules/posts/post';
+import { CommentDB } from 'modules/comments/comment';
+import { UserDB } from 'modules/users/user';
+import { RefreshSession } from 'modules/auth/auth';
 
 export const blogSchema = new mongoose.Schema<Blog>({
   id: { type: String, required: true },
@@ -31,6 +31,13 @@ export const commentsSchema = new mongoose.Schema<CommentDB>({
   userLogin: { type: String, required: true },
   createdAt: { type: String, required: true },
   postId: { type: String, required: true },
+  reactions: [
+    {
+      userId: { type: String, required: true },
+      status: { type: String, required: true },
+      createdAt: { type: String, required: true },
+    },
+  ],
 });
 
 export const usersSchema = new mongoose.Schema<UserDB>({
@@ -42,15 +49,8 @@ export const usersSchema = new mongoose.Schema<UserDB>({
     passHash: { type: String, required: true },
     passSalt: { type: String, required: true },
   },
-  emailConfirmation: {
-    confirmationCode: String,
-    expirationDate: Date,
-    isConfirmed: { type: Boolean, required: true },
-  },
-  passwordRecovery: {
-    recoveryCode: String,
-    expirationDate: Date,
-  },
+  emailConfirmation: { confirmationCode: String, expirationDate: Date, isConfirmed: { type: Boolean, required: true } },
+  passwordRecovery: { recoveryCode: String, expirationDate: Date },
 });
 
 export const sessionsSchema = new mongoose.Schema<RefreshSession>({
