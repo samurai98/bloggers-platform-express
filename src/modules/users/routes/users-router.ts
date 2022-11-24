@@ -1,7 +1,7 @@
 import { Router, Request, Response } from "express";
 
 import { HTTP_STATUSES } from "common/http-statuses";
-import { ResType } from "common/types";
+import { ResType } from "common/types/common";
 
 import { usersQueryRepository } from "../repositories";
 import { usersService } from "../services/users-service";

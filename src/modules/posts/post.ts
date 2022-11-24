@@ -1,6 +1,7 @@
-import { Pagination, Query, ResType } from "common/types";
+import { Pagination, Query, ResType } from 'common/types/common';
+import { ExtendedLikesInfo, ReactionDB } from 'common/types/reactions';
 
-export type Post = {
+type CommonPost = {
   id: string;
   title: string;
   shortDescription: string;
@@ -10,14 +11,13 @@ export type Post = {
   createdAt: string;
 };
 
-export type ReqBodyPost = {
-  title: string;
-  shortDescription: string;
-  content: string;
-  blogId: string;
-};
+export type Post = CommonPost & { extendedLikesInfo: ExtendedLikesInfo };
 
-export type ParamPost = { id: Post["id"] };
+export type PostDB = CommonPost & { reactions: ReactionDB[] };
+
+export type ReqBodyPost = { title: string; shortDescription: string; content: string; blogId: string };
+
+export type ParamPost = { postId: Post['id'] };
 
 export type ReqQueryPost = Query & { blogId?: string };
 

@@ -2,7 +2,7 @@ import { Router, Request, Response } from "express";
 
 import { checkBearerAuth } from "middlewares";
 import { HTTP_STATUSES } from "common/http-statuses";
-import { ResErrorsMessages, ResType } from "common/types";
+import { ResErrorsMessages, ResType } from "common/types/common";
 import { getErrorsMessages } from "common/helpers/utils";
 
 import { ReqBodyUser, User } from "../../users/user";

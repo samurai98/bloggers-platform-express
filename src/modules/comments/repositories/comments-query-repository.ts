@@ -1,9 +1,9 @@
 import { FilterQuery } from 'mongoose';
 
 import { CommentModel } from 'common/db';
-import { QueryDBFilter } from 'common/types';
+import { QueryDBFilter } from 'common/types/common';
 
-import { CommentDB, Reaction } from '../comment';
+import { CommentDB } from '../comment';
 
 export const commentsQueryRepository = {
   async findComments(

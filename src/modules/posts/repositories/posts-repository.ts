@@ -1,9 +1,9 @@
-import { PostModel } from "common/db";
+import { PostModel } from 'common/db';
 
-import { ReqBodyPost, Post } from "../post";
+import { ReqBodyPost, PostDB } from '../post';
 
 export const postsRepository = {
-  async createPost(post: Post): Promise<Post> {
+  async createPost(post: PostDB): Promise<PostDB> {
     await PostModel.insertMany(post);
 
     return post;

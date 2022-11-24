@@ -1,7 +1,7 @@
 import { getCurrentDateISO } from 'common/helpers/utils';
 
-import { commentsRepository, commentsQueryRepository } from '../repositories';
-import { Comment, CommentDB, Reaction, ReqBodyComment } from '../comment';
+import { commentsRepository } from '../repositories';
+import { Comment, CommentDB, ReqBodyComment } from '../comment';
 import { commentMapper } from './comments-mapper';
 
 export const commentsService = {
@@ -31,27 +31,5 @@ export const commentsService = {
 
   async deleteComment(id: string): Promise<boolean> {
     return await commentsRepository.deleteComment(id);
-  },
-
-  async updateReaction(commentId: string, { userId, status }: Omit<Reaction, 'createdAt'>): Promise<boolean> {
-    const comment = await commentsQueryRepository.findCommentById(commentId);
-
-    if (!comment) return false;
-
-    const reaction = comment.reactions.find(reaction => reaction.userId === userId);
-    const currentDate = getCurrentDateISO();
-    const newReaction = { userId, status, createdAt: currentDate };
-
-    if (!reaction) {
-      if (status === 'None') return true;
-
-      return await commentsRepository.createReaction(commentId, newReaction);
-    }
-
-    if (status === 'None') return await commentsRepository.deleteReaction(commentId, newReaction);
-
-    if (reaction.status !== status) return await commentsRepository.updateReaction(commentId, newReaction);
-
-    return true;
   },
 };

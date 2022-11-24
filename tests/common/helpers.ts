@@ -1,7 +1,7 @@
-import { Pagination, SortDirection } from "../../src/common/types";
-import { getSortDirectionNumber } from "../../src/common/helpers/pagination";
+import { Pagination, SortDirection } from '../../src/common/types/common';
+import { getSortDirectionNumber } from '../../src/common/helpers/pagination';
 
-import { bearerAuth } from "./data";
+import { bearerAuth } from './data';
 
 export const dateISORegEx = expect.stringMatching(
   /\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d\.\d+([+-][0-2]\d:[0-5]\d|Z)/
@@ -11,20 +11,16 @@ export const anyString = expect.any(String);
 
 export const getErrorsMessages = <T>(...fields: (keyof T)[]) => ({
   errorsMessages: expect.arrayContaining(
-    fields.map((field) => ({
+    fields.map(field => ({
       field,
       message: anyString,
     }))
   ),
 });
 
-export const getOverMaxLength = (max: number) => "a".repeat(max + 1);
+export const getOverMaxLength = (max: number) => 'a'.repeat(max + 1);
 
-export const sortByField = <T = any[]>(
-  arr: T[],
-  field: keyof T,
-  sortDirection: SortDirection = "desc"
-) => {
+export const sortByField = <T = any[]>(arr: T[], field: keyof T, sortDirection: SortDirection = 'desc') => {
   const sortNum = getSortDirectionNumber(sortDirection);
 
   return [...arr].sort((a, b) => {

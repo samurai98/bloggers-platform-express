@@ -4,7 +4,6 @@ import { body } from 'express-validator';
 
 import { checkBearerAuth, inputValidation } from 'middlewares';
 
-import { likeStatuses } from '../comment';
 import { commentsStory } from '../services';
 
 const contentValidation = body('content')
@@ -31,11 +30,3 @@ export const updateCommentValidation = [checkBearerAuth, checkUserRights, conten
 export const deleteCommentValidation = [checkBearerAuth, checkUserRights];
 
 export const commentByPostIdValidation = [checkBearerAuth, contentValidation, inputValidation];
-
-const likeStatusValidation = body('likeStatus')
-  .trim()
-  .notEmpty()
-  .isIn(likeStatuses)
-  .withMessage('Incorrect likeStatus');
-
-export const updateLikeStatusValidation = [checkBearerAuth, likeStatusValidation, inputValidation];

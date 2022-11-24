@@ -1,4 +1,4 @@
-import { HTTP_STATUSES } from './http-statuses';
+import { HTTP_STATUSES } from '../http-statuses';
 
 export type Pagination<T = unknown> = {
   pagesCount: number;

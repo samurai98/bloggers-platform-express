@@ -1,4 +1,6 @@
-import { Comment, CommentDB, LikesInfo } from '../comment';
+import { LikesInfo } from 'common/types/reactions';
+
+import { Comment, CommentDB } from '../comment';
 
 export const commentMapper = (commentDB: CommentDB, currentUserId: string | undefined): Comment => {
   const { id, content, userId, userLogin, createdAt, reactions } = commentDB;

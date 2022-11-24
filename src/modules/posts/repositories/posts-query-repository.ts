@@ -1,37 +1,26 @@
-import { FilterQuery } from "mongoose";
+import { FilterQuery } from 'mongoose';
 
-import { PostModel } from "common/db";
-import { getPagesCount, getSkipCount } from "common/helpers/pagination";
+import { PostModel } from 'common/db';
+import { QueryDBFilter } from 'common/types/common';
 
-import { Post, ReqQueryPost } from "../post";
+import { PostDB } from '../post';
 
 export const postsQueryRepository = {
-  async getPosts({
-    pageNumber,
-    pageSize,
-    sortBy,
-    sortDirection,
-    blogId,
-  }: ReqQueryPost) {
-    const filter: FilterQuery<Post> = blogId ? { blogId } : {};
-    const totalCount = await PostModel.countDocuments(filter);
-
-    const skipCount = getSkipCount(pageNumber, pageSize);
-    const pagesCount = getPagesCount(totalCount, pageSize);
-
-    const items = (await PostModel.find(filter, { _id: false, __v: false })
+  async findPosts(
+    filter: FilterQuery<PostDB>,
+    { sortBy, sortDirection, skipCount, pageSize }: QueryDBFilter
+  ): Promise<PostDB[]> {
+    const items = await PostModel.find(filter, { _id: false, __v: false })
       .sort({ [sortBy]: sortDirection })
       .skip(skipCount)
       .limit(pageSize)
-      .lean()) as Post[];
+      .lean();
 
-    return {
-      pagesCount,
-      page: pageNumber,
-      pageSize,
-      totalCount,
-      items,
-    };
+    return items;
+  },
+
+  async countTotalPosts(filter: FilterQuery<PostDB>): Promise<number> {
+    return await PostModel.countDocuments(filter);
   },
 
   async findPostById(id: string) {

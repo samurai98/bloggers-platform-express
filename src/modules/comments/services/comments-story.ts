@@ -17,7 +17,6 @@ export const commentsStory = {
     const pagesCount = getPagesCount(totalCount, pageSize);
 
     const commentsDB = await commentsQueryRepository.findComments(filter, { sortBy, sortDirection, skipCount, pageSize });
-
     const comments = commentsDB.map(item => commentMapper(item, currentUserId));
 
     return { pagesCount, page: pageNumber, pageSize, totalCount, items: comments };

@@ -1,6 +1,6 @@
-import { CookieOptions } from "express";
+import { CookieOptions } from 'express';
 
-import { ResType } from "common/types";
+import { ResType } from 'common/types/common';
 
 export type ReqBodyAuth = { loginOrEmail: string; password: string };
 
@@ -38,6 +38,6 @@ export type Device = {
   lastActiveDate: string;
 };
 
-export type ParamDevice = { deviceId: Device["deviceId"] };
+export type ParamDevice = { deviceId: Device['deviceId'] };
 
 export type ResDevices = ResType<Device[]>;

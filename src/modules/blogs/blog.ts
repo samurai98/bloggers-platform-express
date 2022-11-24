@@ -1,4 +1,4 @@
-import { Pagination, Query, ResType } from "common/types";
+import { Pagination, Query, ResType } from "common/types/common";
 
 export type Blog = {
   id: string;

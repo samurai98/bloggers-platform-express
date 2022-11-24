@@ -1,11 +1,12 @@
-import bcrypt from "bcrypt";
+import bcrypt from 'bcrypt';
 
-import { ErrorsMessages } from "common/types";
+import { ErrorsMessages } from 'common/types/common';
 
 export const getCurrentDateISO = () => new Date().toISOString();
 
-export const generateHash = (password: string, salt: string) =>
-  bcrypt.hash(password, salt);
+export const stringDateToMs = (date: string) => Date.parse(date);
+
+export const generateHash = (password: string, salt: string) => bcrypt.hash(password, salt);
 
 export const getErrorsMessages = <T extends Record<string, string>>(
   errors: Record<keyof T, string>

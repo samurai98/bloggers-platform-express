@@ -1,11 +1,12 @@
 import { Router, Request, Response } from 'express';
 
-import { ResType } from 'common/types';
+import { ResType } from 'common/types/common';
 import { HTTP_STATUSES } from 'common/http-statuses';
+import { addLikeStatusRouter } from 'common/modules/reactions';
 
 import { commentsService, commentsStory } from '../services';
-import { ReqBodyComment, ParamComment, ResComment, ReqBodyLikeStatus } from '../comment';
-import { deleteCommentValidation, updateCommentValidation, updateLikeStatusValidation } from './validation';
+import { ReqBodyComment, ParamComment, ResComment } from '../comment';
+import { deleteCommentValidation, updateCommentValidation } from './validation';
 
 export const commentsRouter = Router({});
 
@@ -38,16 +39,4 @@ commentsRouter.delete(
   }
 );
 
-commentsRouter.put(
-  '/:commentId/like-status',
-  updateLikeStatusValidation,
-  async (req: Request<ParamComment, {}, ReqBodyLikeStatus>, res: Response<ResType>) => {
-    const result = await commentsService.updateReaction(req.params.commentId, {
-      status: req.body.likeStatus,
-      userId: req.requestContext.user!.id,
-    });
-
-    if (result) res.sendStatus(HTTP_STATUSES.NO_CONTENT_204);
-    else res.sendStatus(HTTP_STATUSES.NOT_FOUND_404);
-  }
-);
+addLikeStatusRouter('comments', commentsRouter);
