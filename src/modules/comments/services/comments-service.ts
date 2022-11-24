@@ -48,9 +48,10 @@ export const commentsService = {
       return await commentsRepository.createReaction(commentId, newReaction);
     }
 
-    if (status === 'None' || reaction.status === status)
-      return await commentsRepository.deleteReaction(commentId, newReaction);
+    if (status === 'None') return await commentsRepository.deleteReaction(commentId, newReaction);
 
-    return await commentsRepository.updateReaction(commentId, newReaction);
+    if (reaction.status !== status) return await commentsRepository.updateReaction(commentId, newReaction);
+
+    return true;
   },
 };
