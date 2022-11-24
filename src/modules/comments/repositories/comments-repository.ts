@@ -23,7 +23,7 @@ export const commentsRepository = {
 
   async updateReaction(commentId: string, { userId, status, createdAt }: Reaction): Promise<boolean> {
     const result = await CommentModel.updateOne(
-      { commentId },
+      { id: commentId },
       { $set: { 'reactions.$[elem].status': status, 'reactions.$[elem].createdAt': createdAt } },
       { arrayFilters: [{ 'elem.userId': userId }] }
     );
@@ -32,13 +32,13 @@ export const commentsRepository = {
   },
 
   async createReaction(commentId: string, reaction: Reaction): Promise<boolean> {
-    const result = await CommentModel.updateOne({ commentId }, { $push: { reactions: reaction } });
+    const result = await CommentModel.updateOne({ id: commentId }, { $push: { reactions: reaction } });
 
     return result.matchedCount === 1;
   },
 
   async deleteReaction(commentId: string, { userId }: Reaction): Promise<boolean> {
-    const result = await CommentModel.updateOne({ commentId }, { $pull: { reactions: { userId } } });
+    const result = await CommentModel.updateOne({ id: commentId }, { $pull: { reactions: { userId } } });
 
     return result.matchedCount === 1;
   },
