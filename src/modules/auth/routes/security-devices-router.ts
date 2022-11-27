@@ -1,8 +1,8 @@
 import { Router, Request, Response } from 'express';
 
-import { checkRefreshSession } from 'middlewares';
-import { HTTP_STATUSES } from 'common/http-statuses';
-import { ResType } from 'common/types/common';
+import { checkRefreshSession } from '../../../middlewares';
+import { HTTP_STATUSES } from '../../../common/http-statuses';
+import { ResType } from '../../../common/types/common';
 
 import { sessionsService } from '../services/sessions-service';
 import { ParamDevice, ResDevices } from '../auth';

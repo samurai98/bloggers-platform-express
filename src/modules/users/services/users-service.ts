@@ -1,33 +1,22 @@
-import bcrypt from "bcrypt";
-import { v4 as uuidv4 } from "uuid";
-import { add } from "date-fns";
+import bcrypt from 'bcrypt';
+import { v4 as uuidv4 } from 'uuid';
+import { add } from 'date-fns';
 
-import { generateHash, getCurrentDateISO } from "common/helpers/utils";
-import { authService } from "modules/auth/services/auth-service";
-import { SETTINGS } from "settings/config";
+import { generateHash, getCurrentDateISO } from '../../../common/helpers/utils';
+import { SETTINGS } from '../../../settings/config';
+import { authService } from '../../auth/services/auth-service';
 
-import { usersRepository } from "../repositories";
-import { User, ReqBodyUser, UserDB } from "../user";
+import { usersRepository } from '../repositories';
+import { User, ReqBodyUser, UserDB } from '../user';
 
 export const usersService = {
-  async createUser({
-    email,
-    login,
-    password,
-  }: ReqBodyUser): Promise<User | null> {
+  async createUser({ email, login, password }: ReqBodyUser): Promise<User | null> {
     const currentDate = getCurrentDateISO();
     const passSalt = await bcrypt.genSalt(Number(SETTINGS.ROUNDS_SALT_COUNT));
     const passHash = await generateHash(password, passSalt);
 
     const newUser: UserDB = {
-      accountData: {
-        id: currentDate,
-        email,
-        login,
-        passHash,
-        passSalt,
-        createdAt: currentDate,
-      },
+      accountData: { id: currentDate, email, login, passHash, passSalt, createdAt: currentDate },
       emailConfirmation: {
         confirmationCode: uuidv4(),
         expirationDate: add(new Date(), { hours: 1 }),

@@ -1,9 +1,9 @@
-import jwt from "jsonwebtoken";
+import jwt from 'jsonwebtoken';
 
-import { SETTINGS } from "settings/config";
+import { SETTINGS } from '../../settings/config';
 
 export const jwtService = {
-  async createJWT(payload: object, lifeTime: string = "15m"): Promise<string> {
+  async createJWT(payload: object, lifeTime: string = '15m'): Promise<string> {
     const accessToken = jwt.sign(
       // createdAt need for generate unique jwt
       { createdAt: new Date().getTime(), ...payload },

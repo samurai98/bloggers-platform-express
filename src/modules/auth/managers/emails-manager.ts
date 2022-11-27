@@ -1,13 +1,13 @@
-import { UserDB } from "modules/users/user";
-import { SETTINGS } from "settings/config";
+import { SETTINGS } from '../../../settings/config';
+import { UserDB } from '../../users/user';
 
-import { emailAdapter } from "../adapters/email-adapter";
+import { emailAdapter } from '../adapters/email-adapter';
 
 export const emailsManager = {
   async sendEmailConfirmationMessage(user: UserDB) {
     await emailAdapter.sendEmail({
       email: user.accountData.email,
-      subject: "Finish your registration",
+      subject: 'Finish your registration',
       message: `
       <h1>Thank for your registration</h1>
       <p>To finish registration please follow the link below:
@@ -22,7 +22,7 @@ export const emailsManager = {
   async sendEmailPasswordRecovery(user: UserDB) {
     await emailAdapter.sendEmail({
       email: user.accountData.email,
-      subject: "Password Recovery",
+      subject: 'Password Recovery',
       message: `
       <h1>Password recovery</h1>
        <p>To finish password recovery please follow the link below:

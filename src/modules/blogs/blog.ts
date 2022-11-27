@@ -1,4 +1,4 @@
-import { Pagination, Query, ResType } from "common/types/common";
+import { Pagination, Query, ResType } from '../../common/types/common';
 
 export type Blog = {
   id: string;
@@ -8,19 +8,11 @@ export type Blog = {
   createdAt: string;
 };
 
-export type ReqBodyBlog = {
-  name: string;
-  websiteUrl: string;
-  description: string;
-};
+export type ReqBodyBlog = { name: string; websiteUrl: string; description: string };
 
-export type ReqBodyPostByBlogId = {
-  title: string;
-  shortDescription: string;
-  content: string;
-};
+export type ReqBodyPostByBlogId = { title: string; shortDescription: string; content: string };
 
-export type ParamBlog = { id: Blog["id"] };
+export type ParamBlog = { id: Blog['id'] };
 
 export type ReqQueryBlog = Query & { searchNameTerm?: string };
 

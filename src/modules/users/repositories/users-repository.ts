@@ -1,6 +1,6 @@
-import { UserModel } from "common/db";
+import { UserModel } from '../../../common/db';
 
-import { PasswordRecovery, User, UserDB, UserEmailConfirmation } from "../user";
+import { PasswordRecovery, User, UserDB, UserEmailConfirmation } from '../user';
 
 export const usersRepository = {
   async createUser(user: UserDB): Promise<User> {
@@ -11,15 +11,15 @@ export const usersRepository = {
   },
 
   async deleteUser(id: string): Promise<boolean> {
-    const result = await UserModel.deleteOne({ "accountData.id": id });
+    const result = await UserModel.deleteOne({ 'accountData.id': id });
 
     return result.deletedCount === 1;
   },
 
   async confirmEmail(id: string): Promise<boolean> {
     const result = await UserModel.updateOne(
-      { "accountData.id": id },
-      { $set: { "emailConfirmation.isConfirmed": true } }
+      { 'accountData.id': id },
+      { $set: { 'emailConfirmation.isConfirmed': true } }
     );
 
     return result.modifiedCount === 1;
@@ -30,11 +30,11 @@ export const usersRepository = {
     { expirationDate, confirmationCode }: Partial<UserEmailConfirmation>
   ): Promise<boolean> {
     const result = await UserModel.updateOne(
-      { "accountData.id": id },
+      { 'accountData.id': id },
       {
         $set: {
-          "emailConfirmation.expirationDate": expirationDate,
-          "emailConfirmation.confirmationCode": confirmationCode,
+          'emailConfirmation.expirationDate': expirationDate,
+          'emailConfirmation.confirmationCode': confirmationCode,
         },
       }
     );
@@ -42,39 +42,25 @@ export const usersRepository = {
     return result.modifiedCount === 1;
   },
 
-  async updatePasswordRecoveryData(
-    id: string,
-    passwordRecovery: PasswordRecovery | undefined
-  ): Promise<boolean> {
+  async updatePasswordRecoveryData(id: string, passwordRecovery: PasswordRecovery | undefined): Promise<boolean> {
     const setCommand = passwordRecovery
       ? {
           $set: {
-            "passwordRecovery.expirationDate": passwordRecovery.expirationDate,
-            "passwordRecovery.recoveryCode": passwordRecovery.recoveryCode,
+            'passwordRecovery.expirationDate': passwordRecovery.expirationDate,
+            'passwordRecovery.recoveryCode': passwordRecovery.recoveryCode,
           },
         }
-      : { $unset: { passwordRecovery: "" } };
+      : { $unset: { passwordRecovery: '' } };
 
-    const result = await UserModel.updateOne(
-      { "accountData.id": id },
-      setCommand
-    );
+    const result = await UserModel.updateOne({ 'accountData.id': id }, setCommand);
 
     return result.modifiedCount === 1;
   },
 
-  async updatePassword(
-    id: string,
-    { passHash, passSalt }: { passHash: string; passSalt: string }
-  ): Promise<boolean> {
+  async updatePassword(id: string, { passHash, passSalt }: { passHash: string; passSalt: string }): Promise<boolean> {
     const result = await UserModel.updateOne(
-      { "accountData.id": id },
-      {
-        $set: {
-          "accountData.passHash": passHash,
-          "accountData.passSalt": passSalt,
-        },
-      }
+      { 'accountData.id': id },
+      { $set: { 'accountData.passHash': passHash, 'accountData.passSalt': passSalt } }
     );
 
     return result.modifiedCount === 1;

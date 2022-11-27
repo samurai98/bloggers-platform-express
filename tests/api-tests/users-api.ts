@@ -1,11 +1,11 @@
-import request from "supertest";
+import request from 'supertest';
 
-import { app } from "../../src/index";
-import { HTTP_STATUSES } from "../../src/common/http-statuses";
-import { router } from "../../src/routers";
-import { User, ReqBodyUser } from "../../src/modules/users/user";
+import { app } from '../../src/index';
+import { HTTP_STATUSES } from '../../src/common/http-statuses';
+import { router } from '../../src/routers';
+import { User, ReqBodyUser } from '../../src/modules/users/user';
 
-import { incorrectQuery, basicAuth, validUsers } from "../common/data";
+import { incorrectQuery, basicAuth, validUsers } from '../common/data';
 import {
   anyString,
   dateISORegEx,
@@ -13,122 +13,78 @@ import {
   getOverMaxLength,
   getPaginationItems,
   sortByField,
-} from "../common/helpers";
+} from '../common/helpers';
 
 const createdUsers: User[] = [];
 
 export const testUsersApi = () =>
-  describe("Test users api", () => {
-    it("Users without auth. Should return 401", async () => {
-      await request(app)
-        .post(router.users)
-        .send({})
-        .expect(HTTP_STATUSES.UNAUTHORIZED_401);
+  describe('Test users api', () => {
+    it('Users without auth. Should return 401', async () => {
+      await request(app).post(router.users).send({}).expect(HTTP_STATUSES.UNAUTHORIZED_401);
 
-      await request(app)
-        .delete(`${router.users}/fakeUserId`)
-        .expect(HTTP_STATUSES.UNAUTHORIZED_401);
+      await request(app).delete(`${router.users}/fakeUserId`).expect(HTTP_STATUSES.UNAUTHORIZED_401);
     });
 
-    it("Get users. Should return 200 and empty array", async () => {
-      await request(app)
-        .get(router.users)
-        .expect(HTTP_STATUSES.OK_200, getPaginationItems());
+    it('Get users. Should return 200 and empty array', async () => {
+      await request(app).get(router.users).expect(HTTP_STATUSES.OK_200, getPaginationItems());
     });
 
-    it("Get users. Incorrect query cases. Should return 200 and empty array", async () => {
+    it('Get users. Incorrect query cases. Should return 200 and empty array', async () => {
       await request(app)
-        .get(
-          `${router.users}?${incorrectQuery.empty}&searchLoginTerm=&searchEmailTerm=`
-        )
+        .get(`${router.users}?${incorrectQuery.empty}&searchLoginTerm=&searchEmailTerm=`)
         .expect(HTTP_STATUSES.OK_200, getPaginationItems());
 
       await request(app)
-        .get(
-          `${router.users}?${incorrectQuery.incorrect}&searchLoginTerm[]=&searchEmailTerm[]=`
-        )
+        .get(`${router.users}?${incorrectQuery.incorrect}&searchLoginTerm[]=&searchEmailTerm[]=`)
         .expect(HTTP_STATUSES.OK_200, getPaginationItems());
     });
 
-    it("Create user. Incorrect body cases. Should return 400 and errorsMessages", async () => {
-      const firstRes = await request(app)
-        .post(router.users)
-        .set(basicAuth)
-        .send();
+    it('Create user. Incorrect body cases. Should return 400 and errorsMessages', async () => {
+      const firstRes = await request(app).post(router.users).set(basicAuth).send();
 
       expect(firstRes.statusCode).toEqual(HTTP_STATUSES.BAD_REQUEST_400);
-      expect(firstRes.body).toEqual(
-        getErrorsMessages<ReqBodyUser>("login", "email", "password")
-      );
+      expect(firstRes.body).toEqual(getErrorsMessages<ReqBodyUser>('login', 'email', 'password'));
       expect(firstRes.body.errorsMessages).toHaveLength(3);
 
       const secondRes = await request(app)
         .post(router.users)
         .set(basicAuth)
-        .send({
-          email: "pochta@gmailcom",
-          login: getOverMaxLength(10),
-          password: getOverMaxLength(20),
-        });
+        .send({ email: 'pochta@gmailcom', login: getOverMaxLength(10), password: getOverMaxLength(20) });
 
       expect(secondRes.statusCode).toEqual(HTTP_STATUSES.BAD_REQUEST_400);
-      expect(secondRes.body).toEqual(
-        getErrorsMessages<ReqBodyUser>("login", "email", "password")
-      );
+      expect(secondRes.body).toEqual(getErrorsMessages<ReqBodyUser>('login', 'email', 'password'));
       expect(secondRes.body.errorsMessages).toHaveLength(3);
 
       const thirdRes = await request(app)
         .post(router.users)
         .set(basicAuth)
-        .send({ email: "valid@gmail.com", login: "12", password: "12345" });
+        .send({ email: 'valid@gmail.com', login: '12', password: '12345' });
 
       expect(thirdRes.statusCode).toEqual(HTTP_STATUSES.BAD_REQUEST_400);
-      expect(thirdRes.body).toEqual(
-        getErrorsMessages<ReqBodyUser>("login", "password")
-      );
+      expect(thirdRes.body).toEqual(getErrorsMessages<ReqBodyUser>('login', 'password'));
       expect(thirdRes.body.errorsMessages).toHaveLength(2);
 
-      await request(app)
-        .get(router.users)
-        .expect(HTTP_STATUSES.OK_200, getPaginationItems());
+      await request(app).get(router.users).expect(HTTP_STATUSES.OK_200, getPaginationItems());
     });
 
-    it("Create user. Should return 201 and new user", async () => {
-      const res = await request(app)
-        .post(router.users)
-        .set(basicAuth)
-        .send(validUsers[0]);
+    it('Create user. Should return 201 and new user', async () => {
+      const res = await request(app).post(router.users).set(basicAuth).send(validUsers[0]);
 
       const createdUser = res.body;
 
       expect(res.statusCode).toEqual(HTTP_STATUSES.CREATED_201);
-      expect(createdUser).toEqual({
-        ...validUsers[0],
-        password: undefined,
-        id: anyString,
-        createdAt: dateISORegEx,
-      });
+      expect(createdUser).toEqual({ ...validUsers[0], password: undefined, id: anyString, createdAt: dateISORegEx });
 
       createdUsers.push(createdUser);
 
       await request(app)
         .get(router.users)
-        .expect(
-          HTTP_STATUSES.OK_200,
-          getPaginationItems({
-            pagesCount: 1,
-            totalCount: 1,
-            items: [createdUser],
-          })
-        );
+        .expect(HTTP_STATUSES.OK_200, getPaginationItems({ pagesCount: 1, totalCount: 1, items: [createdUser] }));
     });
 
-    it("Create users. Should create new users", async () => {
+    it('Create users. Should create new users', async () => {
       for (const user of validUsers.slice(1)) {
-        const res = await request(app)
-          .post(router.users)
-          .set(basicAuth)
-          .send(user);
+        const res = await request(app).post(router.users).set(basicAuth).send(user);
         createdUsers.push(res.body);
       }
 
@@ -139,28 +95,20 @@ export const testUsersApi = () =>
         getPaginationItems({
           totalCount: validUsers.length,
           pagesCount: 1,
-          items: sortByField<User>(createdUsers, "createdAt"),
+          items: sortByField<User>(createdUsers, 'createdAt'),
         })
       );
     });
 
-    it("Get users. Query cases. Should return 200 and filtered users", async () => {
-      const filteredUsers = createdUsers.filter(
-        (user) => user.login.match(/nick/i) || user.email.match(/.COM/i)
-      );
-      const sortedUsers = sortByField<User>(filteredUsers, "email", "asc");
+    it('Get users. Query cases. Should return 200 and filtered users', async () => {
+      const filteredUsers = createdUsers.filter(user => user.login.match(/nick/i) || user.email.match(/.COM/i));
+      const sortedUsers = sortByField<User>(filteredUsers, 'email', 'asc');
 
       await request(app)
-        .get(
-          `${router.users}?searchLoginTerm=nick&searchEmailTerm=.COM&sortBy=email&sortDirection=asc`
-        )
+        .get(`${router.users}?searchLoginTerm=nick&searchEmailTerm=.COM&sortBy=email&sortDirection=asc`)
         .expect(
           HTTP_STATUSES.OK_200,
-          getPaginationItems({
-            pagesCount: 1,
-            totalCount: sortedUsers.length,
-            items: sortedUsers,
-          })
+          getPaginationItems({ pagesCount: 1, totalCount: sortedUsers.length, items: sortedUsers })
         );
 
       await request(app)
@@ -172,38 +120,26 @@ export const testUsersApi = () =>
             page: 2,
             pageSize: 3,
             totalCount: createdUsers.length,
-            items: sortByField<User>(createdUsers, "createdAt").slice(-2),
+            items: sortByField<User>(createdUsers, 'createdAt').slice(-2),
           })
         );
 
       await request(app)
         .get(`${router.users}?pageNumber=99`)
-        .expect(
-          HTTP_STATUSES.OK_200,
-          getPaginationItems({
-            pagesCount: 1,
-            page: 99,
-            totalCount: createdUsers.length,
-          })
-        );
+        .expect(HTTP_STATUSES.OK_200, getPaginationItems({ pagesCount: 1, page: 99, totalCount: createdUsers.length }));
     });
 
-    it("Delete user. Should delete user and return 204", async () => {
+    it('Delete user. Should delete user and return 204', async () => {
       await request(app)
         .delete(`${router.users}/${createdUsers[2].id}`)
         .set(basicAuth)
         .expect(HTTP_STATUSES.NO_CONTENT_204);
 
-      await request(app)
-        .get(`${router.users}/${createdUsers[2].id}`)
-        .expect(HTTP_STATUSES.NOT_FOUND_404);
+      await request(app).get(`${router.users}/${createdUsers[2].id}`).expect(HTTP_STATUSES.NOT_FOUND_404);
     });
 
-    it("Delete user. Should return 404", async () => {
-      await request(app)
-        .delete(`${router.users}/fakeUserId`)
-        .set(basicAuth)
-        .expect(HTTP_STATUSES.NOT_FOUND_404);
+    it('Delete user. Should return 404', async () => {
+      await request(app).delete(`${router.users}/fakeUserId`).set(basicAuth).expect(HTTP_STATUSES.NOT_FOUND_404);
     });
 
     afterAll(async () => {

@@ -1,16 +1,16 @@
 import { Router, Request, Response } from 'express';
 
-import { Query, ResType } from 'common/types/common';
-import { HTTP_STATUSES } from 'common/http-statuses';
-import { ResPost, ResPosts } from 'modules/posts/post';
-import { postsService } from 'modules/posts/services/posts-service';
-import { postByBlogIdValidation } from 'modules/posts/routes/validation';
+import { Query, ResType } from '../../../common/types/common';
+import { HTTP_STATUSES } from '../../../common/http-statuses';
+import { ResPost, ResPosts } from '../../posts/post';
+import { postsService } from '../../posts/services/posts-service';
+import { postByBlogIdValidation } from '../../posts/routes/validation';
+import { postsStory } from '../../posts/services';
 
 import { blogsService } from '../services/blogs-service';
 import { blogsQueryRepository } from '../repositories';
 import { ReqBodyBlog, ReqBodyPostByBlogId, ParamBlog, ReqQueryBlog, ResBlog, ResBlogs } from '../blog';
 import { checkBasicAuth, blogValidation, blogsQueryValidation, postsByBlogQueryValidation } from './validation';
-import { postsStory } from 'modules/posts/services';
 
 export const blogsRouter = Router({});
 

@@ -1,7 +1,7 @@
 import { FilterQuery } from 'mongoose';
 
-import { CommentModel } from 'common/db';
-import { QueryDBFilter } from 'common/types/common';
+import { CommentModel } from '../../../common/db';
+import { QueryDBFilter } from '../../../common/types/common';
 
 import { CommentDB } from '../comment';
 

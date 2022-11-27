@@ -1,9 +1,9 @@
 import { Request, Response, NextFunction } from 'express';
 import { body } from 'express-validator';
 
-import { HTTP_STATUSES } from 'common/http-statuses';
-import { usersQueryRepository } from 'modules/users/repositories';
-import { checkRefreshSession, inputValidation, checkRequestsCount, setUserToContextBySession } from 'middlewares';
+import { HTTP_STATUSES } from '../../../common/http-statuses';
+import { checkRefreshSession, inputValidation, checkRequestsCount, setUserToContextBySession } from '../../../middlewares';
+import { usersQueryRepository } from '../../users/repositories';
 
 import { sessionsService } from '../services/sessions-service';
 

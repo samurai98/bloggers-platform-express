@@ -1,89 +1,69 @@
-import request from "supertest";
+import request from 'supertest';
 
-import { app } from "../../src/index";
-import { HTTP_STATUSES } from "../../src/common/http-statuses";
-import { router } from "../../src/routers";
-import { ReqBodyUser, User } from "../../src/modules/users/user";
-import { jwtService } from "../../src/common/services/jwt-service";
-import { authPath } from "../../src/modules/auth/routes/auth-router";
-import { usersQueryRepository } from "../../src/modules/users/repositories";
-import {
-  ReqBodyAuth,
-  ReqBodyConfirm,
-  ReqBodyNewPassword,
-  ReqBodyResending,
-} from "../../src/modules/auth/auth";
+import { app } from '../../src/index';
+import { HTTP_STATUSES } from '../../src/common/http-statuses';
+import { router } from '../../src/routers';
+import { ReqBodyUser, User } from '../../src/modules/users/user';
+import { jwtService } from '../../src/common/services/jwt-service';
+import { authPath } from '../../src/modules/auth/routes/auth-router';
+import { usersQueryRepository } from '../../src/modules/users/repositories';
+import { ReqBodyAuth, ReqBodyConfirm, ReqBodyNewPassword, ReqBodyResending } from '../../src/modules/auth/auth';
 
-import { bearerAuth, validUsers } from "../common/data";
-import {
-  anyString,
-  dateISORegEx,
-  getErrorsMessages,
-  setBearerAuth,
-} from "../common/helpers";
+import { bearerAuth, validUsers } from '../common/data';
+import { anyString, dateISORegEx, getErrorsMessages, setBearerAuth } from '../common/helpers';
 
 let createdUser = {} as User;
 
 const checkCookie = (cookie: string) => {
-  const cookieSplit = cookie.split("; ");
+  const cookieSplit = cookie.split('; ');
 
-  expect(cookieSplit.includes("Secure")).toEqual(true);
-  expect(cookieSplit.includes("HttpOnly")).toEqual(true);
-  expect(cookieSplit[0].split("=")[0]).toEqual("refreshToken");
-  expect(cookieSplit[0].split("=")[1]).toEqual(anyString);
+  expect(cookieSplit.includes('Secure')).toEqual(true);
+  expect(cookieSplit.includes('HttpOnly')).toEqual(true);
+  expect(cookieSplit[0].split('=')[0]).toEqual('refreshToken');
+  expect(cookieSplit[0].split('=')[1]).toEqual(anyString);
 };
 
 export const testAuthApi = () =>
-  describe("Test auth api", () => {
-    it("Registration user. Incorrect body cases. Should return 400 and errorsMessages", async () => {
-      const firstRes = await request(app)
-        .post(`${router.auth}${authPath.registration}`)
-        .send();
+  describe('Test auth api', () => {
+    it('Registration user. Incorrect body cases. Should return 400 and errorsMessages', async () => {
+      const firstRes = await request(app).post(`${router.auth}${authPath.registration}`).send();
 
       expect(firstRes.statusCode).toEqual(HTTP_STATUSES.BAD_REQUEST_400);
-      expect(firstRes.body).toEqual(
-        getErrorsMessages<ReqBodyUser>("login", "password", "email")
-      );
+      expect(firstRes.body).toEqual(getErrorsMessages<ReqBodyUser>('login', 'password', 'email'));
       expect(firstRes.body.errorsMessages).toHaveLength(3);
 
       const secondRes = await request(app)
         .post(`${router.auth}${authPath.registration}`)
-        .send({ login: "valid", password: "" });
+        .send({ login: 'valid', password: '' });
 
       expect(secondRes.statusCode).toEqual(HTTP_STATUSES.BAD_REQUEST_400);
-      expect(secondRes.body).toEqual(
-        getErrorsMessages<ReqBodyUser>("password", "email")
-      );
+      expect(secondRes.body).toEqual(getErrorsMessages<ReqBodyUser>('password', 'email'));
       expect(secondRes.body.errorsMessages).toHaveLength(2);
     });
 
-    it("Confirm registration. Incorrect body cases. Should return 400 and errorsMessages", async () => {
-      const firstRes = await request(app)
-        .post(`${router.auth}${authPath.confirmRegistration}`)
-        .send();
+    it('Confirm registration. Incorrect body cases. Should return 400 and errorsMessages', async () => {
+      const firstRes = await request(app).post(`${router.auth}${authPath.confirmRegistration}`).send();
 
       expect(firstRes.statusCode).toEqual(HTTP_STATUSES.BAD_REQUEST_400);
-      expect(firstRes.body).toEqual(getErrorsMessages<ReqBodyConfirm>("code"));
+      expect(firstRes.body).toEqual(getErrorsMessages<ReqBodyConfirm>('code'));
       expect(firstRes.body.errorsMessages).toHaveLength(1);
 
       const secondRes = await request(app)
         .post(`${router.auth}${authPath.confirmRegistration}`)
-        .send({ code: "not valid code" });
+        .send({ code: 'not valid code' });
 
       expect(secondRes.statusCode).toEqual(HTTP_STATUSES.BAD_REQUEST_400);
-      expect(secondRes.body).toEqual(getErrorsMessages<ReqBodyConfirm>("code"));
+      expect(secondRes.body).toEqual(getErrorsMessages<ReqBodyConfirm>('code'));
       expect(secondRes.body.errorsMessages).toHaveLength(1);
     });
 
-    it("Registration user and confirm registration. Should return 204", async () => {
+    it('Registration user and confirm registration. Should return 204', async () => {
       await request(app)
         .post(`${router.auth}${authPath.registration}`)
         .send(validUsers[0])
         .expect(HTTP_STATUSES.NO_CONTENT_204);
 
-      const userDB = await usersQueryRepository.findUserByLoginOrEmail(
-        validUsers[0].email
-      );
+      const userDB = await usersQueryRepository.findUserByLoginOrEmail(validUsers[0].email);
 
       await request(app)
         .post(`${router.auth}${authPath.confirmRegistration}`)
@@ -93,45 +73,37 @@ export const testAuthApi = () =>
       createdUser = userDB!.accountData as User;
     });
 
-    it("Login user. Should return 401", async () => {
+    it('Login user. Should return 401', async () => {
       await request(app)
         .post(`${router.auth}${authPath.login}`)
-        .send({ loginOrEmail: "some user", password: "123456" })
+        .send({ loginOrEmail: 'some user', password: '123456' })
         .expect(HTTP_STATUSES.UNAUTHORIZED_401);
     });
 
-    it("Login user. Incorrect body cases. Should return 400 and errorsMessages", async () => {
-      const firstRes = await request(app)
-        .post(`${router.auth}${authPath.login}`)
-        .send();
+    it('Login user. Incorrect body cases. Should return 400 and errorsMessages', async () => {
+      const firstRes = await request(app).post(`${router.auth}${authPath.login}`).send();
 
       expect(firstRes.statusCode).toEqual(HTTP_STATUSES.BAD_REQUEST_400);
-      expect(firstRes.body).toEqual(
-        getErrorsMessages<ReqBodyAuth>("loginOrEmail", "password")
-      );
+      expect(firstRes.body).toEqual(getErrorsMessages<ReqBodyAuth>('loginOrEmail', 'password'));
       expect(firstRes.body.errorsMessages).toHaveLength(2);
 
       const secondRes = await request(app)
         .post(`${router.auth}${authPath.login}`)
-        .send({ loginOrEmail: "valid", password: "" });
+        .send({ loginOrEmail: 'valid', password: '' });
 
       expect(secondRes.statusCode).toEqual(HTTP_STATUSES.BAD_REQUEST_400);
-      expect(secondRes.body).toEqual(
-        getErrorsMessages<ReqBodyAuth>("password")
-      );
+      expect(secondRes.body).toEqual(getErrorsMessages<ReqBodyAuth>('password'));
       expect(secondRes.body.errorsMessages).toHaveLength(1);
     });
 
-    it("Login user. Should return 200, accessToken in body and refreshToken in cookie", async () => {
+    it('Login user. Should return 200, accessToken in body and refreshToken in cookie', async () => {
       const firstRes = await request(app)
         .post(`${router.auth}${authPath.login}`)
         .send({ loginOrEmail: validUsers[0].login, password: validUsers[0].password });
 
-      const firstUserIdByToken = await jwtService.getUserIdByToken(
-        firstRes.body.accessToken
-      );
+      const firstUserIdByToken = await jwtService.getUserIdByToken(firstRes.body.accessToken);
 
-      checkCookie(firstRes.header["set-cookie"][0]);
+      checkCookie(firstRes.header['set-cookie'][0]);
       expect(firstRes.statusCode).toEqual(HTTP_STATUSES.OK_200);
       expect(firstUserIdByToken).toEqual(createdUser.id);
 
@@ -139,10 +111,8 @@ export const testAuthApi = () =>
         .post(`${router.auth}${authPath.login}`)
         .send({ loginOrEmail: validUsers[0].email, password: validUsers[0].password });
 
-      const secondCookie = secondRes.header["set-cookie"][0];
-      const secondUserIdByToken = await jwtService.getUserIdByToken(
-        secondRes.body.accessToken
-      );
+      const secondCookie = secondRes.header['set-cookie'][0];
+      const secondUserIdByToken = await jwtService.getUserIdByToken(secondRes.body.accessToken);
 
       checkCookie(secondCookie);
       expect(secondRes.statusCode).toEqual(HTTP_STATUSES.OK_200);
@@ -151,16 +121,12 @@ export const testAuthApi = () =>
       setBearerAuth(secondRes.body.accessToken, secondCookie);
     });
 
-    it("Refresh token. Should return 200, accessToken in body and refreshToken in cookie", async () => {
-      const res = await request(app)
-        .post(`${router.auth}${authPath.refreshToken}`)
-        .set(bearerAuth);
+    it('Refresh token. Should return 200, accessToken in body and refreshToken in cookie', async () => {
+      const res = await request(app).post(`${router.auth}${authPath.refreshToken}`).set(bearerAuth);
 
-      const userIdByToken = await jwtService.getUserIdByToken(
-        res.body.accessToken
-      );
+      const userIdByToken = await jwtService.getUserIdByToken(res.body.accessToken);
 
-      const cookie = res.header["set-cookie"][0];
+      const cookie = res.header['set-cookie'][0];
 
       checkCookie(cookie);
       expect(res.statusCode).toEqual(HTTP_STATUSES.OK_200);
@@ -170,13 +136,11 @@ export const testAuthApi = () =>
       setBearerAuth(res.body.accessToken, cookie);
     });
 
-    it("Refresh token. Should return 401", async () => {
-      await request(app)
-        .post(`${router.auth}${authPath.refreshToken}`)
-        .expect(HTTP_STATUSES.UNAUTHORIZED_401);
+    it('Refresh token. Should return 401', async () => {
+      await request(app).post(`${router.auth}${authPath.refreshToken}`).expect(HTTP_STATUSES.UNAUTHORIZED_401);
     });
 
-    it("Get user information (me). Should return 200 and user information", async () => {
+    it('Get user information (me). Should return 200 and user information', async () => {
       const { id: userId, email, login } = createdUser;
 
       await request(app)
@@ -185,28 +149,26 @@ export const testAuthApi = () =>
         .expect(HTTP_STATUSES.OK_200, { userId, email, login });
     });
 
-    it("Get user information (me). Should return 401", async () => {
+    it('Get user information (me). Should return 401', async () => {
       await request(app)
         .get(`${router.auth}${authPath.me}`)
-        .set({ Authorization: "Bearer fakeToken" })
+        .set({ Authorization: 'Bearer fakeToken' })
         .expect(HTTP_STATUSES.UNAUTHORIZED_401);
 
       await request(app)
         .get(`${router.auth}${authPath.me}`)
-        .set({ Authorization: "fakeBearerToken" })
+        .set({ Authorization: 'fakeBearerToken' })
         .expect(HTTP_STATUSES.UNAUTHORIZED_401);
     });
 
-    it("Resending email. Incorrect body cases. Should return 400 and errorsMessages", async () => {
+    it('Resending email. Incorrect body cases. Should return 400 and errorsMessages', async () => {
       const firstRes = await request(app)
         .post(`${router.auth}${authPath.resendingEmail}`)
         .send({ email: createdUser.email })
         .expect(HTTP_STATUSES.BAD_REQUEST_400);
 
       expect(firstRes.statusCode).toEqual(HTTP_STATUSES.BAD_REQUEST_400);
-      expect(firstRes.body).toEqual(
-        getErrorsMessages<ReqBodyResending>("email")
-      );
+      expect(firstRes.body).toEqual(getErrorsMessages<ReqBodyResending>('email'));
       expect(firstRes.body.errorsMessages).toHaveLength(1);
 
       const secondRes = await request(app)
@@ -215,13 +177,11 @@ export const testAuthApi = () =>
         .expect(HTTP_STATUSES.BAD_REQUEST_400);
 
       expect(secondRes.statusCode).toEqual(HTTP_STATUSES.BAD_REQUEST_400);
-      expect(secondRes.body).toEqual(
-        getErrorsMessages<ReqBodyResending>("email")
-      );
+      expect(secondRes.body).toEqual(getErrorsMessages<ReqBodyResending>('email'));
       expect(secondRes.body.errorsMessages).toHaveLength(1);
     });
 
-    it("Resending email. Should return 204", async () => {
+    it('Resending email. Should return 204', async () => {
       await request(app)
         .post(`${router.auth}${authPath.registration}`)
         .send(validUsers[1])
@@ -233,17 +193,12 @@ export const testAuthApi = () =>
         .expect(HTTP_STATUSES.NO_CONTENT_204);
     });
 
-    it("Logout. Should return 401", async () => {
-      await request(app)
-        .post(`${router.auth}${authPath.logout}`)
-        .expect(HTTP_STATUSES.UNAUTHORIZED_401);
+    it('Logout. Should return 401', async () => {
+      await request(app).post(`${router.auth}${authPath.logout}`).expect(HTTP_STATUSES.UNAUTHORIZED_401);
     });
 
-    it("Logout. Should return 204 and revoke refreshToken", async () => {
-      await request(app)
-        .post(`${router.auth}${authPath.logout}`)
-        .set(bearerAuth)
-        .expect(HTTP_STATUSES.NO_CONTENT_204);
+    it('Logout. Should return 204 and revoke refreshToken', async () => {
+      await request(app).post(`${router.auth}${authPath.logout}`).set(bearerAuth).expect(HTTP_STATUSES.NO_CONTENT_204);
 
       await request(app)
         .post(`${router.auth}${authPath.refreshToken}`)
@@ -251,29 +206,23 @@ export const testAuthApi = () =>
         .expect(HTTP_STATUSES.UNAUTHORIZED_401);
     });
 
-    it("Password recovery. Should return 400", async () => {
-      const firstRes = await request(app)
-        .post(`${router.auth}${authPath.passwordRecovery}`)
-        .send();
+    it('Password recovery. Should return 400', async () => {
+      const firstRes = await request(app).post(`${router.auth}${authPath.passwordRecovery}`).send();
 
       expect(firstRes.status).toEqual(HTTP_STATUSES.BAD_REQUEST_400);
-      expect(firstRes.body).toEqual(
-        getErrorsMessages<ReqBodyResending>("email")
-      );
+      expect(firstRes.body).toEqual(getErrorsMessages<ReqBodyResending>('email'));
 
       const secondRes = await request(app)
         .post(`${router.auth}${authPath.passwordRecovery}`)
-        .send({ email: "fake.mail.ru" });
+        .send({ email: 'fake.mail.ru' });
 
       expect(secondRes.status).toEqual(HTTP_STATUSES.BAD_REQUEST_400);
-      expect(secondRes.body).toEqual(
-        getErrorsMessages<ReqBodyResending>("email")
-      );
+      expect(secondRes.body).toEqual(getErrorsMessages<ReqBodyResending>('email'));
     });
 
-    let passwordRecoveryCode = "";
+    let passwordRecoveryCode = '';
 
-    it("Password recovery. Should return 204, even if current email is not registered", async () => {
+    it('Password recovery. Should return 204, even if current email is not registered', async () => {
       await request(app)
         .post(`${router.auth}${authPath.passwordRecovery}`)
         .send({ email: createdUser.email })
@@ -281,52 +230,40 @@ export const testAuthApi = () =>
 
       await request(app)
         .post(`${router.auth}${authPath.passwordRecovery}`)
-        .send({ email: "fakeusermail@gm.ru" })
+        .send({ email: 'fakeusermail@gm.ru' })
         .expect(HTTP_STATUSES.NO_CONTENT_204);
 
-      const user = await usersQueryRepository.findUserByLoginOrEmail(
-        createdUser.email
-      );
+      const user = await usersQueryRepository.findUserByLoginOrEmail(createdUser.email);
 
       passwordRecoveryCode = user?.passwordRecovery?.recoveryCode as string;
 
-      expect(user?.passwordRecovery?.expirationDate.toISOString()).toEqual(
-        dateISORegEx
-      );
+      expect(user?.passwordRecovery?.expirationDate.toISOString()).toEqual(dateISORegEx);
       expect(passwordRecoveryCode).toEqual(anyString);
     });
 
-    it("Set new password. Should return 400", async () => {
-      const firstRes = await request(app)
-        .post(`${router.auth}${authPath.newPassword}`)
-        .send();
+    it('Set new password. Should return 400', async () => {
+      const firstRes = await request(app).post(`${router.auth}${authPath.newPassword}`).send();
 
       expect(firstRes.status).toEqual(HTTP_STATUSES.BAD_REQUEST_400);
-      expect(firstRes.body).toEqual(
-        getErrorsMessages<ReqBodyNewPassword>("newPassword", "recoveryCode")
-      );
+      expect(firstRes.body).toEqual(getErrorsMessages<ReqBodyNewPassword>('newPassword', 'recoveryCode'));
 
       const secondRes = await request(app)
         .post(`${router.auth}${authPath.newPassword}`)
-        .send({ newPassword: "validPassword", recoveryCode: "fakecode" });
+        .send({ newPassword: 'validPassword', recoveryCode: 'fakecode' });
 
       expect(secondRes.status).toEqual(HTTP_STATUSES.BAD_REQUEST_400);
-      expect(secondRes.body).toEqual(
-        getErrorsMessages<ReqBodyNewPassword>("recoveryCode")
-      );
+      expect(secondRes.body).toEqual(getErrorsMessages<ReqBodyNewPassword>('recoveryCode'));
     });
 
-    it("Set new password. Should return 204 and update password", async () => {
-      const newPassword = "validPassword";
+    it('Set new password. Should return 204 and update password', async () => {
+      const newPassword = 'validPassword';
 
       await request(app)
         .post(`${router.auth}${authPath.newPassword}`)
         .send({ newPassword, recoveryCode: passwordRecoveryCode })
         .expect(HTTP_STATUSES.NO_CONTENT_204);
 
-      const user = await usersQueryRepository.findUserByLoginOrEmail(
-        createdUser.email
-      );
+      const user = await usersQueryRepository.findUserByLoginOrEmail(createdUser.email);
 
       expect(user?.passwordRecovery).toEqual(undefined);
 
@@ -339,9 +276,7 @@ export const testAuthApi = () =>
         .post(`${router.auth}${authPath.login}`)
         .send({ loginOrEmail: createdUser.email, password: newPassword });
 
-      const expectedToken = await jwtService.getUserIdByToken(
-        loginRes.body.accessToken
-      );
+      const expectedToken = await jwtService.getUserIdByToken(loginRes.body.accessToken);
 
       expect(loginRes.statusCode).toEqual(HTTP_STATUSES.OK_200);
       expect(expectedToken).toEqual(createdUser.id);

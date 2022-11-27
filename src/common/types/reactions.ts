@@ -1,7 +1,7 @@
 import mongoose from 'mongoose';
 
-import { CommentDB } from 'modules/comments/comment';
-import { PostDB } from 'modules/posts/post';
+import { CommentDB } from '../../modules/comments/comment';
+import { PostDB } from '../../modules/posts/post';
 
 const entityNames = ['comments', 'posts'] as const;
 

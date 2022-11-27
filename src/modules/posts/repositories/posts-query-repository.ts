@@ -1,7 +1,7 @@
 import { FilterQuery } from 'mongoose';
 
-import { PostModel } from 'common/db';
-import { QueryDBFilter } from 'common/types/common';
+import { PostModel } from '../../../common/db';
+import { QueryDBFilter } from '../../../common/types/common';
 
 import { PostDB } from '../post';
 

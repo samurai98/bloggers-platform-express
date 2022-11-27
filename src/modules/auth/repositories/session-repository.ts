@@ -1,8 +1,8 @@
-import { FilterQuery } from "mongoose";
+import { FilterQuery } from 'mongoose';
 
-import { SessionModel } from "common/db";
+import { SessionModel } from '../../../common/db';
 
-import { RefreshSession } from "../auth";
+import { RefreshSession } from '../auth';
 
 export const sessionRepository = {
   async addSession(refreshSession: RefreshSession): Promise<boolean> {
@@ -11,15 +11,11 @@ export const sessionRepository = {
     return true;
   },
 
-  async getSession(
-    filter: FilterQuery<RefreshSession>
-  ): Promise<RefreshSession | null> {
+  async getSession(filter: FilterQuery<RefreshSession>): Promise<RefreshSession | null> {
     return await SessionModel.findOne(filter).lean();
   },
 
-  async getSessions(
-    filter: FilterQuery<RefreshSession>
-  ): Promise<RefreshSession[]> {
+  async getSessions(filter: FilterQuery<RefreshSession>): Promise<RefreshSession[]> {
     return await SessionModel.find(filter, { _id: false, __v: false }).lean();
   },
 

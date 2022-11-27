@@ -1,8 +1,8 @@
 import { Router, Request, Response } from 'express';
 
-import { ResType } from 'common/types/common';
-import { HTTP_STATUSES } from 'common/http-statuses';
-import { EntityDependencies, ParamEntity, ReqBodyLikeStatus } from 'common/types/reactions';
+import { ResType } from '../../../types/common';
+import { HTTP_STATUSES } from '../../../http-statuses';
+import { EntityDependencies, ParamEntity, ReqBodyLikeStatus } from '../../../types/reactions';
 
 import { reactionsService } from '../services/reactions-service';
 import { updateLikeStatusValidation } from './validation';

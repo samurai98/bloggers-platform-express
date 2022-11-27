@@ -1,4 +1,4 @@
-import { PostModel } from 'common/db';
+import { PostModel } from '../../../common/db';
 
 import { ReqBodyPost, PostDB } from '../post';
 

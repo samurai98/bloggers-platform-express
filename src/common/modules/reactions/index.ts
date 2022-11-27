@@ -1,7 +1,7 @@
 import { Router } from 'express';
 
-import { CommentModel, PostModel } from 'common/db';
-import { EntityName, EntityDependencies } from 'common/types/reactions';
+import { CommentModel, PostModel } from '../../../common/db';
+import { EntityName, EntityDependencies } from '../../types/reactions';
 
 import { getReactionsRouter } from './routes/reactions-router';
 

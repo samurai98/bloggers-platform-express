@@ -1,4 +1,4 @@
-import { getCurrentDateISO } from 'common/helpers/utils';
+import { getCurrentDateISO } from '../../../common/helpers/utils';
 
 import { commentsRepository } from '../repositories';
 import { Comment, CommentDB, ReqBodyComment } from '../comment';

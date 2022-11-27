@@ -1,5 +1,5 @@
-import { Pagination, Query, ResType } from 'common/types/common';
-import { LikesInfo, ReactionDB } from 'common/types/reactions';
+import { Pagination, Query, ResType } from '../../common/types/common';
+import { LikesInfo, ReactionDB } from '../../common/types/reactions';
 
 type CommonComment = {
   id: string;

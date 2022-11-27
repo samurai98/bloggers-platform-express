@@ -1,16 +1,11 @@
-import { FilterQuery } from "mongoose";
+import { FilterQuery } from 'mongoose';
 
-import { UserModel } from "common/db";
-import { getPagesCount, getSkipCount } from "common/helpers/pagination";
+import { UserModel } from '../../../common/db';
+import { getPagesCount, getSkipCount } from '../../../common/helpers/pagination';
 
-import { User, UserDB, ReqQueryUser, ResUsers } from "../user";
+import { User, UserDB, ReqQueryUser, ResUsers } from '../user';
 
-const projection = {
-  _id: false,
-  __v: false,
-  "accountData.passHash": false,
-  "accountData.passSalt": false,
-};
+const projection = { _id: false, __v: false, 'accountData.passHash': false, 'accountData.passSalt': false };
 
 const userMapper = (userDB: UserDB): User => {
   const { id, email, login, createdAt } = userDB.accountData;
@@ -29,16 +24,8 @@ export const usersQueryRepository = {
   }: ReqQueryUser): Promise<ResUsers> {
     const filter: FilterQuery<UserDB> = {
       $or: [
-        {
-          "accountData.email": {
-            $regex: new RegExp(`${searchEmailTerm}`, "i"),
-          },
-        },
-        {
-          "accountData.login": {
-            $regex: new RegExp(`${searchLoginTerm}`, "i"),
-          },
-        },
+        { 'accountData.email': { $regex: new RegExp(`${searchEmailTerm}`, 'i') } },
+        { 'accountData.login': { $regex: new RegExp(`${searchLoginTerm}`, 'i') } },
       ],
     };
 
@@ -53,42 +40,25 @@ export const usersQueryRepository = {
       .limit(pageSize)
       .lean();
 
-    return {
-      pagesCount,
-      page: pageNumber,
-      pageSize,
-      totalCount,
-      items: items.map(userMapper),
-    };
+    return { pagesCount, page: pageNumber, pageSize, totalCount, items: items.map(userMapper) };
   },
 
   async findUserById(id: string): Promise<User | null> {
-    const user = await UserModel.findOne(
-      { "accountData.id": id },
-      { ...projection }
-    ).lean();
+    const user = await UserModel.findOne({ 'accountData.id': id }, { ...projection }).lean();
 
     return user ? userMapper(user) : null;
   },
 
   async findUserByLoginOrEmail(loginOrEmail: string): Promise<UserDB | null> {
     return await UserModel.findOne(
-      {
-        $or: [
-          { "accountData.email": loginOrEmail },
-          { "accountData.login": loginOrEmail },
-        ],
-      },
+      { $or: [{ 'accountData.email': loginOrEmail }, { 'accountData.login': loginOrEmail }] },
       { _id: false, __v: false }
     ).lean();
   },
 
-  async findUserByLoginAndEmail(
-    login: string,
-    email: string
-  ): Promise<User | null> {
+  async findUserByLoginAndEmail(login: string, email: string): Promise<User | null> {
     const user = await UserModel.findOne(
-      { $or: [{ "accountData.email": email }, { "accountData.login": login }] },
+      { $or: [{ 'accountData.email': email }, { 'accountData.login': login }] },
       { _id: false, __v: false, passHash: false, passSalt: false }
     ).lean();
 
@@ -96,16 +66,10 @@ export const usersQueryRepository = {
   },
 
   async findUserByConfirmationCode(code: string): Promise<UserDB | null> {
-    return await UserModel.findOne(
-      { "emailConfirmation.confirmationCode": code },
-      { ...projection }
-    ).lean();
+    return await UserModel.findOne({ 'emailConfirmation.confirmationCode': code }, { ...projection }).lean();
   },
 
   async findUserByRecoveryCode(code: string): Promise<UserDB | null> {
-    return await UserModel.findOne(
-      { "passwordRecovery.recoveryCode": code },
-      { ...projection }
-    ).lean();
+    return await UserModel.findOne({ 'passwordRecovery.recoveryCode': code }, { ...projection }).lean();
   },
 };

@@ -1,5 +1,5 @@
-import { sessionRepository } from "../repositories/session-repository";
-import { Device, RefreshSession } from "../auth";
+import { sessionRepository } from '../repositories/session-repository';
+import { Device, RefreshSession } from '../auth';
 
 const MAX_REFRESH_SESSIONS_COUNT = 5;
 
@@ -8,14 +8,12 @@ export const sessionsService = {
     return await sessionRepository.getSession({ refreshToken: token });
   },
 
-  async getActiveSessions(
-    userId: string | undefined
-  ): Promise<Device[] | false> {
+  async getActiveSessions(userId: string | undefined): Promise<Device[] | false> {
     if (!userId) return false;
 
     const sessions = await sessionRepository.getSessions({ userId });
 
-    return sessions.map((session) => ({
+    return sessions.map(session => ({
       ip: session.ip,
       deviceId: session.deviceId,
       title: session.deviceName,
@@ -56,10 +54,7 @@ export const sessionsService = {
     });
   },
 
-  async verifyRefreshSession(
-    oldSession: RefreshSession,
-    newIp: string
-  ): Promise<boolean> {
+  async verifyRefreshSession(oldSession: RefreshSession, newIp: string): Promise<boolean> {
     const nowTime = new Date().getTime();
 
     if (nowTime > oldSession.expiresIn) return false;

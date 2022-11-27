@@ -10,12 +10,7 @@ export const dateISORegEx = expect.stringMatching(
 export const anyString = expect.any(String);
 
 export const getErrorsMessages = <T>(...fields: (keyof T)[]) => ({
-  errorsMessages: expect.arrayContaining(
-    fields.map(field => ({
-      field,
-      message: anyString,
-    }))
-  ),
+  errorsMessages: expect.arrayContaining(fields.map(field => ({ field, message: anyString }))),
 });
 
 export const getOverMaxLength = (max: number) => 'a'.repeat(max + 1);
@@ -36,13 +31,7 @@ export const getPaginationItems = ({
   pageSize = 10,
   totalCount = 0,
   items = [],
-}: Partial<Pagination> = {}): Pagination => ({
-  pagesCount,
-  page,
-  pageSize,
-  totalCount,
-  items,
-});
+}: Partial<Pagination> = {}): Pagination => ({ pagesCount, page, pageSize, totalCount, items });
 
 export const setBearerAuth = (token: string, cookie: string) => {
   bearerAuth.Authorization = `Bearer ${token}`;

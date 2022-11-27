@@ -1,4 +1,4 @@
-import { LikesInfo, NewestLike } from 'common/types/reactions';
+import { LikesInfo, NewestLike } from '../../../common/types/reactions';
 
 import { Post, PostDB } from '../post';
 

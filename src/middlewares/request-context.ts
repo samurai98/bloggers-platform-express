@@ -1,6 +1,6 @@
-import { Request, Response, NextFunction } from "express";
+import { Request, Response, NextFunction } from 'express';
 
-import { User } from "modules/users/user";
+import { User } from '../modules/users/user';
 
 type RequestContext = {
   user?: User;
@@ -15,10 +15,9 @@ declare global {
   }
 }
 
-export const addRequestContext =
-  () => (req: Request, res: Response, next: NextFunction) => {
-    req.requestContext = {} as RequestContext;
-    req.requestContext.validationErrors = {};
+export const addRequestContext = () => (req: Request, res: Response, next: NextFunction) => {
+  req.requestContext = {} as RequestContext;
+  req.requestContext.validationErrors = {};
 
-    next();
-  };
+  next();
+};

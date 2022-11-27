@@ -1,8 +1,8 @@
-import { HTTP_STATUSES } from 'common/http-statuses';
 import { Request, Response, NextFunction } from 'express';
 import { body } from 'express-validator';
 
-import { checkBearerAuth, inputValidation } from 'middlewares';
+import { HTTP_STATUSES } from '../../../common/http-statuses';
+import { checkBearerAuth, inputValidation } from '../../../middlewares';
 
 import { commentsStory } from '../services';
 

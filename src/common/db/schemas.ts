@@ -1,10 +1,10 @@
 import mongoose from 'mongoose';
 
-import { Blog } from 'modules/blogs/blog';
-import { PostDB } from 'modules/posts/post';
-import { CommentDB } from 'modules/comments/comment';
-import { UserDB } from 'modules/users/user';
-import { RefreshSession } from 'modules/auth/auth';
+import { Blog } from '../../modules/blogs/blog';
+import { PostDB } from '../../modules/posts/post';
+import { CommentDB } from '../../modules/comments/comment';
+import { UserDB } from '../../modules/users/user';
+import { RefreshSession } from '../../modules/auth/auth';
 
 const reaction = {
   userId: { type: String, required: true },

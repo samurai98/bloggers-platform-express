@@ -1,6 +1,6 @@
-import { NewestLike, ReactionDB } from 'common/types/reactions';
-import { stringDateToMs } from 'common/helpers/utils';
-import { usersQueryRepository } from 'modules/users/repositories';
+import { NewestLike, ReactionDB } from '../../../common/types/reactions';
+import { stringDateToMs } from '../../../common/helpers/utils';
+import { usersQueryRepository } from '../../users/repositories';
 
 const LAST_LIKES_COUNT = 3;
 

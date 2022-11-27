@@ -1,4 +1,4 @@
-import { SortDirection } from 'common/types/common';
+import { SortDirection } from '../types/common';
 
 export const getSkipCount = (pageNumber: number, pageSize: number) => (pageNumber - 1) * pageSize;
 

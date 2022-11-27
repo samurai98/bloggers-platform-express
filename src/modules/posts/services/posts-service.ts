@@ -1,6 +1,6 @@
-import { getCurrentDateISO } from 'common/helpers/utils';
-import { blogsQueryRepository } from 'modules/blogs/repositories';
-import { Blog } from 'modules/blogs/blog';
+import { getCurrentDateISO } from '../../../common/helpers/utils';
+import { blogsQueryRepository } from '../../blogs/repositories';
+import { Blog } from '../../blogs/blog';
 
 import { ReqBodyPost, Post, PostDB } from '../post';
 import { postsRepository } from '../repositories';

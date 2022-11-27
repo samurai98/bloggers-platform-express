@@ -1,26 +1,19 @@
-import { add } from "date-fns";
-import { v4 as uuidv4 } from "uuid";
+import { add } from 'date-fns';
+import { v4 as uuidv4 } from 'uuid';
 
-import {
-  usersQueryRepository,
-  usersRepository,
-} from "modules/users/repositories";
-import {
-  UserDB,
-  UserEmailConfirmation,
-  PasswordRecovery,
-} from "modules/users/user";
-import { usersService } from "modules/users/services/users-service";
-import { generateHash } from "common/helpers/utils";
-import { jwtService } from "common/services/jwt-service";
-import { SETTINGS } from "settings/config";
+import { generateHash } from '../../../common/helpers/utils';
+import { jwtService } from '../../../common/services/jwt-service';
+import { SETTINGS } from '../../../settings/config';
+import { UserDB, UserEmailConfirmation, PasswordRecovery } from '../../users/user';
+import { usersService } from '../../users/services/users-service';
+import { usersQueryRepository, usersRepository } from '../../users/repositories';
 
-import { emailsManager } from "../managers/emails-manager";
-import { LoginUserData, RefreshSession, ResLoginWithCookie } from "../auth";
-import { sessionsService } from "./sessions-service";
+import { emailsManager } from '../managers/emails-manager';
+import { LoginUserData, RefreshSession, ResLoginWithCookie } from '../auth';
+import { sessionsService } from './sessions-service';
 
-//@ts-ignore
-import { validUsers } from "../../../../tests/common/data";
+//@ts-ignore | Need that not send message on tests mails
+import { validUsers } from '../../../../tests/common/data';
 
 const accessTokenLifeTime = `${SETTINGS.ACCESS_TOKEN_LIFE_TIME_SECONDS}s`;
 const refreshTokenLifeTime: Duration = { hours: Number(SETTINGS.REFRESH_TOKEN_LIFE_TIME_HOURS) };
@@ -29,21 +22,12 @@ const confirmEmailCodeLifeTime: Duration = { hours: 1 };
 const recoveryCodeLifeTime: Duration = { hours: 1 };
 
 export const authService = {
-  async loginUser({
-    loginOrEmail,
-    password,
-    ip,
-    ua,
-  }: LoginUserData): Promise<ResLoginWithCookie | false> {
+  async loginUser({ loginOrEmail, password, ip, ua }: LoginUserData): Promise<ResLoginWithCookie | false> {
     const user = await this._getUserByCredentials(loginOrEmail, password);
 
     if (!user) return false;
 
-    return this._createNewRefreshSession({
-      userId: user.accountData.id,
-      ip,
-      ua,
-    });
+    return this._createNewRefreshSession({ userId: user.accountData.id, ip, ua });
   },
 
   async updateRefreshToken({
@@ -57,12 +41,8 @@ export const authService = {
   }): Promise<ResLoginWithCookie | false> {
     if (!refreshToken) return false;
 
-    const oldRefreshSession = await sessionsService.getByRefreshToken(
-      refreshToken
-    );
-    const isVerify =
-      !!oldRefreshSession &&
-      (await sessionsService.verifyRefreshSession(oldRefreshSession, ip));
+    const oldRefreshSession = await sessionsService.getByRefreshToken(refreshToken);
+    const isVerify = !!oldRefreshSession && (await sessionsService.verifyRefreshSession(oldRefreshSession, ip));
 
     await sessionsService.deleteSession(refreshToken);
 
@@ -77,7 +57,7 @@ export const authService = {
   },
 
   async sendConfirmEmail(user: UserDB): Promise<boolean> {
-    const testingEmails = validUsers.map((user) => user.email);
+    const testingEmails = validUsers.map(user => user.email);
 
     if (testingEmails.includes(user.accountData.email)) return true;
 
@@ -122,10 +102,7 @@ export const authService = {
       expirationDate: add(new Date(), confirmEmailCodeLifeTime),
     };
 
-    const isUpdated = usersRepository.updateEmailConfirmationData(
-      user.accountData.id,
-      newConfirmationData
-    );
+    const isUpdated = usersRepository.updateEmailConfirmationData(user.accountData.id, newConfirmationData);
 
     if (!isUpdated) return null;
 
@@ -148,21 +125,15 @@ export const authService = {
       expirationDate: add(new Date(), recoveryCodeLifeTime),
     };
 
-    const isUpdated = await usersRepository.updatePasswordRecoveryData(
-      user.accountData.id,
-      recoveryData
-    );
+    const isUpdated = await usersRepository.updatePasswordRecoveryData(user.accountData.id, recoveryData);
 
     if (!isUpdated) return false;
 
-    const testingEmails = validUsers.map((user) => user.email);
+    const testingEmails = validUsers.map(user => user.email);
     if (testingEmails.includes(user.accountData.email)) return true;
 
     try {
-      await emailsManager.sendEmailPasswordRecovery({
-        ...user,
-        passwordRecovery: recoveryData,
-      });
+      await emailsManager.sendEmailPasswordRecovery({ ...user, passwordRecovery: recoveryData });
     } catch (error) {
       console.error(error);
       return false;
@@ -171,56 +142,29 @@ export const authService = {
     return true;
   },
 
-  async setNewPassword(
-    recoveryCode: string,
-    newPassword: string
-  ): Promise<boolean> {
-    const user = await usersQueryRepository.findUserByRecoveryCode(
-      recoveryCode
-    );
+  async setNewPassword(recoveryCode: string, newPassword: string): Promise<boolean> {
+    const user = await usersQueryRepository.findUserByRecoveryCode(recoveryCode);
 
-    if (!user || user.passwordRecovery!.expirationDate < new Date())
-      return false;
+    if (!user || user.passwordRecovery!.expirationDate < new Date()) return false;
 
-    const isUpdated = await usersService.updateUserPassword(
-      user.accountData.id,
-      newPassword
-    );
+    const isUpdated = await usersService.updateUserPassword(user.accountData.id, newPassword);
 
-    isUpdated &&
-      (await usersRepository.updatePasswordRecoveryData(
-        user.accountData.id,
-        undefined
-      ));
+    isUpdated && (await usersRepository.updatePasswordRecoveryData(user.accountData.id, undefined));
 
     return isUpdated;
   },
 
-  async _getUserByCredentials(
-    loginOrEmail: string,
-    password: string
-  ): Promise<UserDB | null> {
-    const user = await usersQueryRepository.findUserByLoginOrEmail(
-      loginOrEmail
-    );
+  async _getUserByCredentials(loginOrEmail: string, password: string): Promise<UserDB | null> {
+    const user = await usersQueryRepository.findUserByLoginOrEmail(loginOrEmail);
     const isCorrectPass =
-      !!user &&
-      (await this._checkPass(
-        password,
-        user.accountData.passSalt,
-        user.accountData.passHash
-      ));
+      !!user && (await this._checkPass(password, user.accountData.passSalt, user.accountData.passHash));
 
     if (isCorrectPass) return user;
 
     return null;
   },
 
-  async _checkPass(
-    pass: string,
-    passSalt: string,
-    hash: string
-  ): Promise<boolean> {
+  async _checkPass(pass: string, passSalt: string, hash: string): Promise<boolean> {
     return (await generateHash(pass, passSalt)) === hash;
   },
 
@@ -235,19 +179,11 @@ export const authService = {
     currentDeviceId?: string;
     ua?: string;
   }): Promise<ResLoginWithCookie> {
-    const refreshTokenExpiresInMs = add(
-      new Date(),
-      refreshTokenLifeTime
-    ).getTime();
-    const refreshTokenExpiresInSeconds = Math.floor(
-      refreshTokenExpiresInMs / 1000
-    );
+    const refreshTokenExpiresInMs = add(new Date(), refreshTokenLifeTime).getTime();
+    const refreshTokenExpiresInSeconds = Math.floor(refreshTokenExpiresInMs / 1000);
 
     const deviceId = currentDeviceId || uuidv4();
-    const refreshToken = await jwtService.createJWT(
-      { userId, deviceId },
-      refreshTokenLifeTimeString
-    );
+    const refreshToken = await jwtService.createJWT({ userId, deviceId }, refreshTokenLifeTimeString);
 
     const newRefreshSession: RefreshSession = {
       ip,
@@ -255,21 +191,18 @@ export const authService = {
       issuedAt: new Date().getTime(),
       expiresIn: refreshTokenExpiresInMs,
       deviceId,
-      deviceName: ua || "User-Agent not defined",
+      deviceName: ua || 'User-Agent not defined',
       refreshToken,
     };
 
     await sessionsService.addRefreshSession(newRefreshSession);
 
-    const accessToken = await jwtService.createJWT(
-      { userId },
-      accessTokenLifeTime
-    );
+    const accessToken = await jwtService.createJWT({ userId }, accessTokenLifeTime);
 
     return {
       accessToken,
       cookie: {
-        name: "refreshToken",
+        name: 'refreshToken',
         value: newRefreshSession.refreshToken,
         options: {
           maxAge: refreshTokenExpiresInSeconds,

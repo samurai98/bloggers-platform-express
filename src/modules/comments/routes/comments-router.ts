@@ -1,8 +1,8 @@
 import { Router, Request, Response } from 'express';
 
-import { ResType } from 'common/types/common';
-import { HTTP_STATUSES } from 'common/http-statuses';
-import { addLikeStatusRouter } from 'common/modules/reactions';
+import { ResType } from '../../../common/types/common';
+import { HTTP_STATUSES } from '../../../common/http-statuses';
+import { addLikeStatusRouter } from '../../../common/modules/reactions';
 
 import { commentsService, commentsStory } from '../services';
 import { ReqBodyComment, ParamComment, ResComment } from '../comment';

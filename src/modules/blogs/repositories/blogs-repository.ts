@@ -1,6 +1,6 @@
-import { BlogModel } from "common/db";
+import { BlogModel } from '../../../common/db';
 
-import { Blog, ReqBodyBlog } from "../blog";
+import { Blog, ReqBodyBlog } from '../blog';
 
 export const blogsRepository = {
   async createBlog(blog: Blog): Promise<Blog> {

@@ -1,6 +1,6 @@
 import { FilterQuery } from 'mongoose';
 
-import { getPagesCount, getSkipCount } from 'common/helpers/pagination';
+import { getPagesCount, getSkipCount } from '../../../common/helpers/pagination';
 
 import { Comment, CommentDB, ReqQueryComment, ResComments } from '../comment';
 import { commentsQueryRepository } from '../repositories';
@@ -16,7 +16,12 @@ export const commentsStory = {
     const skipCount = getSkipCount(pageNumber, pageSize);
     const pagesCount = getPagesCount(totalCount, pageSize);
 
-    const commentsDB = await commentsQueryRepository.findComments(filter, { sortBy, sortDirection, skipCount, pageSize });
+    const commentsDB = await commentsQueryRepository.findComments(filter, {
+      sortBy,
+      sortDirection,
+      skipCount,
+      pageSize,
+    });
     const comments = commentsDB.map(item => commentMapper(item, currentUserId));
 
     return { pagesCount, page: pageNumber, pageSize, totalCount, items: comments };

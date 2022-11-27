@@ -1,5 +1,5 @@
-import { getCurrentDateISO } from 'common/helpers/utils';
-import { EntityDependencies, ReactionDB } from 'common/types/reactions';
+import { getCurrentDateISO } from '../../../helpers/utils';
+import { EntityDependencies, ReactionDB } from '../../../types/reactions';
 
 import { reactionsRepository } from '../repositories/reactions-repository';
 

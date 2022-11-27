@@ -1,4 +1,4 @@
-import { CommentModel } from 'common/db';
+import { CommentModel } from '../../../common/db';
 
 import { CommentDB, ReqBodyComment } from '../comment';
 

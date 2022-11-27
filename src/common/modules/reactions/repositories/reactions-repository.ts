@@ -1,6 +1,6 @@
 import { Model } from 'mongoose';
 
-import { ReactionDB, EntityDB } from 'common/types/reactions';
+import { ReactionDB, EntityDB } from '../../../types/reactions';
 
 export const reactionsRepository = ({ Model }: { Model: Model<EntityDB> }) => ({
   async findEntityById(entityId: string): Promise<EntityDB | null> {

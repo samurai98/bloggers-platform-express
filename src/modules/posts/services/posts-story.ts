@@ -1,6 +1,6 @@
 import { FilterQuery } from 'mongoose';
 
-import { getPagesCount, getSkipCount } from 'common/helpers/pagination';
+import { getPagesCount, getSkipCount } from '../../../common/helpers/pagination';
 
 import { Post, PostDB, ReqQueryPost, ResPosts } from '../post';
 import { postsQueryRepository } from '../repositories';

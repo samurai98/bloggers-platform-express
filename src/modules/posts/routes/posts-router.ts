@@ -1,11 +1,11 @@
 import { Router, Request, Response } from 'express';
 
-import { HTTP_STATUSES } from 'common/http-statuses';
-import { Query, ResType } from 'common/types/common';
-import { ResComment, ResComments } from 'modules/comments/comment';
-import { commentsService, commentsStory } from 'modules/comments/services';
-import { commentByPostIdValidation } from 'modules/comments/routes/validation';
-import { addLikeStatusRouter } from 'common/modules/reactions';
+import { HTTP_STATUSES } from '../../../common/http-statuses';
+import { Query, ResType } from '../../../common/types/common';
+import { addLikeStatusRouter } from '../../../common/modules/reactions';
+import { commentByPostIdValidation } from '../../comments/routes/validation';
+import { ResComment, ResComments } from '../../comments/comment';
+import { commentsService, commentsStory } from '../../comments/services';
 
 import { ReqBodyPost, ParamPost, ReqQueryPost, ResPost, ResPosts, ReqBodyCommentByPostId } from '../post';
 import { postsService, postsStory } from '../services';

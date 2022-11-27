@@ -1,8 +1,7 @@
 import { body } from 'express-validator';
 
-import { likeStatuses } from 'common/types/reactions';
-
-import { checkBearerAuth, inputValidation } from 'middlewares';
+import { likeStatuses } from '../../../types/reactions';
+import { checkBearerAuth, inputValidation } from '../../../../middlewares';
 
 const likeStatusValidation = body('likeStatus')
   .trim()
