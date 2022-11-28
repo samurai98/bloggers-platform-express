@@ -257,6 +257,7 @@ export const testBlogsApi = () =>
         blogId: createdBlogs[0].id,
         blogName: createdBlogs[0].name,
         createdAt: dateISORegEx,
+        extendedLikesInfo: { likesCount: 0, dislikesCount: 0, myStatus: 'None', newestLikes: [] },
       });
     });
 

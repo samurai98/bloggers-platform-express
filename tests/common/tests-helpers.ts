@@ -2,7 +2,6 @@ import request from 'supertest';
 
 import { app } from '../../src';
 import { HTTP_STATUSES } from '../../src/common/http-statuses';
-import { jwtService } from '../../src/common/services/jwt-service';
 import { router } from '../../src/routers';
 import { Blog } from '../../src/modules/blogs/blog';
 import { User } from '../../src/modules/users/user';
@@ -13,6 +12,22 @@ import { usersQueryRepository } from '../../src/modules/users/repositories';
 
 import { basicAuth, bearerAuth, validBlogs, validComments, validPosts, validUsers } from './data';
 import { anyString, dateISORegEx, setBearerAuth } from './helpers';
+
+export const loginUser = async (loginOrEmail: string) => {
+  const userIndex = validUsers.findIndex(user => user.email === loginOrEmail || user.login === loginOrEmail);
+
+  if (userIndex === -1) return false;
+
+  const loginRes = await request(app)
+    .post(`${router.auth}${authPath.login}`)
+    .send({ loginOrEmail, password: validUsers[userIndex].password });
+
+  expect(loginRes.statusCode).toEqual(HTTP_STATUSES.OK_200);
+
+  setBearerAuth(loginRes.body.accessToken, loginRes.header['set-cookie'][0]);
+
+  return true;
+};
 
 export const createUser = async ({ isLogin = false, validUserIndex = 0 }) => {
   const res = await request(app).post(router.users).set(basicAuth).send(validUsers[validUserIndex]);
@@ -35,18 +50,7 @@ export const createUser = async ({ isLogin = false, validUserIndex = 0 }) => {
     .send({ code: userDB?.emailConfirmation.confirmationCode })
     .expect(HTTP_STATUSES.NO_CONTENT_204);
 
-  if (!isLogin) return createdUser;
-
-  const loginRes = await request(app)
-    .post(`${router.auth}${authPath.login}`)
-    .send({ loginOrEmail: validUsers[validUserIndex].email, password: validUsers[validUserIndex].password });
-
-  const expectedToken = await jwtService.getUserIdByToken(loginRes.body.accessToken);
-
-  expect(loginRes.statusCode).toEqual(HTTP_STATUSES.OK_200);
-  expect(expectedToken).toEqual(createdUser.id);
-
-  setBearerAuth(loginRes.body.accessToken, loginRes.header['set-cookie'][0]);
+  if (isLogin) await loginUser(createdUser.email);
 
   return createdUser;
 };
@@ -62,15 +66,21 @@ export const createBlog = async () => {
   return createdBlog;
 };
 
-export const createPost = async (createdBlog: Blog) => {
-  const newPost = { ...validPosts[0], blogId: createdBlog.id };
+export const createPost = async (createdBlog: Blog, validPostIndex = 0) => {
+  const newPost = { ...validPosts[validPostIndex], blogId: createdBlog.id };
 
   const res = await request(app).post(router.posts).set(basicAuth).send(newPost);
 
   const createdPost: Post = res.body;
 
   expect(res.statusCode).toEqual(HTTP_STATUSES.CREATED_201);
-  expect(createdPost).toEqual({ ...newPost, id: anyString, createdAt: dateISORegEx, blogName: createdBlog.name });
+  expect(createdPost).toEqual({
+    ...newPost,
+    id: anyString,
+    createdAt: dateISORegEx,
+    blogName: createdBlog.name,
+    extendedLikesInfo: { likesCount: 0, dislikesCount: 0, myStatus: 'None', newestLikes: [] },
+  });
 
   return createdPost;
 };
@@ -88,6 +98,7 @@ export const createComment = async (createdPost: Post, createdUser: User) => {
     userId: createdUser.id,
     userLogin: createdUser.login,
     createdAt: dateISORegEx,
+    likesInfo: { likesCount: 0, dislikesCount: 0, myStatus: 'None' },
   });
 
   return createdComment;

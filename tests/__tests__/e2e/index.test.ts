@@ -9,6 +9,7 @@ import { testCommentsApi } from '../../api-tests/comments-api';
 import { testUsersApi } from '../../api-tests/users-api';
 import { testAuthApi } from '../../api-tests/auth-api';
 import { testDevicesApi } from '../../api-tests/devices-api';
+import { testReactionsApi } from '../../api-tests/reactions-api';
 
 describe('Test API', () => {
   beforeAll(async () => {
@@ -21,4 +22,5 @@ describe('Test API', () => {
   testUsersApi();
   testAuthApi();
   testDevicesApi();
+  testReactionsApi();
 });

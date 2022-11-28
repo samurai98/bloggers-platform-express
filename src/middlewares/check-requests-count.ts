@@ -5,7 +5,7 @@ import { SETTINGS } from '../settings/config';
 
 const ipList: Record<string, { firstRequestTime: number; requestsCount: number }> = {};
 
-const MAX_COUNT_REQUESTS = SETTINGS.IS_RUN_TEST ? 25 : 5;
+const MAX_COUNT_REQUESTS = SETTINGS.IS_RUN_TEST ? 30 : 5;
 const LIMIT_SECONDS = SETTINGS.IS_RUN_TEST ? 99 : 10;
 
 export const checkRequestsCount = async (req: Request, res: Response, next: NextFunction) => {

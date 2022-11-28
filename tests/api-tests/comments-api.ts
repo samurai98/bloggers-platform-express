@@ -13,9 +13,9 @@ import { getErrorsMessages, getOverMaxLength } from '../common/helpers';
 import { createBlog, createComment, createPost, createUser } from '../common/tests-helpers';
 
 let createdUser = {} as User;
-let createdComment = {} as Comment;
 let createdBlog = {} as Blog;
 let createdPost = {} as Post;
+let createdComment = {} as Comment;
 
 export const testCommentsApi = () =>
   describe('Test comments api', () => {
