@@ -78,6 +78,11 @@ export const testAuthApi = () =>
         .post(`${router.auth}${authPath.login}`)
         .send({ loginOrEmail: 'some user', password: '123456' })
         .expect(HTTP_STATUSES.UNAUTHORIZED_401);
+
+      await request(app)
+        .post(`${router.auth}${authPath.login}`)
+        .send({ loginOrEmail: validUsers[0].email, password: 'fakePassword' })
+        .expect(HTTP_STATUSES.UNAUTHORIZED_401);
     });
 
     it('Login user. Incorrect body cases. Should return 400 and errorsMessages', async () => {
