@@ -1,7 +1,7 @@
-import { SETTINGS } from '../../../settings/config';
-import { UserDB } from '../../users/user';
+import { SETTINGS } from '../../settings/config';
+import { UserDB } from '../../modules/users/user';
 
-import { emailAdapter } from '../adapters/email-adapter';
+import { emailAdapter } from './email-adapter';
 
 export const emailsManager = {
   async sendEmailConfirmationMessage(user: UserDB) {
@@ -28,6 +28,19 @@ export const emailsManager = {
        <p>To finish password recovery please follow the link below:
           <a href='${SETTINGS.CLIENT_URL}/password-recovery?recoveryCode=${user.passwordRecovery?.recoveryCode}'>recovery password</a>
       </p>
+     `,
+    });
+  },
+
+  async sendAdminEmailAboutError(err: Error) {
+    await emailAdapter.sendEmail({
+      email: SETTINGS.GMAIL_EMAIL || '',
+      subject: '⛔ APPLICATION CRASHED',
+      message: `
+      <h1>Application crashed with an error</h1>
+       <p><b>Error name:</b> ${err.name}</p>
+       <p><b>Error message:</b> ${err.message}</p>
+       <p><b>Error stack:</b> ${err.stack}</p>
      `,
     });
   },

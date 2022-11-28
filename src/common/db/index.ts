@@ -13,9 +13,9 @@ export const SessionModel = mongoose.model('sessions', sessionsSchema);
 export async function runDB() {
   try {
     await mongoose.connect(SETTINGS.MONGO_DB_URI);
-    console.log('🟢 Connected successfully to mongo server');
+    console.info('🟢 Connected successfully to mongo server');
   } catch (err) {
-    console.log("⛔ Can't connect to db");
+    console.info("⛔ Can't connect to db");
     console.error(err);
 
     await mongoose.disconnect();

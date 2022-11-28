@@ -8,7 +8,7 @@ import { UserDB, UserEmailConfirmation, PasswordRecovery } from '../../users/use
 import { usersService } from '../../users/services/users-service';
 import { usersQueryRepository, usersRepository } from '../../users/repositories';
 
-import { emailsManager } from '../managers/emails-manager';
+import { emailsManager } from '../../../common/emails/emails-manager';
 import { LoginUserData, RefreshSession, ResLoginWithCookie } from '../auth';
 import { sessionsService } from './sessions-service';
 

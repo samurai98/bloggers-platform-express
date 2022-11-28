@@ -5,6 +5,7 @@ import { addRequestContext } from './middlewares';
 import { SETTINGS } from './settings/config';
 import { runDB } from './common/db';
 import { useRouters } from './routers';
+import './uncaughtException';
 
 export const app = express();
 const port = SETTINGS.PORT;
@@ -20,7 +21,7 @@ const startApp = async () => {
   await runDB();
 
   app.listen(port, () => {
-    console.log(`✅ Example app listening on port ${port}`);
+    console.info(`✅ Example app listening on port ${port}`);
   });
 };
 
