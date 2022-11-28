@@ -205,6 +205,7 @@ export const authService = {
         name: 'refreshToken',
         value: newRefreshSession.refreshToken,
         options: {
+          path: "/auth",
           maxAge: refreshTokenExpiresInSeconds,
           httpOnly: true,
           // TODO: use cookie-parser middleware for use signed cookies

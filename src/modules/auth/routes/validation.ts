@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import { body } from 'express-validator';
 
 import { HTTP_STATUSES } from '../../../common/http-statuses';
-import { checkRefreshSession, inputValidation, checkRequestsCount, setUserToContextBySession } from '../../../middlewares';
+import { checkRefreshSession, inputValidation, checkRequestsCount } from '../../../middlewares';
 import { usersQueryRepository } from '../../users/repositories';
 
 import { sessionsService } from '../services/sessions-service';
@@ -69,7 +69,7 @@ export const resendingValidation = [checkRequestsCount, emailValidation, inputVa
 
 export const authValidation = [checkRequestsCount, loginAndPassValidation, inputValidation];
 
-export const deleteDeviceValidation = [checkRefreshSession, setUserToContextBySession, deviceIdValidation];
+export const deleteDeviceValidation = [checkRefreshSession, deviceIdValidation];
 
 export const passwordRecoveryValidation = [checkRequestsCount, emailValidation, inputValidation];
 

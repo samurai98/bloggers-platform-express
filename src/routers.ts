@@ -7,7 +7,7 @@ import { authRouter } from './modules/auth/routes/auth-router';
 import { securityDevicesRouter } from './modules/auth/routes/security-devices-router';
 import { commentsRouter } from './modules/comments/routes/comments-router';
 import { deleteAllRouter } from './common/routes/delete-router';
-import { setUserToContextBySession } from './middlewares';
+import { setUserToContextByAccessToken } from './middlewares';
 
 export const router = {
   blogs: '/blogs',
@@ -15,12 +15,12 @@ export const router = {
   comments: '/comments',
   users: '/users',
   auth: '/auth',
-  securityDevices: '/security/devices',
+  securityDevices: '/auth/security/devices',
   delete_all: '/testing/all-data',
 } as const;
 
 export const useRouters = (app: Express) => {
-  app.use(setUserToContextBySession);
+  app.use(setUserToContextByAccessToken);
 
   app.use(router.blogs, blogsRouter);
   app.use(router.posts, postsRouter);

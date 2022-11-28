@@ -24,3 +24,13 @@ export const checkBearerAuth = async (req: Request, res: Response, next: NextFun
 
   next();
 };
+
+export const setUserToContextByAccessToken = async (req: Request, res: Response, next: NextFunction) => {
+  const token = req.headers.authorization?.split(' ')[1];
+  const userId = token ? await jwtService.getUserIdByToken(token) : null;
+
+  if (userId && req.requestContext.user?.id !== userId)
+    req.requestContext.user = (await usersQueryRepository.findUserById(userId)) as User;
+
+  next();
+};
