@@ -8,6 +8,8 @@ export type Blog = {
   createdAt: string;
 };
 
+export type BlogDB = Blog & { userId: string };
+
 export type ReqBodyBlog = { name: string; websiteUrl: string; description: string };
 
 export type ReqBodyPostByBlogId = { title: string; shortDescription: string; content: string };

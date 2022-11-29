@@ -20,7 +20,7 @@ export const testReactionsApi = () =>
   describe('Test reactions', () => {
     beforeAll(async () => {
       for (let index = 0; index < 5; index++) {
-        const newUser = await createUser({ isLogin: false, validUserIndex: index });
+        const newUser = await createUser({ isLogin: index === 0, validUserIndex: index });
         createdUsers.push(newUser);
       }
 

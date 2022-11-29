@@ -1,28 +1,29 @@
 import { FilterQuery } from 'mongoose';
 
 import { BlogModel } from '../../../common/db';
-import { getPagesCount, getSkipCount } from '../../../common/helpers/pagination';
+import { QueryDBFilter } from '../../../common/types/common';
 
-import { Blog, ReqQueryBlog, ResBlogs } from '../blog';
+import { BlogDB } from '../blog';
 
 export const blogsQueryRepository = {
-  async getBlogs({ pageNumber, pageSize, sortBy, sortDirection, searchNameTerm }: ReqQueryBlog): Promise<ResBlogs> {
-    const filter: FilterQuery<Blog> = { name: { $regex: new RegExp(`${searchNameTerm}`, 'i') } };
-    const totalCount = await BlogModel.countDocuments(filter);
-
-    const skipCount = getSkipCount(pageNumber, pageSize);
-    const pagesCount = getPagesCount(totalCount, pageSize);
-
+  async findBlogs(
+    filter: FilterQuery<BlogDB>,
+    { sortBy, sortDirection, skipCount, pageSize }: QueryDBFilter
+  ): Promise<BlogDB[]> {
     const items = await BlogModel.find(filter, { _id: false, __v: false })
       .sort({ [sortBy]: sortDirection })
       .skip(skipCount)
       .limit(pageSize)
       .lean();
 
-    return { pagesCount, page: pageNumber, pageSize, totalCount, items };
+    return items;
   },
 
-  async findBlogById(id: string): Promise<Blog | null> {
+  async countTotalBlogs(filter: FilterQuery<BlogDB>): Promise<number> {
+    return await BlogModel.countDocuments(filter);
+  },
+
+  async findBlogById(id: string): Promise<BlogDB | null> {
     return await BlogModel.findOne({ id }, { _id: false, __v: false }).lean();
   },
 };

@@ -1,6 +1,6 @@
 import { body } from 'express-validator';
 
-import { checkBasicAuth, inputValidation, getQueryValidation } from '../../../middlewares';
+import { checkBearerAuth, inputValidation, getQueryValidation } from '../../../middlewares';
 import { getErrorText, ERROR_TYPE } from '../../../common/messages';
 
 const nameValidation = body('name')
@@ -32,11 +32,11 @@ export const blogsQueryValidation = getQueryValidation(query => {
 export const postsByBlogQueryValidation = getQueryValidation();
 
 export const blogValidation = [
-  checkBasicAuth,
+  checkBearerAuth,
   nameValidation,
   websiteUrlValidation,
   descriptionValidation,
   inputValidation,
 ];
 
-export { checkBasicAuth };
+export { checkBearerAuth };

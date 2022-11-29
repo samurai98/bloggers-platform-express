@@ -56,7 +56,7 @@ export const createUser = async ({ isLogin = false, validUserIndex = 0 }) => {
 };
 
 export const createBlog = async () => {
-  const res = await request(app).post(router.blogs).set(basicAuth).send(validBlogs[0]);
+  const res = await request(app).post(router.blogs).set(bearerAuth).send(validBlogs[0]);
 
   const createdBlog: Blog = res.body;
 

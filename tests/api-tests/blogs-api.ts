@@ -6,7 +6,7 @@ import { router } from '../../src/routers';
 import { Blog, ReqBodyBlog, ReqBodyPostByBlogId } from '../../src/modules/blogs/blog';
 import { Post } from '../../src/modules/posts/post';
 
-import { incorrectQuery, basicAuth, validBlogs, validPosts } from '../common/data';
+import { incorrectQuery, basicAuth, validBlogs, validPosts, bearerAuth } from '../common/data';
 import {
   anyString,
   dateISORegEx,
@@ -15,12 +15,16 @@ import {
   getPaginationItems,
   sortByField,
 } from '../common/helpers';
-import { createBlog } from '../common/tests-helpers';
+import { createBlog, createUser } from '../common/tests-helpers';
 
 const createdBlogs: Blog[] = [];
 
 export const testBlogsApi = () =>
   describe('Test blogs api', () => {
+    beforeAll(async () => {
+      await createUser({ isLogin: true });
+    });
+
     it('Blogs without auth. Should return 401', async () => {
       await request(app).post(router.blogs).send({}).expect(HTTP_STATUSES.UNAUTHORIZED_401);
 
@@ -46,7 +50,7 @@ export const testBlogsApi = () =>
     });
 
     it('Create blog. Incorrect body cases. Should return 400 and errorsMessages', async () => {
-      const firstRes = await request(app).post(router.blogs).set(basicAuth).send();
+      const firstRes = await request(app).post(router.blogs).set(bearerAuth).send();
 
       expect(firstRes.statusCode).toEqual(HTTP_STATUSES.BAD_REQUEST_400);
       expect(firstRes.body).toEqual(getErrorsMessages<ReqBodyBlog>('name', 'websiteUrl', 'description'));
@@ -54,7 +58,7 @@ export const testBlogsApi = () =>
 
       const secondRes = await request(app)
         .post(router.blogs)
-        .set(basicAuth)
+        .set(bearerAuth)
         .send({ name: getOverMaxLength(15), websiteUrl: getOverMaxLength(100), description: getOverMaxLength(500) });
 
       expect(secondRes.statusCode).toEqual(HTTP_STATUSES.BAD_REQUEST_400);
@@ -63,7 +67,7 @@ export const testBlogsApi = () =>
 
       const thirdRes = await request(app)
         .post(router.blogs)
-        .set(basicAuth)
+        .set(bearerAuth)
         .send({ name: 'valid', websiteUrl: 'https://badurl' });
 
       expect(thirdRes.statusCode).toEqual(HTTP_STATUSES.BAD_REQUEST_400);
@@ -84,7 +88,7 @@ export const testBlogsApi = () =>
 
     it('Create blogs. Should create new blogs', async () => {
       for (const blog of validBlogs.slice(1)) {
-        const res = await request(app).post(router.blogs).set(basicAuth).send(blog);
+        const res = await request(app).post(router.blogs).set(bearerAuth).send(blog);
         createdBlogs.push(res.body);
       }
 
@@ -142,7 +146,7 @@ export const testBlogsApi = () =>
 
       await request(app)
         .put(`${router.blogs}/${createdBlogs[1].id}`)
-        .set(basicAuth)
+        .set(bearerAuth)
         .send(updateData)
         .expect(HTTP_STATUSES.NO_CONTENT_204);
 
@@ -154,13 +158,13 @@ export const testBlogsApi = () =>
     it('Update blog. Should return 404', async () => {
       await request(app)
         .put(`${router.blogs}/fakeBlogId`)
-        .set(basicAuth)
+        .set(bearerAuth)
         .send({ name: 'Updated', websiteUrl: 'https://new.url', description: 'Updated description' })
         .expect(HTTP_STATUSES.NOT_FOUND_404);
     });
 
     it('Update blog. Incorrect body cases. Should return 400 and errorsMessages', async () => {
-      const firstRes = await request(app).put(`${router.blogs}/${createdBlogs[2].id}`).set(basicAuth).send();
+      const firstRes = await request(app).put(`${router.blogs}/${createdBlogs[2].id}`).set(bearerAuth).send();
 
       expect(firstRes.statusCode).toEqual(HTTP_STATUSES.BAD_REQUEST_400);
       expect(firstRes.body).toEqual(getErrorsMessages<ReqBodyBlog>('name', 'websiteUrl', 'description'));
@@ -168,7 +172,7 @@ export const testBlogsApi = () =>
 
       const secondRes = await request(app)
         .put(`${router.blogs}/${createdBlogs[2].id}`)
-        .set(basicAuth)
+        .set(bearerAuth)
         .send({ name: getOverMaxLength(15), websiteUrl: getOverMaxLength(100), description: getOverMaxLength(500) });
 
       expect(secondRes.statusCode).toEqual(HTTP_STATUSES.BAD_REQUEST_400);
@@ -177,7 +181,7 @@ export const testBlogsApi = () =>
 
       const thirdRes = await request(app)
         .put(`${router.blogs}/${createdBlogs[2].id}`)
-        .set(basicAuth)
+        .set(bearerAuth)
         .send({ name: 'valid', websiteUrl: 'https://badurl' });
 
       expect(thirdRes.statusCode).toEqual(HTTP_STATUSES.BAD_REQUEST_400);
@@ -190,14 +194,14 @@ export const testBlogsApi = () =>
     it('Delete blog. Should delete blog and return 204', async () => {
       await request(app)
         .delete(`${router.blogs}/${createdBlogs[3].id}`)
-        .set(basicAuth)
+        .set(bearerAuth)
         .expect(HTTP_STATUSES.NO_CONTENT_204);
 
       await request(app).get(`${router.blogs}/${createdBlogs[3].id}`).expect(HTTP_STATUSES.NOT_FOUND_404);
     });
 
     it('Delete blog. Should return 404', async () => {
-      await request(app).delete(`${router.blogs}/fakeBlogId`).set(basicAuth).expect(HTTP_STATUSES.NOT_FOUND_404);
+      await request(app).delete(`${router.blogs}/fakeBlogId`).set(bearerAuth).expect(HTTP_STATUSES.NOT_FOUND_404);
     });
 
     let createdPostByBlogId = {} as Post;

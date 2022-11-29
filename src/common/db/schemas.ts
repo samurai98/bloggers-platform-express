@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 
-import { Blog } from '../../modules/blogs/blog';
+import { BlogDB } from '../../modules/blogs/blog';
 import { PostDB } from '../../modules/posts/post';
 import { CommentDB } from '../../modules/comments/comment';
 import { UserDB } from '../../modules/users/user';
@@ -12,10 +12,11 @@ const reaction = {
   createdAt: { type: String, required: true },
 };
 
-export const blogSchema = new mongoose.Schema<Blog>({
+export const blogSchema = new mongoose.Schema<BlogDB>({
   id: { type: String, required: true },
   name: { type: String, required: true },
   websiteUrl: { type: String, required: true },
+  userId: { type: String, required: true },
   description: { type: String, required: true },
   createdAt: { type: String, required: true },
 });

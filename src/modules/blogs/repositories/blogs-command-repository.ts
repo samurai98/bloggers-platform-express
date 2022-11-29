@@ -1,15 +1,15 @@
 import { BlogModel } from '../../../common/db';
 
-import { Blog, ReqBodyBlog } from '../blog';
+import { BlogDB } from '../blog';
 
-export const blogsRepository = {
-  async createBlog(blog: Blog): Promise<Blog> {
+export const blogsCommandRepository = {
+  async createBlog(blog: BlogDB): Promise<BlogDB> {
     await BlogModel.insertMany(blog);
 
     return blog;
   },
 
-  async updateBlog(id: string, blog: ReqBodyBlog): Promise<boolean> {
+  async updateBlog(id: string, blog: Partial<BlogDB>): Promise<boolean> {
     const result = await BlogModel.updateOne({ id }, { $set: blog });
 
     return result.matchedCount === 1;

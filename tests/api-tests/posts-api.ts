@@ -19,10 +19,10 @@ let createdUser = {} as User;
 export const testPostsApi = () =>
   describe('Test posts api', () => {
     beforeAll(async () => {
+      createdUser = await createUser({ isLogin: true });
+
       const createdBlog = await createBlog();
       createdBlogs.push(createdBlog);
-
-      createdUser = await createUser({ isLogin: true });
     });
 
     it('Posts without auth. Should return 401', async () => {
