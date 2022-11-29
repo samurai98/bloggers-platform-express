@@ -1,22 +1,27 @@
 import { body } from 'express-validator';
 
 import { checkBasicAuth, inputValidation, getQueryValidation } from '../../../middlewares';
+import { getErrorText, ERROR_TYPE } from '../../../common/messages';
 
-const nameValidation = body('name').trim().notEmpty().isLength({ max: 15 }).withMessage('Name length error');
+const nameValidation = body('name')
+  .trim()
+  .notEmpty()
+  .isLength({ max: 15 })
+  .withMessage(getErrorText(ERROR_TYPE.length, 'name', { max: 15 }));
 
 const descriptionValidation = body('description')
   .trim()
   .notEmpty()
   .isLength({ max: 500 })
-  .withMessage('Description length error');
+  .withMessage(getErrorText(ERROR_TYPE.length, 'description', { max: 500 }));
 
 const websiteUrlValidation = body('websiteUrl')
   .trim()
   .notEmpty()
   .isURL()
-  .withMessage('WebsiteUrl incorrect')
+  .withMessage(getErrorText(ERROR_TYPE.incorrect, 'websiteUrl'))
   .isLength({ max: 100 })
-  .withMessage('WebsiteUrl length error');
+  .withMessage(getErrorText(ERROR_TYPE.length, 'websiteUrl', { max: 100 }));
 
 export const blogsQueryValidation = getQueryValidation(query => {
   const { searchNameTerm } = query;

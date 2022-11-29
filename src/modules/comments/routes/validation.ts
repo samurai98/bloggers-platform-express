@@ -3,6 +3,7 @@ import { body } from 'express-validator';
 
 import { HTTP_STATUSES } from '../../../common/http-statuses';
 import { checkBearerAuth, inputValidation } from '../../../middlewares';
+import { getErrorText, ERROR_TYPE } from '../../../common/messages';
 
 import { commentsStory } from '../services';
 
@@ -10,7 +11,7 @@ const contentValidation = body('content')
   .trim()
   .notEmpty()
   .isLength({ min: 20, max: 300 })
-  .withMessage('Content length error');
+  .withMessage(getErrorText(ERROR_TYPE.length, 'content', { min: 20, max: 300 }));
 
 const checkUserRights = async (req: Request, res: Response, next: NextFunction) => {
   const currentUserId = req.requestContext.user?.id;

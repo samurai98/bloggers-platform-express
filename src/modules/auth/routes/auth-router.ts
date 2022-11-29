@@ -4,6 +4,7 @@ import { checkBearerAuth } from '../../../middlewares';
 import { HTTP_STATUSES } from '../../../common/http-statuses';
 import { ResErrorsMessages, ResType } from '../../../common/types/common';
 import { getErrorsMessages } from '../../../common/helpers/utils';
+import { getErrorText, ERROR_TYPE } from '../../../common/messages';
 
 import { ReqBodyUser, User } from '../../users/user';
 import { usersService } from '../../users/services/users-service';
@@ -77,7 +78,7 @@ authRouter.post(
     else
       res
         .status(HTTP_STATUSES.BAD_REQUEST_400)
-        .send(getErrorsMessages<ReqBodyConfirm>({ code: 'Incorrect confirm code' }));
+        .send(getErrorsMessages<ReqBodyConfirm>({ code: getErrorText(ERROR_TYPE.incorrect, 'code') }));
   }
 );
 
@@ -89,7 +90,9 @@ authRouter.post(
 
     if (isResending) res.sendStatus(HTTP_STATUSES.NO_CONTENT_204);
     else
-      res.status(HTTP_STATUSES.BAD_REQUEST_400).send(getErrorsMessages<ReqBodyResending>({ email: 'Incorrect email' }));
+      res
+        .status(HTTP_STATUSES.BAD_REQUEST_400)
+        .send(getErrorsMessages<ReqBodyResending>({ email: getErrorText(ERROR_TYPE.incorrect, 'email') }));
   }
 );
 
@@ -125,6 +128,10 @@ authRouter.post(
     else
       res
         .status(HTTP_STATUSES.BAD_REQUEST_400)
-        .send(getErrorsMessages<ReqBodyNewPassword>({ recoveryCode: 'Incorrect recoveryCode' } as ReqBodyNewPassword));
+        .send(
+          getErrorsMessages<ReqBodyNewPassword>({
+            recoveryCode: getErrorText(ERROR_TYPE.incorrect, 'recoveryCode'),
+          } as ReqBodyNewPassword)
+        );
   }
 );
