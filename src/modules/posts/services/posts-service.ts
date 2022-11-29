@@ -1,3 +1,5 @@
+import { v4 as uuidv4 } from 'uuid';
+
 import { getCurrentDateISO } from '../../../common/helpers/utils';
 import { blogsQueryRepository } from '../../blogs/repositories';
 import { Blog } from '../../blogs/blog';
@@ -12,7 +14,7 @@ export const postsService = {
 
     const currentDate = getCurrentDateISO();
     const newPost: PostDB = {
-      id: currentDate,
+      id: uuidv4(),
       title,
       shortDescription,
       content,

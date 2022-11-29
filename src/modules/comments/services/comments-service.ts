@@ -1,3 +1,5 @@
+import { v4 as uuidv4 } from 'uuid';
+
 import { getCurrentDateISO } from '../../../common/helpers/utils';
 
 import { commentsRepository } from '../repositories';
@@ -13,7 +15,7 @@ export const commentsService = {
   }: ReqBodyComment & { userId: string; userLogin: string }): Promise<Comment> {
     const currentDate = getCurrentDateISO();
     const newComment: CommentDB = {
-      id: currentDate,
+      id: uuidv4(),
       content,
       postId,
       userId,

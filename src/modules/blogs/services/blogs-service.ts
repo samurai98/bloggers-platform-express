@@ -1,3 +1,5 @@
+import { v4 as uuidv4 } from 'uuid';
+
 import { getCurrentDateISO } from '../../../common/helpers/utils';
 
 import { blogsRepository } from '../repositories/blogs-repository';
@@ -6,7 +8,7 @@ import { Blog, ReqBodyBlog } from '../blog';
 export const blogsService = {
   async createBlog({ name, websiteUrl, description }: ReqBodyBlog): Promise<Blog> {
     const currentDate = getCurrentDateISO();
-    const newBlog: Blog = { id: currentDate, name, websiteUrl, description, createdAt: currentDate };
+    const newBlog: Blog = { id: uuidv4(), name, websiteUrl, description, createdAt: currentDate };
 
     return blogsRepository.createBlog(newBlog);
   },

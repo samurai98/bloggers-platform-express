@@ -16,7 +16,7 @@ export const usersService = {
     const passHash = await generateHash(password, passSalt);
 
     const newUser: UserDB = {
-      accountData: { id: currentDate, email, login, passHash, passSalt, createdAt: currentDate },
+      accountData: { id: uuidv4(), email, login, passHash, passSalt, createdAt: currentDate },
       emailConfirmation: {
         confirmationCode: uuidv4(),
         expirationDate: add(new Date(), { hours: 1 }),
