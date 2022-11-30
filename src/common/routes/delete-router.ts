@@ -2,7 +2,7 @@ import { Router, Request, Response } from 'express';
 
 import { HTTP_STATUSES } from '../http-statuses';
 import { blogsCommandRepository } from '../../modules/blogs/repositories';
-import { postsRepository } from '../../modules/posts/repositories';
+import { postsCommandRepository } from '../../modules/posts/repositories';
 import { usersRepository } from '../../modules/users/repositories';
 import { commentsRepository } from '../../modules/comments/repositories';
 import { sessionRepository } from '../../modules/auth/repositories/session-repository';
@@ -10,7 +10,7 @@ import { sessionRepository } from '../../modules/auth/repositories/session-repos
 export const deleteAllRouter = Router({});
 
 deleteAllRouter.delete('/', async (req: Request, res: Response) => {
-  await postsRepository.deleteAll();
+  await postsCommandRepository.deleteAll();
   await blogsCommandRepository.deleteAll();
   await usersRepository.deleteAll();
   await commentsRepository.deleteAll();

@@ -5,11 +5,10 @@ type CommonComment = {
   id: string;
   content: string;
   userId: string;
-  userLogin: string;
   createdAt: string;
 };
 
-export type Comment = CommonComment & { likesInfo: LikesInfo };
+export type Comment = CommonComment & { userLogin: string, likesInfo: LikesInfo };
 
 export type CommentDB = CommonComment & { postId: string; reactions: ReactionDB[] };
 

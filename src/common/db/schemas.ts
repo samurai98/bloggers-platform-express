@@ -36,7 +36,6 @@ export const commentsSchema = new mongoose.Schema<CommentDB>({
   id: { type: String, required: true },
   content: { type: String, required: true },
   userId: { type: String, required: true },
-  userLogin: { type: String, required: true },
   createdAt: { type: String, required: true },
   postId: { type: String, required: true },
   reactions: [reaction],

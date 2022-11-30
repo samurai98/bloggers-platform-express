@@ -1,15 +1,15 @@
 import { PostModel } from '../../../common/db';
 
-import { ReqBodyPost, PostDB } from '../post';
+import { PostDB } from '../post';
 
-export const postsRepository = {
+export const postsCommandRepository = {
   async createPost(post: PostDB): Promise<PostDB> {
     await PostModel.insertMany(post);
 
     return post;
   },
 
-  async updatePost(id: string, post: ReqBodyPost): Promise<boolean> {
+  async updatePost(id: string, post: Partial<PostDB>): Promise<boolean> {
     const result = await PostModel.updateOne({ id }, { $set: post });
 
     return result.matchedCount === 1;

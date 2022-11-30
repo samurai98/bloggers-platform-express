@@ -1,15 +1,49 @@
+import { FilterQuery } from 'mongoose';
 import { v4 as uuidv4 } from 'uuid';
 
 import { getCurrentDateISO } from '../../../common/helpers/utils';
+import { getPagesCount, getSkipCount } from '../../../common/helpers/pagination';
+import { Pagination, Query } from '../../../common/types/common';
 import { blogsQueryRepository } from '../../blogs/repositories';
 import { Blog } from '../../blogs/blog';
+import { commentsService, commentsStory } from '../../comments/services';
+import { Comment } from '../../comments/comment';
 
-import { ReqBodyPost, Post, PostDB } from '../post';
-import { postsRepository } from '../repositories';
+import { postsQueryRepository } from '../repositories';
+import { getNewestLikes } from './helpers';
+import { ReqBodyPost, Post, PostDB, ReqQueryPost, ResPosts, ReqBodyCommentByPostId } from '../post';
+import { postsCommandRepository } from '../repositories';
 import { postMapper } from './posts-mapper';
 
 export const postsService = {
-  async createPost({ title, shortDescription, content, blogId }: ReqBodyPost, userId?: string): Promise<Post> {
+  async getPosts(
+    { pageNumber, pageSize, sortBy, sortDirection, blogId }: ReqQueryPost,
+    currentUserId: string | undefined
+  ): Promise<Pagination<Post>> {
+    const filter: FilterQuery<PostDB> = blogId ? { blogId } : {};
+    const totalCount = await postsQueryRepository.countTotalPosts(filter);
+    const skipCount = getSkipCount(pageNumber, pageSize);
+    const pagesCount = getPagesCount(totalCount, pageSize);
+
+    const postsDB = await postsQueryRepository.findPosts(filter, { sortBy, sortDirection, skipCount, pageSize });
+    const posts: Post[] = [];
+
+    for (const post of postsDB) {
+      const newestLikes = await getNewestLikes(post.reactions);
+      posts.push(postMapper(post, currentUserId, newestLikes));
+    }
+
+    return { pagesCount, page: pageNumber, pageSize, totalCount, items: posts };
+  },
+
+  async getPostById(postId: string, currentUserId: string | undefined): Promise<Post | null> {
+    const post = await postsQueryRepository.findPostById(postId);
+    const newestLikes = post && (await getNewestLikes(post.reactions));
+
+    return post && postMapper(post, currentUserId, newestLikes || []);
+  },
+
+  async createPost({ title, shortDescription, content, blogId }: ReqBodyPost, currentUserId?: string): Promise<Post> {
     const { name: blogName } = (await blogsQueryRepository.findBlogById(blogId)) as Blog;
 
     const currentDate = getCurrentDateISO();
@@ -24,14 +58,30 @@ export const postsService = {
       reactions: [],
     };
 
-    return postMapper(await postsRepository.createPost(newPost), userId, []);
+    return postMapper(await postsCommandRepository.createPost(newPost), currentUserId, []);
   },
 
   async updatePost(id: string, post: ReqBodyPost): Promise<boolean> {
-    return postsRepository.updatePost(id, post);
+    return await postsCommandRepository.updatePost(id, post);
   },
 
   async deletePost(id: string): Promise<boolean> {
-    return postsRepository.deletePost(id);
+    return await postsCommandRepository.deletePost(id);
+  },
+
+  async getCommentsByPostId(
+    postId: string,
+    userId: string | undefined,
+    query: Query
+  ): Promise<Pagination<Comment> | null> {
+    if (!postId || !(await this.getPostById(postId, undefined))) return null;
+
+    return (await commentsStory.getComments({ ...query, postId }, userId)) as any;
+  },
+
+  async createCommentByPostId(postId: string, userId: string, body: ReqBodyCommentByPostId): Promise<Comment | null> {
+    if (!postId || !(await postsService.getPostById(postId, undefined))) return null;
+
+    return await commentsService.createComment({ ...body, postId, userId });
   },
 };

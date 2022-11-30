@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { body } from 'express-validator';
 
-import { checkBasicAuth, getQueryValidation, inputValidation } from '../../../middlewares';
+import { checkBearerAuth, getQueryValidation, inputValidation } from '../../../middlewares';
 import { getErrorText, ERROR_TYPE } from '../../../common/messages';
 
 import { blogsQueryRepository } from '../../blogs/repositories';
@@ -39,7 +39,7 @@ export const postsQueryValidation = getQueryValidation(query => {
 });
 
 export const postValidation = [
-  checkBasicAuth,
+  checkBearerAuth,
   titleValidation,
   shortDescriptionValidation,
   contentValidation,
@@ -48,7 +48,7 @@ export const postValidation = [
 ];
 
 export const postByBlogIdValidation = [
-  checkBasicAuth,
+  checkBearerAuth,
   titleValidation,
   shortDescriptionValidation,
   contentValidation,
@@ -57,4 +57,4 @@ export const postByBlogIdValidation = [
 
 export const commentsByPostQueryValidation = getQueryValidation();
 
-export { checkBasicAuth };
+export { checkBearerAuth };

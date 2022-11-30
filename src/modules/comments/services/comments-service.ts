@@ -7,22 +7,9 @@ import { Comment, CommentDB, ReqBodyComment } from '../comment';
 import { commentMapper } from './comments-mapper';
 
 export const commentsService = {
-  async createComment({
-    content,
-    postId,
-    userId,
-    userLogin,
-  }: ReqBodyComment & { userId: string; userLogin: string }): Promise<Comment> {
+  async createComment({ content, postId, userId }: ReqBodyComment & { userId: string }): Promise<Comment> {
     const currentDate = getCurrentDateISO();
-    const newComment: CommentDB = {
-      id: uuidv4(),
-      content,
-      postId,
-      userId,
-      userLogin,
-      createdAt: currentDate,
-      reactions: [],
-    };
+    const newComment: CommentDB = { id: uuidv4(), content, postId, userId, createdAt: currentDate, reactions: [] };
 
     return commentMapper(await commentsRepository.createComment(newComment), userId);
   },

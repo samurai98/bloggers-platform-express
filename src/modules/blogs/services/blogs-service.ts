@@ -5,7 +5,7 @@ import { getCurrentDateISO } from '../../../common/helpers/utils';
 import { getSkipCount, getPagesCount } from '../../../common/helpers/pagination';
 import { Pagination, Query } from '../../../common/types/common';
 import { Post } from '../../posts/post';
-import { postsService, postsStory } from '../../posts/services';
+import { postsService } from '../../posts/services/posts-service';
 
 import { Blog, BlogDB, ReqBodyBlog, ReqBodyPostByBlogId, ReqQueryBlog } from '../blog';
 import { blogsCommandRepository, blogsQueryRepository } from '../repositories';
@@ -54,7 +54,7 @@ export const blogsService = {
   async getPostsByBlogId(blogId: string, userId: string | undefined, query: Query): Promise<Pagination<Post> | null> {
     if (!blogId || !(await this.getBlogById(blogId))) return null;
 
-    return (await postsStory.getPosts({ ...query, blogId }, userId)) as any;
+    return await postsService.getPosts({ ...query, blogId }, userId);
   },
 
   async createPostByBlogId(blogId: string, body: ReqBodyPostByBlogId): Promise<Post | null> {

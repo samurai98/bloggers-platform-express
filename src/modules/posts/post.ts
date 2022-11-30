@@ -17,7 +17,7 @@ export type PostDB = CommonPost & { reactions: ReactionDB[] };
 
 export type ReqBodyPost = { title: string; shortDescription: string; content: string; blogId: string };
 
-export type ParamPost = { postId: Post['id'] };
+export type ParamPost = { id: Post['id'] };
 
 export type ReqQueryPost = Query & { blogId?: string };
 
