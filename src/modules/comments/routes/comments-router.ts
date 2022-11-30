@@ -4,14 +4,14 @@ import { ResType } from '../../../common/types/common';
 import { HTTP_STATUSES } from '../../../common/http-statuses';
 import { addLikeStatusRouter } from '../../../common/modules/reactions';
 
-import { commentsService, commentsStory } from '../services';
+import { commentsService } from '../services/comments-service';
 import { ReqBodyComment, ParamComment, ResComment } from '../comment';
 import { deleteCommentValidation, updateCommentValidation } from './validation';
 
 export const commentsRouter = Router({});
 
 commentsRouter.get('/:commentId', async (req: Request<ParamComment>, res: Response<ResComment>) => {
-  const comment = await commentsStory.getCommentById(req.params.commentId, req.requestContext.user?.id);
+  const comment = await commentsService.getCommentById(req.params.commentId, req.requestContext.user?.id);
 
   if (comment) res.send(comment);
   else res.sendStatus(HTTP_STATUSES.NOT_FOUND_404);

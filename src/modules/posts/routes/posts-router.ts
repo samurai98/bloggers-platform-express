@@ -59,7 +59,7 @@ postsRouter.post(
   '/:id/comments',
   commentByPostIdValidation,
   async (req: Request<ParamPost, {}, ReqBodyCommentByPostId>, res: Response<ResComment>) => {
-    const comment = await postsService.createCommentByPostId(req.params.id, req.requestContext.user!.id, req.body);
+    const comment = await postsService.createCommentByPostId(req.params.id, req.requestContext.user!, req.body);
 
     if (comment) res.status(HTTP_STATUSES.CREATED_201).send(comment);
     else res.sendStatus(HTTP_STATUSES.NOT_FOUND_404);

@@ -1,2 +1,2 @@
 export { commentsQueryRepository } from './comments-query-repository';
-export { commentsRepository } from './comments-repository';
+export { commentsCommandRepository } from './comments-command-repository';

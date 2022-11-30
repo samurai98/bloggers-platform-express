@@ -9,7 +9,7 @@ import { Comment } from '../../src/modules/comments/comment';
 import { User } from '../../src/modules/users/user';
 
 import { getErrorsMessages, getOverMaxLength, getPaginationItems, sortByField } from '../common/helpers';
-import { basicAuth, bearerAuth, incorrectQuery, validComments, validPosts } from '../common/data';
+import { bearerAuth, incorrectQuery, validComments, validPosts } from '../common/data';
 import { createBlog, createComment, createPost, createUser } from '../common/tests-helpers';
 
 const createdPosts: Post[] = [];
@@ -46,7 +46,7 @@ export const testPostsApi = () =>
     });
 
     it('Create post. Incorrect body cases. Should return 400 and errorsMessages', async () => {
-      const firstRes = await request(app).post(router.posts).set(basicAuth).send();
+      const firstRes = await request(app).post(router.posts).set(bearerAuth).send();
 
       expect(firstRes.statusCode).toEqual(HTTP_STATUSES.BAD_REQUEST_400);
       expect(firstRes.body).toEqual(getErrorsMessages<ReqBodyPost>('title', 'shortDescription', 'content', 'blogId'));
@@ -54,7 +54,7 @@ export const testPostsApi = () =>
 
       const secondRes = await request(app)
         .post(router.posts)
-        .set(basicAuth)
+        .set(bearerAuth)
         .send({
           title: getOverMaxLength(30),
           shortDescription: getOverMaxLength(100),
@@ -66,7 +66,7 @@ export const testPostsApi = () =>
       expect(secondRes.body).toEqual(getErrorsMessages<ReqBodyPost>('title', 'shortDescription', 'content', 'blogId'));
       expect(secondRes.body.errorsMessages).toHaveLength(4);
 
-      const thirdRes = await request(app).post(router.posts).set(basicAuth).send({ title: 'valid', content: 'valid' });
+      const thirdRes = await request(app).post(router.posts).set(bearerAuth).send({ title: 'valid', content: 'valid' });
 
       expect(thirdRes.statusCode).toEqual(HTTP_STATUSES.BAD_REQUEST_400);
       expect(thirdRes.body).toEqual(getErrorsMessages<ReqBodyPost>('shortDescription', 'blogId'));
@@ -89,7 +89,7 @@ export const testPostsApi = () =>
       for (const post of validPosts.slice(1)) {
         const res = await request(app)
           .post(router.posts)
-          .set(basicAuth)
+          .set(bearerAuth)
           .send({ ...post, blogId: createdBlogs[0].id });
         createdPosts.push(res.body);
       }
@@ -152,7 +152,7 @@ export const testPostsApi = () =>
 
       await request(app)
         .put(`${router.posts}/${createdPosts[2].id}`)
-        .set(basicAuth)
+        .set(bearerAuth)
         .send(updateData)
         .expect(HTTP_STATUSES.NO_CONTENT_204);
 
@@ -164,7 +164,7 @@ export const testPostsApi = () =>
     it('Update post. Should return 404', async () => {
       await request(app)
         .put(`${router.posts}/fakePostId`)
-        .set(basicAuth)
+        .set(bearerAuth)
         .send({
           title: 'new title',
           content: 'update content',
@@ -175,7 +175,7 @@ export const testPostsApi = () =>
     });
 
     it('Update post. Incorrect body cases. Should return 400 and errorsMessages', async () => {
-      const firstRes = await request(app).put(`${router.posts}/${createdPosts[3].id}`).set(basicAuth).send();
+      const firstRes = await request(app).put(`${router.posts}/${createdPosts[3].id}`).set(bearerAuth).send();
 
       expect(firstRes.statusCode).toEqual(HTTP_STATUSES.BAD_REQUEST_400);
       expect(firstRes.body).toEqual(getErrorsMessages<ReqBodyPost>('title', 'shortDescription', 'content', 'blogId'));
@@ -183,7 +183,7 @@ export const testPostsApi = () =>
 
       const secondRes = await request(app)
         .put(`${router.posts}/${createdPosts[3].id}`)
-        .set(basicAuth)
+        .set(bearerAuth)
         .send({
           title: getOverMaxLength(30),
           shortDescription: getOverMaxLength(100),
@@ -197,7 +197,7 @@ export const testPostsApi = () =>
 
       const thirdRes = await request(app)
         .put(`${router.posts}/${createdPosts[3].id}`)
-        .set(basicAuth)
+        .set(bearerAuth)
         .send({ title: 'valid', content: 'valid' });
 
       expect(thirdRes.statusCode).toEqual(HTTP_STATUSES.BAD_REQUEST_400);
@@ -210,14 +210,14 @@ export const testPostsApi = () =>
     it('Delete post. Should delete post and return 204', async () => {
       await request(app)
         .delete(`${router.posts}/${createdPosts[4].id}`)
-        .set(basicAuth)
+        .set(bearerAuth)
         .expect(HTTP_STATUSES.NO_CONTENT_204);
 
       await request(app).get(`${router.posts}/${createdPosts[4].id}`).expect(HTTP_STATUSES.NOT_FOUND_404);
     });
 
     it('Delete post. Should return 404', async () => {
-      await request(app).delete(`${router.posts}/fakePostId`).set(basicAuth).expect(HTTP_STATUSES.NOT_FOUND_404);
+      await request(app).delete(`${router.posts}/fakePostId`).set(bearerAuth).expect(HTTP_STATUSES.NOT_FOUND_404);
     });
 
     const createdCommentsByPostId: Comment[] = [];

@@ -6,7 +6,7 @@ import { router } from '../../src/routers';
 import { Blog, ReqBodyBlog, ReqBodyPostByBlogId } from '../../src/modules/blogs/blog';
 import { Post } from '../../src/modules/posts/post';
 
-import { incorrectQuery, basicAuth, validBlogs, validPosts, bearerAuth } from '../common/data';
+import { incorrectQuery, validBlogs, validPosts, bearerAuth } from '../common/data';
 import {
   anyString,
   dateISORegEx,
@@ -209,13 +209,13 @@ export const testBlogsApi = () =>
     it('Create post by blogId. Should return 404', async () => {
       await request(app)
         .post(`${router.blogs}/fakeBlogId/posts`)
-        .set(basicAuth)
+        .set(bearerAuth)
         .send({ title: 'valid', shortDescription: 'valid', content: 'valid' })
         .expect(HTTP_STATUSES.NOT_FOUND_404);
     });
 
     it('Create post by blogId. Should return 400 and errorsMessages', async () => {
-      const firstRes = await request(app).post(`${router.blogs}/${createdBlogs[0].id}/posts`).set(basicAuth).send();
+      const firstRes = await request(app).post(`${router.blogs}/${createdBlogs[0].id}/posts`).set(bearerAuth).send();
 
       expect(firstRes.statusCode).toEqual(HTTP_STATUSES.BAD_REQUEST_400);
       expect(firstRes.body).toEqual(getErrorsMessages<ReqBodyPostByBlogId>('title', 'shortDescription', 'content'));
@@ -223,7 +223,7 @@ export const testBlogsApi = () =>
 
       const secondRes = await request(app)
         .post(`${router.blogs}/${createdBlogs[0].id}/posts`)
-        .set(basicAuth)
+        .set(bearerAuth)
         .send({
           title: getOverMaxLength(30),
           shortDescription: getOverMaxLength(100),
@@ -236,7 +236,7 @@ export const testBlogsApi = () =>
 
       const thirdRes = await request(app)
         .post(`${router.blogs}/${createdBlogs[0].id}/posts`)
-        .set(basicAuth)
+        .set(bearerAuth)
         .send({ title: 'valid', shortDescription: '' });
 
       expect(thirdRes.statusCode).toEqual(HTTP_STATUSES.BAD_REQUEST_400);
@@ -250,7 +250,7 @@ export const testBlogsApi = () =>
 
     it('Create post by blogId. Should return 201 and new post', async () => {
       const post = validPosts[0];
-      const res = await request(app).post(`${router.blogs}/${createdBlogs[0].id}/posts`).set(basicAuth).send(post);
+      const res = await request(app).post(`${router.blogs}/${createdBlogs[0].id}/posts`).set(bearerAuth).send(post);
 
       createdPostByBlogId = res.body;
 

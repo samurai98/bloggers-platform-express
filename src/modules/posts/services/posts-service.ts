@@ -6,8 +6,9 @@ import { getPagesCount, getSkipCount } from '../../../common/helpers/pagination'
 import { Pagination, Query } from '../../../common/types/common';
 import { blogsQueryRepository } from '../../blogs/repositories';
 import { Blog } from '../../blogs/blog';
-import { commentsService, commentsStory } from '../../comments/services';
+import { commentsService } from '../../comments/services/comments-service';
 import { Comment } from '../../comments/comment';
+import { User } from '../../users/user';
 
 import { postsQueryRepository } from '../repositories';
 import { getNewestLikes } from './helpers';
@@ -57,8 +58,9 @@ export const postsService = {
       createdAt: currentDate,
       reactions: [],
     };
+    const createdPost = await postsCommandRepository.createPost(newPost);
 
-    return postMapper(await postsCommandRepository.createPost(newPost), currentUserId, []);
+    return postMapper(createdPost, currentUserId, []);
   },
 
   async updatePost(id: string, post: ReqBodyPost): Promise<boolean> {
@@ -76,12 +78,12 @@ export const postsService = {
   ): Promise<Pagination<Comment> | null> {
     if (!postId || !(await this.getPostById(postId, undefined))) return null;
 
-    return (await commentsStory.getComments({ ...query, postId }, userId)) as any;
+    return await commentsService.getComments({ ...query, postId }, userId);
   },
 
-  async createCommentByPostId(postId: string, userId: string, body: ReqBodyCommentByPostId): Promise<Comment | null> {
+  async createCommentByPostId(postId: string, user: User, body: ReqBodyCommentByPostId): Promise<Comment | null> {
     if (!postId || !(await postsService.getPostById(postId, undefined))) return null;
 
-    return await commentsService.createComment({ ...body, postId, userId });
+    return await commentsService.createComment({ ...body, postId }, user);
   },
 };

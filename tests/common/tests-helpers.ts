@@ -69,7 +69,7 @@ export const createBlog = async () => {
 export const createPost = async (createdBlog: Blog, validPostIndex = 0) => {
   const newPost = { ...validPosts[validPostIndex], blogId: createdBlog.id };
 
-  const res = await request(app).post(router.posts).set(basicAuth).send(newPost);
+  const res = await request(app).post(router.posts).set(bearerAuth).send(newPost);
 
   const createdPost: Post = res.body;
 

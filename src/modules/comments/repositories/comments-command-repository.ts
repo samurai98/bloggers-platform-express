@@ -1,15 +1,15 @@
 import { CommentModel } from '../../../common/db';
 
-import { CommentDB, ReqBodyComment } from '../comment';
+import { CommentDB } from '../comment';
 
-export const commentsRepository = {
+export const commentsCommandRepository = {
   async createComment(comment: CommentDB): Promise<CommentDB> {
     await CommentModel.insertMany(comment);
 
     return comment;
   },
 
-  async updateComment(id: string, comment: ReqBodyComment): Promise<boolean> {
+  async updateComment(id: string, comment: Partial<CommentDB>): Promise<boolean> {
     const result = await CommentModel.updateOne({ id }, { $set: comment });
 
     return result.matchedCount === 1;

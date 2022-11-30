@@ -5,7 +5,7 @@ import { HTTP_STATUSES } from '../../../common/http-statuses';
 import { checkBearerAuth, inputValidation } from '../../../middlewares';
 import { getErrorText, ERROR_TYPE } from '../../../common/messages';
 
-import { commentsStory } from '../services';
+import { commentsService } from '../services/comments-service';
 
 const contentValidation = body('content')
   .trim()
@@ -15,7 +15,7 @@ const contentValidation = body('content')
 
 const checkUserRights = async (req: Request, res: Response, next: NextFunction) => {
   const currentUserId = req.requestContext.user?.id;
-  const comment = await commentsStory.getCommentById(req.params.commentId, currentUserId);
+  const comment = await commentsService.getCommentById(req.params.commentId, currentUserId);
 
   if (!comment) {
     res.sendStatus(HTTP_STATUSES.NOT_FOUND_404);
