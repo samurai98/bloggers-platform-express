@@ -4,7 +4,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { getCurrentDateISO } from '../../../common/helpers/utils';
 import { getPagesCount, getSkipCount } from '../../../common/helpers/pagination';
 import { Pagination, Query } from '../../../common/types/common';
-import { blogsQueryRepository } from '../../blogs/repositories';
+import { blogsService } from '../../blogs/services/blogs-service';
 import { Blog } from '../../blogs/blog';
 import { commentsService } from '../../comments/services/comments-service';
 import { Comment } from '../../comments/comment';
@@ -45,7 +45,7 @@ export const postsService = {
   },
 
   async createPost({ title, shortDescription, content, blogId }: ReqBodyPost, currentUserId?: string): Promise<Post> {
-    const { name: blogName } = (await blogsQueryRepository.findBlogById(blogId)) as Blog;
+    const { name: blogName } = (await blogsService.getBlogById(blogId)) as Blog;
 
     const currentDate = getCurrentDateISO();
     const newPost: PostDB = {

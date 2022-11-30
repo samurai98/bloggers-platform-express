@@ -6,8 +6,8 @@ import { router } from '../../src/routers';
 import { ReqBodyUser, User } from '../../src/modules/users/user';
 import { jwtService } from '../../src/common/services/jwt-service';
 import { authPath } from '../../src/modules/auth/routes/auth-router';
-import { usersService } from '../../src/modules/users/services/users-service';
 import { ReqBodyAuth, ReqBodyConfirm, ReqBodyNewPassword, ReqBodyResending } from '../../src/modules/auth/auth';
+import { UserModel } from '../../src/common/db';
 
 import { bearerAuth, validUsers } from '../common/data';
 import { anyString, dateISORegEx, getErrorsMessages, setBearerAuth } from '../common/helpers';
@@ -61,9 +61,24 @@ export const testAuthApi = () =>
       await request(app)
         .post(`${router.auth}${authPath.registration}`)
         .send(validUsers[0])
-        .expect(HTTP_STATUSES.NO_CONTENT_204);
+        .expect(HTTP_STATUSES.CREATED_201);
 
-      const userDB = await usersService.getUserByLoginOrEmail(validUsers[0].email);
+      const userDB = await UserModel.findOne(
+        { 'accountData.email': validUsers[0].email },
+        { __v: false, _id: false }
+      ).lean();
+
+      expect(userDB).toEqual({
+        accountData: {
+          id: anyString,
+          email: validUsers[0].email,
+          login: validUsers[0].login,
+          createdAt: dateISORegEx,
+          passHash: anyString,
+          passSalt: anyString,
+        },
+        emailConfirmation: { confirmationCode: anyString, expirationDate: expect.any(Date), isConfirmed: false },
+      });
 
       await request(app)
         .post(`${router.auth}${authPath.confirmRegistration}`)
@@ -190,7 +205,7 @@ export const testAuthApi = () =>
       await request(app)
         .post(`${router.auth}${authPath.registration}`)
         .send(validUsers[1])
-        .expect(HTTP_STATUSES.NO_CONTENT_204);
+        .expect(HTTP_STATUSES.CREATED_201);
 
       await request(app)
         .post(`${router.auth}${authPath.resendingEmail}`)
@@ -238,11 +253,11 @@ export const testAuthApi = () =>
         .send({ email: 'fakeusermail@gm.ru' })
         .expect(HTTP_STATUSES.NO_CONTENT_204);
 
-      const user = await usersService.getUserByLoginOrEmail(createdUser.email);
+      const userDB = await UserModel.findOne({ 'accountData.email': validUsers[0].email }).lean();
 
-      passwordRecoveryCode = user?.passwordRecovery?.recoveryCode as string;
+      passwordRecoveryCode = userDB?.passwordRecovery?.recoveryCode as string;
 
-      expect(user?.passwordRecovery?.expirationDate.toISOString()).toEqual(dateISORegEx);
+      expect(userDB?.passwordRecovery?.expirationDate.toISOString()).toEqual(dateISORegEx);
       expect(passwordRecoveryCode).toEqual(anyString);
     });
 
@@ -268,9 +283,9 @@ export const testAuthApi = () =>
         .send({ newPassword, recoveryCode: passwordRecoveryCode })
         .expect(HTTP_STATUSES.NO_CONTENT_204);
 
-      const user = await usersService.getUserByLoginOrEmail(createdUser.email);
+      const userDB = await UserModel.findOne({ 'accountData.email': validUsers[0].email }).lean();
 
-      expect(user?.passwordRecovery).toEqual(undefined);
+      expect(userDB?.passwordRecovery).toEqual(undefined);
 
       await request(app)
         .post(`${router.auth}${authPath.login}`)

@@ -49,7 +49,7 @@ authRouter.post(
   async (req: Request<{}, {}, ReqBodyUser>, res: Response<ResType>) => {
     const user = await usersService.createUser(req.body);
 
-    if (user) res.sendStatus(HTTP_STATUSES.NO_CONTENT_204);
+    if (user) res.sendStatus(HTTP_STATUSES.CREATED_201);
     else res.sendStatus(HTTP_STATUSES.BAD_REQUEST_400);
   }
 );

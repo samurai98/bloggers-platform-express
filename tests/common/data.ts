@@ -3,8 +3,6 @@ import { ReqBodyComment } from '../../src/modules/comments/comment';
 import { ReqBodyPost } from '../../src/modules/posts/post';
 import { ReqBodyUser } from '../../src/modules/users/user';
 
-export const basicAuth = { Authorization: 'Basic YWRtaW46cXdlcnR5' };
-
 export const bearerAuth = {} as { Authorization: string; Cookie: string };
 
 export const incorrectQuery = {

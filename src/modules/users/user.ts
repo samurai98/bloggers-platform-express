@@ -26,5 +26,3 @@ export type ParamUser = { id: User['id'] };
 export type ReqQueryUser = Query & { searchLoginTerm?: string; searchEmailTerm?: string };
 
 export type ResUsers = ResType<Pagination<User>>;
-
-export type ResUser = ResType<User>;

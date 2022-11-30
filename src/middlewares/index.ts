@@ -1,4 +1,3 @@
-export { checkBasicAuth } from './check-basic-auth';
 export { checkBearerAuth, setUserToContextByAccessToken } from './check-bearer-auth';
 export { checkRefreshSession } from './check-refresh-session';
 export { inputValidation } from './input-validation';

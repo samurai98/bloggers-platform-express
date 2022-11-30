@@ -4,7 +4,7 @@ import { body } from 'express-validator';
 import { checkBearerAuth, getQueryValidation, inputValidation } from '../../../middlewares';
 import { getErrorText, ERROR_TYPE } from '../../../common/messages';
 
-import { blogsQueryRepository } from '../../blogs/repositories';
+import { blogsService } from '../../blogs/services/blogs-service';
 
 const titleValidation = body('title')
   .trim()
@@ -25,7 +25,7 @@ const contentValidation = body('content')
   .withMessage(getErrorText(ERROR_TYPE.length, 'content', { max: 1000 }));
 
 const blogIdValidation = async (req: Request, res: Response, next: NextFunction) => {
-  const blog = await blogsQueryRepository.findBlogById(req.body.blogId?.trim());
+  const blog = await blogsService.getBlogById(req.body.blogId?.trim());
 
   if (!blog) req.requestContext.validationErrors.blogId = getErrorText(ERROR_TYPE.incorrect, 'blogId');
 

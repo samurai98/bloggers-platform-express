@@ -1,10 +1,4 @@
-import { checkBasicAuth, getQueryValidation, inputValidation } from '../../../middlewares';
-import {
-  emailValidation,
-  loginValidation,
-  passwordValidation,
-  uniqueLoginAndEmailValidation,
-} from '../../auth/routes/validation';
+import { checkBearerAuth, getQueryValidation } from '../../../middlewares';
 
 export const usersQueryValidation = getQueryValidation(query => {
   const { searchEmailTerm, searchLoginTerm } = query;
@@ -13,13 +7,4 @@ export const usersQueryValidation = getQueryValidation(query => {
   query.searchLoginTerm = typeof searchLoginTerm === 'string' ? searchLoginTerm : '';
 });
 
-export const userValidation = [
-  checkBasicAuth,
-  loginValidation,
-  emailValidation,
-  passwordValidation('password'),
-  uniqueLoginAndEmailValidation,
-  inputValidation,
-];
-
-export { checkBasicAuth };
+export { checkBearerAuth };

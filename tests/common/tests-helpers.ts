@@ -8,9 +8,9 @@ import { User } from '../../src/modules/users/user';
 import { Post } from '../../src/modules/posts/post';
 import { Comment } from '../../src/modules/comments/comment';
 import { authPath } from '../../src/modules/auth/routes/auth-router';
-import { usersService } from '../../src/modules/users/services/users-service';
+import { UserModel } from '../../src/common/db';
 
-import { basicAuth, bearerAuth, validBlogs, validComments, validPosts, validUsers } from './data';
+import { bearerAuth, validBlogs, validComments, validPosts, validUsers } from './data';
 import { anyString, dateISORegEx, setBearerAuth } from './helpers';
 
 export const loginUser = async (loginOrEmail: string) => {
@@ -30,21 +30,29 @@ export const loginUser = async (loginOrEmail: string) => {
 };
 
 export const createUser = async ({ isLogin = false, validUserIndex = 0 }) => {
-  const res = await request(app).post(router.users).set(basicAuth).send(validUsers[validUserIndex]);
+  const res = await request(app).post(`${router.auth}${authPath.registration}`).send(validUsers[validUserIndex]);
 
   expect(res.statusCode).toEqual(HTTP_STATUSES.CREATED_201);
-  expect(res.body).toEqual({
-    ...validUsers[validUserIndex],
-    password: undefined,
+
+  const userDB = await UserModel.findOne({ 'accountData.email': validUsers[validUserIndex].email }).lean();
+
+  expect(userDB?.accountData).toEqual({
     id: anyString,
+    email: validUsers[validUserIndex].email,
+    login: validUsers[validUserIndex].login,
     createdAt: dateISORegEx,
+    passHash: anyString,
+    passSalt: anyString,
   });
 
-  const createdUser: User = { ...res.body };
+  const createdUser = {
+    id: userDB?.accountData.id,
+    email: userDB?.accountData.email,
+    login: userDB?.accountData.login,
+    createdAt: userDB?.accountData.createdAt,
+  } as User;
 
   // Conformation user
-  const userDB = await usersService.getUserByLoginOrEmail(createdUser.email);
-
   await request(app)
     .post(`${router.auth}${authPath.confirmRegistration}`)
     .send({ code: userDB?.emailConfirmation.confirmationCode })
