@@ -4,20 +4,15 @@ import { v4 as uuidv4 } from 'uuid';
 import { generateHash } from '../../../common/helpers/utils';
 import { jwtService } from '../../../common/services/jwt-service';
 import { SETTINGS } from '../../../settings/config';
-import { UserDB, UserEmailConfirmation, PasswordRecovery } from '../../users/user';
+import { UserDB, PasswordRecovery } from '../../users/user';
 import { usersService } from '../../users/services/users-service';
 
-import { emailsManager } from '../../../common/emails/emails-manager';
-import { LoginUserData, RefreshSession, ResLoginWithCookie } from '../auth';
-import { sessionsService } from './sessions-service';
-
-//@ts-ignore | Need that not send message on tests mails
-import { validUsers } from '../../../../tests/common/data';
+import { LoginUserData, ResLoginWithCookie } from '../auth';
+import { sessionsService, emailsService } from '.';
 
 const accessTokenLifeTime = `${SETTINGS.ACCESS_TOKEN_LIFE_TIME_SECONDS}s`;
 const refreshTokenLifeTime: Duration = { hours: Number(SETTINGS.REFRESH_TOKEN_LIFE_TIME_HOURS) };
 const refreshTokenLifeTimeString = `${SETTINGS.REFRESH_TOKEN_LIFE_TIME_HOURS}h`;
-const confirmEmailCodeLifeTime: Duration = { hours: 1 };
 const recoveryCodeLifeTime: Duration = { hours: 1 };
 
 export const authService = {
@@ -40,72 +35,16 @@ export const authService = {
   }): Promise<ResLoginWithCookie | false> {
     if (!refreshToken) return false;
 
-    const oldRefreshSession = await sessionsService.getByRefreshToken(refreshToken);
+    const oldRefreshSession = await sessionsService.getSessionByRefreshToken(refreshToken);
     const isVerify = !!oldRefreshSession && (await sessionsService.verifyRefreshSession(oldRefreshSession, ip));
 
     await sessionsService.deleteSession(refreshToken);
 
     if (!oldRefreshSession || !isVerify) return false;
 
-    return await this._createNewRefreshSession({
-      userId: oldRefreshSession.userId,
-      currentDeviceId: oldRefreshSession.deviceId,
-      ip,
-      ua,
-    });
-  },
+    const { userId, deviceId } = oldRefreshSession;
 
-  async sendConfirmEmail(user: UserDB): Promise<boolean> {
-    const testingEmails = validUsers.map(user => user.email);
-
-    if (testingEmails.includes(user.accountData.email)) return true;
-
-    try {
-      await emailsManager.sendEmailConfirmationMessage(user);
-    } catch (error) {
-      console.error(error);
-      return false;
-    }
-
-    return true;
-  },
-
-  async confirmEmail(code: string): Promise<boolean> {
-    const user = await usersService.getUserByConfirmationCode(code);
-
-    if (
-      !user ||
-      user.emailConfirmation.confirmationCode !== code ||
-      user.emailConfirmation.isConfirmed ||
-      user.emailConfirmation.expirationDate < new Date()
-    )
-      return false;
-
-    return await usersService.confirmEmail(user.accountData.id);
-  },
-
-  async resendingEmail(email: string): Promise<boolean> {
-    const user = await usersService.getUserByLoginOrEmail(email);
-
-    if (!user || user.emailConfirmation.isConfirmed) return false;
-
-    const updatedUser = await this.updateEmailConfirmation(user);
-    const isSend = updatedUser && (await this.sendConfirmEmail(updatedUser));
-
-    return Boolean(isSend);
-  },
-
-  async updateEmailConfirmation(user: UserDB): Promise<UserDB | null> {
-    const newConfirmationData: Partial<UserEmailConfirmation> = {
-      confirmationCode: uuidv4(),
-      expirationDate: add(new Date(), confirmEmailCodeLifeTime),
-    };
-
-    const isUpdated = usersService.updateEmailConfirmationData(user.accountData.id, newConfirmationData);
-
-    if (!isUpdated) return null;
-
-    return usersService.getUserByLoginOrEmail(user.accountData.email);
+    return await this._createNewRefreshSession({ userId, currentDeviceId: deviceId, ip, ua });
   },
 
   async logout(refreshToken: string): Promise<boolean> {
@@ -128,17 +67,7 @@ export const authService = {
 
     if (!isUpdated) return false;
 
-    const testingEmails = validUsers.map(user => user.email);
-    if (testingEmails.includes(user.accountData.email)) return true;
-
-    try {
-      await emailsManager.sendEmailPasswordRecovery({ ...user, passwordRecovery: recoveryData });
-    } catch (error) {
-      console.error(error);
-      return false;
-    }
-
-    return true;
+    return await emailsService.sendPasswordRecovery(user, recoveryData);
   },
 
   async setNewPassword(recoveryCode: string, newPassword: string): Promise<boolean> {
@@ -184,7 +113,7 @@ export const authService = {
     const deviceId = currentDeviceId || uuidv4();
     const refreshToken = await jwtService.createJWT({ userId, deviceId }, refreshTokenLifeTimeString);
 
-    const newRefreshSession: RefreshSession = {
+    await sessionsService.addRefreshSession({
       ip,
       userId,
       issuedAt: new Date().getTime(),
@@ -192,9 +121,7 @@ export const authService = {
       deviceId,
       deviceName: ua || 'User-Agent not defined',
       refreshToken,
-    };
-
-    await sessionsService.addRefreshSession(newRefreshSession);
+    });
 
     const accessToken = await jwtService.createJWT({ userId }, accessTokenLifeTime);
 
@@ -202,13 +129,12 @@ export const authService = {
       accessToken,
       cookie: {
         name: 'refreshToken',
-        value: newRefreshSession.refreshToken,
+        value: refreshToken,
         options: {
-          path: "/auth",
+          path: '/auth',
           maxAge: refreshTokenExpiresInSeconds,
           httpOnly: true,
-          // TODO: use cookie-parser middleware for use signed cookies
-          // signed: true,
+          signed: true,
           secure: SETTINGS.IS_RUN_TEST || !SETTINGS.IS_LOCAL_VERSION,
           sameSite: true,
         },

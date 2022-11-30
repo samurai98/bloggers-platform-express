@@ -16,7 +16,7 @@ export type ResLogin = ResType<{ accessToken: string }>;
 
 export type ResMe = { userId: string; login: string; email: string };
 
-export type RefreshSession = {
+export type RefreshSessionDB = {
   refreshToken: string;
   issuedAt: number;
   expiresIn: number;

@@ -5,7 +5,7 @@ import { add } from 'date-fns';
 
 import { generateHash, getCurrentDateISO } from '../../../common/helpers/utils';
 import { SETTINGS } from '../../../settings/config';
-import { authService } from '../../auth/services/auth-service';
+import { emailsService } from '../../auth/services';
 import { Pagination } from '../../../common/types/common';
 import { getPagesCount, getSkipCount } from '../../../common/helpers/pagination';
 
@@ -57,7 +57,7 @@ export const usersService = {
       },
     };
 
-    const isSend = await authService.sendConfirmEmail(newUser);
+    const isSend = await emailsService.sendConfirmEmail(newUser);
 
     if (isSend) return userMapper(await usersCommandRepository.createUser(newUser));
 

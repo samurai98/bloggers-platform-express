@@ -4,7 +4,7 @@ import { checkRefreshSession } from '../../../middlewares';
 import { HTTP_STATUSES } from '../../../common/http-statuses';
 import { ResType } from '../../../common/types/common';
 
-import { sessionsService } from '../services/sessions-service';
+import { sessionsService } from '../services';
 import { ParamDevice, ResDevices } from '../auth';
 import { deleteDeviceValidation } from './validation';
 
@@ -19,7 +19,7 @@ securityDevicesRouter.get('/', checkRefreshSession, async (req: Request, res: Re
 
 securityDevicesRouter.delete('/', checkRefreshSession, async (req: Request, res: Response<ResType>) => {
   const isDeleted = await sessionsService.deleteAllSessionsExcludeCurrent(
-    req.cookies?.refreshToken,
+    req.signedCookies?.refreshToken,
     req.requestContext.user?.id
   );
 

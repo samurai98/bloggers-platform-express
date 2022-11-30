@@ -5,7 +5,7 @@ import { blogsCommandRepository } from '../../modules/blogs/repositories';
 import { postsCommandRepository } from '../../modules/posts/repositories';
 import { usersCommandRepository } from '../../modules/users/repositories';
 import { commentsCommandRepository } from '../../modules/comments/repositories';
-import { sessionRepository } from '../../modules/auth/repositories/session-repository';
+import { sessionsCommandRepository } from '../../modules/auth/repositories';
 
 export const deleteAllRouter = Router({});
 
@@ -14,7 +14,7 @@ deleteAllRouter.delete('/', async (req: Request, res: Response) => {
   await blogsCommandRepository.deleteAll();
   await usersCommandRepository.deleteAll();
   await commentsCommandRepository.deleteAll();
-  await sessionRepository.deleteAll();
+  await sessionsCommandRepository.deleteAll();
 
   res.sendStatus(HTTP_STATUSES.NO_CONTENT_204);
 });

@@ -8,7 +8,7 @@ import { getErrorText, ERROR_TYPE } from '../../../common/messages';
 
 import { ReqBodyUser, User } from '../../users/user';
 import { usersService } from '../../users/services/users-service';
-import { authService } from '../services/auth-service';
+import { authService, emailsService } from '../services';
 import { ReqBodyConfirm, ReqBodyResending, ResLogin, ResMe, ReqBodyAuth, ReqBodyNewPassword } from '../auth';
 import {
   authValidation,
@@ -56,7 +56,7 @@ authRouter.post(
 
 authRouter.post(authPath.refreshToken, async (req: Request, res: Response<ResLogin>) => {
   const result = await authService.updateRefreshToken({
-    refreshToken: req.cookies?.refreshToken,
+    refreshToken: req.signedCookies?.refreshToken,
     ip: req.ip,
     ua: req.headers['user-agent'],
   });
@@ -72,7 +72,7 @@ authRouter.post(
   authPath.confirmRegistration,
   confirmationValidation,
   async (req: Request<{}, {}, ReqBodyConfirm>, res: Response<ResErrorsMessages>) => {
-    const result = await authService.confirmEmail(req.body.code);
+    const result = await emailsService.confirmEmail(req.body.code);
 
     if (result) res.sendStatus(HTTP_STATUSES.NO_CONTENT_204);
     else
@@ -86,7 +86,7 @@ authRouter.post(
   authPath.resendingEmail,
   resendingValidation,
   async (req: Request<{}, {}, ReqBodyResending>, res: Response<ResErrorsMessages>) => {
-    const isResending = await authService.resendingEmail(req.body.email);
+    const isResending = await emailsService.resendingEmail(req.body.email);
 
     if (isResending) res.sendStatus(HTTP_STATUSES.NO_CONTENT_204);
     else
@@ -97,7 +97,7 @@ authRouter.post(
 );
 
 authRouter.post(authPath.logout, async (req: Request, res: Response<ResLogin>) => {
-  const isLogout = await authService.logout(req.cookies?.refreshToken);
+  const isLogout = await authService.logout(req.signedCookies?.refreshToken);
 
   if (isLogout) res.sendStatus(HTTP_STATUSES.NO_CONTENT_204);
   else res.sendStatus(HTTP_STATUSES.UNAUTHORIZED_401);
@@ -126,12 +126,10 @@ authRouter.post(
 
     if (result) res.sendStatus(HTTP_STATUSES.NO_CONTENT_204);
     else
-      res
-        .status(HTTP_STATUSES.BAD_REQUEST_400)
-        .send(
-          getErrorsMessages<ReqBodyNewPassword>({
-            recoveryCode: getErrorText(ERROR_TYPE.incorrect, 'recoveryCode'),
-          } as ReqBodyNewPassword)
-        );
+      res.status(HTTP_STATUSES.BAD_REQUEST_400).send(
+        getErrorsMessages<ReqBodyNewPassword>({
+          recoveryCode: getErrorText(ERROR_TYPE.incorrect, 'recoveryCode'),
+        } as ReqBodyNewPassword)
+      );
   }
 );

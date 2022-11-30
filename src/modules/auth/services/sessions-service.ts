@@ -1,46 +1,42 @@
-import { sessionRepository } from '../repositories/session-repository';
-import { Device, RefreshSession } from '../auth';
+import { sessionsCommandRepository, sessionsQueryRepository } from '../repositories';
+import { Device, RefreshSessionDB } from '../auth';
+import { sessionToDeviceMapper } from './sessions-mapper';
 
 const MAX_REFRESH_SESSIONS_COUNT = 5;
 
 export const sessionsService = {
-  async getByRefreshToken(token: string): Promise<RefreshSession | null> {
-    return await sessionRepository.getSession({ refreshToken: token });
+  async getSessionByRefreshToken(token: string): Promise<RefreshSessionDB | null> {
+    return await sessionsQueryRepository.findSession({ refreshToken: token });
   },
 
-  async getActiveSessions(userId: string | undefined): Promise<Device[] | false> {
-    if (!userId) return false;
+  async getActiveSessions(userId: string | undefined): Promise<Device[] | null> {
+    if (!userId) return null;
 
-    const sessions = await sessionRepository.getSessions({ userId });
+    const sessions = await sessionsQueryRepository.findSessions({ userId });
 
-    return sessions.map(session => ({
-      ip: session.ip,
-      deviceId: session.deviceId,
-      title: session.deviceName,
-      lastActiveDate: new Date(session.issuedAt).toISOString(),
-    }));
+    return sessions.map(session => sessionToDeviceMapper(session));
   },
 
-  async getSessionByDeviceId(deviceId: string): Promise<RefreshSession | null> {
-    return await sessionRepository.getSession({ deviceId });
+  async getSessionByDeviceId(deviceId: string): Promise<RefreshSessionDB | null> {
+    return await sessionsQueryRepository.findSession({ deviceId });
   },
 
-  async addRefreshSession(refreshSession: RefreshSession): Promise<boolean> {
+  async addRefreshSession(refreshSession: RefreshSessionDB): Promise<boolean> {
     if (!(await this._isValidSessionsCount(refreshSession.userId))) {
       await this._deleteAllUserRefreshSessions(refreshSession.userId);
     }
 
-    await sessionRepository.addSession(refreshSession);
+    await sessionsCommandRepository.createSession(refreshSession);
 
     return true;
   },
 
   async deleteSession(refreshToken: string): Promise<boolean> {
-    return await sessionRepository.removeOneWhere({ refreshToken });
+    return await sessionsCommandRepository.deleteOneWhere({ refreshToken });
   },
 
   async deleteSessionByDeviceId(deviceId: string): Promise<boolean> {
-    return await sessionRepository.removeOneWhere({ deviceId });
+    return await sessionsCommandRepository.deleteOneWhere({ deviceId });
   },
 
   async deleteAllSessionsExcludeCurrent(
@@ -49,12 +45,12 @@ export const sessionsService = {
   ): Promise<boolean> {
     if (!refreshToken || !userId) return false;
 
-    return await sessionRepository.removeAllWhere({
+    return await sessionsCommandRepository.deleteAllWhere({
       $and: [{ userId }, { refreshToken: { $ne: refreshToken } }],
     });
   },
 
-  async verifyRefreshSession(oldSession: RefreshSession, newIp: string): Promise<boolean> {
+  async verifyRefreshSession(oldSession: RefreshSessionDB, newIp: string): Promise<boolean> {
     const nowTime = new Date().getTime();
 
     if (nowTime > oldSession.expiresIn) return false;
@@ -65,15 +61,13 @@ export const sessionsService = {
     return true;
   },
 
-  async _isValidSessionsCount(userId: string) {
-    const existingSessionsCount = await sessionRepository.getCountSessions({
-      userId,
-    });
+  async _isValidSessionsCount(userId: string): Promise<boolean> {
+    const existingSessionsCount = await sessionsQueryRepository.countTotalSessions({ userId });
 
     return existingSessionsCount < MAX_REFRESH_SESSIONS_COUNT;
   },
 
-  async _deleteAllUserRefreshSessions(userId: string) {
-    return await sessionRepository.removeAllWhere({ userId });
+  async _deleteAllUserRefreshSessions(userId: string): Promise<boolean> {
+    return await sessionsCommandRepository.deleteAllWhere({ userId });
   },
 };

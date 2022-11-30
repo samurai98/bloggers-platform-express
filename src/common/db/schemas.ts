@@ -4,7 +4,7 @@ import { BlogDB } from '../../modules/blogs/blog';
 import { PostDB } from '../../modules/posts/post';
 import { CommentDB } from '../../modules/comments/comment';
 import { UserDB } from '../../modules/users/user';
-import { RefreshSession } from '../../modules/auth/auth';
+import { RefreshSessionDB } from '../../modules/auth/auth';
 
 const reaction = {
   userId: { type: String, required: true },
@@ -58,7 +58,7 @@ export const usersSchema = new mongoose.Schema<UserDB>({
   passwordRecovery: { recoveryCode: String, expirationDate: Date },
 });
 
-export const sessionsSchema = new mongoose.Schema<RefreshSession>({
+export const sessionsSchema = new mongoose.Schema<RefreshSessionDB>({
   refreshToken: { type: String, required: true },
   issuedAt: { type: Number, required: true },
   expiresIn: { type: Number, required: true },

@@ -6,7 +6,7 @@ import { checkRefreshSession, inputValidation, checkRequestsCount } from '../../
 import { usersService } from '../../users/services/users-service';
 import { getErrorText, ERROR_TYPE } from '../../../common/messages';
 
-import { sessionsService } from '../services/sessions-service';
+import { sessionsService } from '../services';
 
 export const loginValidation = body('login')
   .trim()
