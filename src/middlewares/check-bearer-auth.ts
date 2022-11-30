@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 
 import { HTTP_STATUSES } from '../common/http-statuses';
 import { jwtService } from '../common/services/jwt-service';
-import { usersQueryRepository } from '../modules/users/repositories';
+import { usersService } from '../modules/users/services/users-service';
 import { User } from '../modules/users/user';
 
 export const checkBearerAuth = async (req: Request, res: Response, next: NextFunction) => {
@@ -20,7 +20,7 @@ export const checkBearerAuth = async (req: Request, res: Response, next: NextFun
   }
 
   if (req.requestContext.user?.id !== userId)
-    req.requestContext.user = (await usersQueryRepository.findUserById(userId)) as User;
+    req.requestContext.user = (await usersService.getUserById(userId)) as User;
 
   next();
 };
@@ -30,7 +30,7 @@ export const setUserToContextByAccessToken = async (req: Request, res: Response,
   const userId = token ? await jwtService.getUserIdByToken(token) : null;
 
   if (userId && req.requestContext.user?.id !== userId)
-    req.requestContext.user = (await usersQueryRepository.findUserById(userId)) as User;
+    req.requestContext.user = (await usersService.getUserById(userId)) as User;
 
   next();
 };

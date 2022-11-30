@@ -3,7 +3,7 @@ import { body } from 'express-validator';
 
 import { HTTP_STATUSES } from '../../../common/http-statuses';
 import { checkRefreshSession, inputValidation, checkRequestsCount } from '../../../middlewares';
-import { usersQueryRepository } from '../../users/repositories';
+import { usersService } from '../../users/services/users-service';
 import { getErrorText, ERROR_TYPE } from '../../../common/messages';
 
 import { sessionsService } from '../services/sessions-service';
@@ -33,7 +33,7 @@ export const uniqueLoginAndEmailValidation = async (req: Request, res: Response,
 
   if (!login && !email) return next();
 
-  const user = await usersQueryRepository.findUserByLoginAndEmail(login, email);
+  const user = await usersService.getUserByLoginAndEmail(login, email);
 
   if (user?.login === login) req.requestContext.validationErrors.login = getErrorText(ERROR_TYPE.taken, 'login');
 

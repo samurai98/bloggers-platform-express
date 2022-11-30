@@ -6,7 +6,6 @@ import { jwtService } from '../../../common/services/jwt-service';
 import { SETTINGS } from '../../../settings/config';
 import { UserDB, UserEmailConfirmation, PasswordRecovery } from '../../users/user';
 import { usersService } from '../../users/services/users-service';
-import { usersQueryRepository, usersRepository } from '../../users/repositories';
 
 import { emailsManager } from '../../../common/emails/emails-manager';
 import { LoginUserData, RefreshSession, ResLoginWithCookie } from '../auth';
@@ -72,7 +71,7 @@ export const authService = {
   },
 
   async confirmEmail(code: string): Promise<boolean> {
-    const user = await usersQueryRepository.findUserByConfirmationCode(code);
+    const user = await usersService.getUserByConfirmationCode(code);
 
     if (
       !user ||
@@ -82,11 +81,11 @@ export const authService = {
     )
       return false;
 
-    return await usersRepository.confirmEmail(user.accountData.id);
+    return await usersService.confirmEmail(user.accountData.id);
   },
 
   async resendingEmail(email: string): Promise<boolean> {
-    const user = await usersQueryRepository.findUserByLoginOrEmail(email);
+    const user = await usersService.getUserByLoginOrEmail(email);
 
     if (!user || user.emailConfirmation.isConfirmed) return false;
 
@@ -102,11 +101,11 @@ export const authService = {
       expirationDate: add(new Date(), confirmEmailCodeLifeTime),
     };
 
-    const isUpdated = usersRepository.updateEmailConfirmationData(user.accountData.id, newConfirmationData);
+    const isUpdated = usersService.updateEmailConfirmationData(user.accountData.id, newConfirmationData);
 
     if (!isUpdated) return null;
 
-    return usersQueryRepository.findUserByLoginOrEmail(user.accountData.email);
+    return usersService.getUserByLoginOrEmail(user.accountData.email);
   },
 
   async logout(refreshToken: string): Promise<boolean> {
@@ -116,7 +115,7 @@ export const authService = {
   },
 
   async passwordRecovery(email: string): Promise<boolean> {
-    const user = await usersQueryRepository.findUserByLoginOrEmail(email);
+    const user = await usersService.getUserByLoginOrEmail(email);
 
     if (!user) return false;
 
@@ -125,7 +124,7 @@ export const authService = {
       expirationDate: add(new Date(), recoveryCodeLifeTime),
     };
 
-    const isUpdated = await usersRepository.updatePasswordRecoveryData(user.accountData.id, recoveryData);
+    const isUpdated = await usersService.updatePasswordRecoveryData(user.accountData.id, recoveryData);
 
     if (!isUpdated) return false;
 
@@ -143,19 +142,19 @@ export const authService = {
   },
 
   async setNewPassword(recoveryCode: string, newPassword: string): Promise<boolean> {
-    const user = await usersQueryRepository.findUserByRecoveryCode(recoveryCode);
+    const user = await usersService.getUserByRecoveryCode(recoveryCode);
 
     if (!user || user.passwordRecovery!.expirationDate < new Date()) return false;
 
     const isUpdated = await usersService.updateUserPassword(user.accountData.id, newPassword);
 
-    isUpdated && (await usersRepository.updatePasswordRecoveryData(user.accountData.id, undefined));
+    isUpdated && (await usersService.updatePasswordRecoveryData(user.accountData.id, undefined));
 
     return isUpdated;
   },
 
   async _getUserByCredentials(loginOrEmail: string, password: string): Promise<UserDB | null> {
-    const user = await usersQueryRepository.findUserByLoginOrEmail(loginOrEmail);
+    const user = await usersService.getUserByLoginOrEmail(loginOrEmail);
     const isCorrectPass =
       !!user && (await this._checkPass(password, user.accountData.passSalt, user.accountData.passHash));
 

@@ -4,7 +4,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { getCurrentDateISO } from '../../../common/helpers/utils';
 import { getSkipCount, getPagesCount } from '../../../common/helpers/pagination';
 import { Pagination } from '../../../common/types/common';
-import { usersQueryRepository } from '../../users/repositories';
+import { usersService } from '../../users/services/users-service';
 import { User } from '../../users/user';
 
 import { commentsCommandRepository, commentsQueryRepository } from '../repositories';
@@ -30,7 +30,7 @@ export const commentsService = {
     const comments: Comment[] = [];
 
     for (const commentDB of commentsDB) {
-      const commentator = await usersQueryRepository.findUserById(commentDB.userId);
+      const commentator = await usersService.getUserById(commentDB.userId);
       const comment = commentator && commentMapper(commentDB, currentUserId, commentator.login);
       comment && comments.push(comment);
     }
@@ -40,7 +40,7 @@ export const commentsService = {
 
   async getCommentById(commentId: string, currentUserId: string | undefined): Promise<Comment | null> {
     const comment = await commentsQueryRepository.findCommentById(commentId);
-    const commentator = comment && (await usersQueryRepository.findUserById(comment.userId));
+    const commentator = comment && (await usersService.getUserById(comment.userId));
 
     return commentator && commentMapper(comment, currentUserId, commentator.login);
   },

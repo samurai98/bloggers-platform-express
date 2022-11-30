@@ -3,7 +3,6 @@ import { Router, Request, Response } from 'express';
 import { HTTP_STATUSES } from '../../../common/http-statuses';
 import { ResType } from '../../../common/types/common';
 
-import { usersQueryRepository } from '../repositories';
 import { usersService } from '../services/users-service';
 import { ParamUser, ReqBodyUser, ReqQueryUser, ResUser, ResUsers } from '../user';
 import { userValidation, usersQueryValidation, checkBasicAuth } from './validation';
@@ -11,7 +10,7 @@ import { userValidation, usersQueryValidation, checkBasicAuth } from './validati
 export const usersRouter = Router({});
 
 usersRouter.get('/', usersQueryValidation, async (req: Request<{}, {}, {}, ReqQueryUser>, res: Response<ResUsers>) => {
-  res.send(await usersQueryRepository.getUsers(req.query));
+  res.send(await usersService.getUsers(req.query));
 });
 
 usersRouter.post('/', userValidation, async (req: Request<{}, {}, ReqBodyUser>, res: Response<ResUser>) => {

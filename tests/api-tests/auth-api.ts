@@ -6,7 +6,7 @@ import { router } from '../../src/routers';
 import { ReqBodyUser, User } from '../../src/modules/users/user';
 import { jwtService } from '../../src/common/services/jwt-service';
 import { authPath } from '../../src/modules/auth/routes/auth-router';
-import { usersQueryRepository } from '../../src/modules/users/repositories';
+import { usersService } from '../../src/modules/users/services/users-service';
 import { ReqBodyAuth, ReqBodyConfirm, ReqBodyNewPassword, ReqBodyResending } from '../../src/modules/auth/auth';
 
 import { bearerAuth, validUsers } from '../common/data';
@@ -63,7 +63,7 @@ export const testAuthApi = () =>
         .send(validUsers[0])
         .expect(HTTP_STATUSES.NO_CONTENT_204);
 
-      const userDB = await usersQueryRepository.findUserByLoginOrEmail(validUsers[0].email);
+      const userDB = await usersService.getUserByLoginOrEmail(validUsers[0].email);
 
       await request(app)
         .post(`${router.auth}${authPath.confirmRegistration}`)
@@ -238,7 +238,7 @@ export const testAuthApi = () =>
         .send({ email: 'fakeusermail@gm.ru' })
         .expect(HTTP_STATUSES.NO_CONTENT_204);
 
-      const user = await usersQueryRepository.findUserByLoginOrEmail(createdUser.email);
+      const user = await usersService.getUserByLoginOrEmail(createdUser.email);
 
       passwordRecoveryCode = user?.passwordRecovery?.recoveryCode as string;
 
@@ -268,7 +268,7 @@ export const testAuthApi = () =>
         .send({ newPassword, recoveryCode: passwordRecoveryCode })
         .expect(HTTP_STATUSES.NO_CONTENT_204);
 
-      const user = await usersQueryRepository.findUserByLoginOrEmail(createdUser.email);
+      const user = await usersService.getUserByLoginOrEmail(createdUser.email);
 
       expect(user?.passwordRecovery).toEqual(undefined);
 

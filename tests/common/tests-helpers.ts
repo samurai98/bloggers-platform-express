@@ -8,7 +8,7 @@ import { User } from '../../src/modules/users/user';
 import { Post } from '../../src/modules/posts/post';
 import { Comment } from '../../src/modules/comments/comment';
 import { authPath } from '../../src/modules/auth/routes/auth-router';
-import { usersQueryRepository } from '../../src/modules/users/repositories';
+import { usersService } from '../../src/modules/users/services/users-service';
 
 import { basicAuth, bearerAuth, validBlogs, validComments, validPosts, validUsers } from './data';
 import { anyString, dateISORegEx, setBearerAuth } from './helpers';
@@ -43,7 +43,7 @@ export const createUser = async ({ isLogin = false, validUserIndex = 0 }) => {
   const createdUser: User = { ...res.body };
 
   // Conformation user
-  const userDB = await usersQueryRepository.findUserByLoginOrEmail(createdUser.email);
+  const userDB = await usersService.getUserByLoginOrEmail(createdUser.email);
 
   await request(app)
     .post(`${router.auth}${authPath.confirmRegistration}`)

@@ -1,6 +1,6 @@
 import { NewestLike, ReactionDB } from '../../../common/types/reactions';
 import { stringDateToMs } from '../../../common/helpers/utils';
-import { usersQueryRepository } from '../../users/repositories';
+import { usersService } from '../../users/services/users-service';
 
 const LAST_LIKES_COUNT = 3;
 
@@ -23,7 +23,7 @@ export const getNewestLikes = async (reactions: ReactionDB[]) => {
   const newestLikes: NewestLike[] = [];
 
   for (const reaction of lastLikes) {
-    const user = await usersQueryRepository.findUserById(reaction.userId);
+    const user = await usersService.getUserById(reaction.userId);
     user && newestLikes.push({ userId: reaction.userId, login: user.login, addedAt: reaction.createdAt });
   }
 
