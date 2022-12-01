@@ -31,12 +31,10 @@ export const blogsQueryValidation = getQueryValidation(query => {
 
 export const postsByBlogQueryValidation = getQueryValidation();
 
-export const blogValidation = [
-  checkBearerAuth,
-  nameValidation,
-  websiteUrlValidation,
-  descriptionValidation,
-  inputValidation,
-];
+const blogValidation = [nameValidation, websiteUrlValidation, descriptionValidation, inputValidation];
+
+export const createBlogValidation = [checkBearerAuth, ...blogValidation];
+
+export const updateBlogValidation = [checkBearerAuth, checkUserRightsToEntity('blog'), ...blogValidation];
 
 export const deleteBlogValidation = [checkBearerAuth, checkUserRightsToEntity('blog')];

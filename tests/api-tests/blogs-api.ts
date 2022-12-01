@@ -191,8 +191,16 @@ export const testBlogsApi = () =>
       await request(app).get(`${router.blogs}/${createdBlogs[2].id}`).expect(HTTP_STATUSES.OK_200, createdBlogs[2]);
     });
 
-    it('Delete blog & create post by blogId another user. Should return 403', async () => {
+    it('Update/Delete blog & create post by blogId another user. Should return 403', async () => {
       await createUser({ isLogin: true, validUserIndex: 1 });
+
+      // Update blog
+      await request(app)
+        .put(`${router.blogs}/${createdBlogs[3].id}`)
+        .set(bearerAuth)
+        .send({ name: 'Updated', websiteUrl: 'http://ne.ul', description: 'Updated' })
+        .expect(HTTP_STATUSES.FORBIDDEN_403);
+      await request(app).get(`${router.blogs}/${createdBlogs[3].id}`).expect(HTTP_STATUSES.OK_200, createdBlogs[3]);
 
       // Delete blog
       await request(app)

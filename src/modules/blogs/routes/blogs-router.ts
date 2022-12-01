@@ -7,7 +7,7 @@ import { postByBlogIdValidation } from '../../posts/routes/validation';
 
 import { blogsService } from '../services/blogs-service';
 import { ReqBodyBlog, ReqBodyPostByBlogId, ReqQueryBlog, ResBlog, ResBlogs } from '../blog';
-import { blogValidation, blogsQueryValidation, postsByBlogQueryValidation, deleteBlogValidation } from './validation';
+import { createBlogValidation, updateBlogValidation, blogsQueryValidation, postsByBlogQueryValidation, deleteBlogValidation } from './validation';
 
 export const blogsRouter = Router({});
 
@@ -22,13 +22,13 @@ blogsRouter.get('/:id', async (req: Request<ParamId>, res: Response<ResBlog>) =>
   else res.sendStatus(HTTP_STATUSES.NOT_FOUND_404);
 });
 
-blogsRouter.post('/', blogValidation, async (req: Request<{}, {}, ReqBodyBlog>, res: Response<ResBlog>) => {
+blogsRouter.post('/', createBlogValidation, async (req: Request<{}, {}, ReqBodyBlog>, res: Response<ResBlog>) => {
   const newBlog = await blogsService.createBlog({ ...req.body, userId: req.requestContext.user!.id });
 
   res.status(HTTP_STATUSES.CREATED_201).send(newBlog);
 });
 
-blogsRouter.put('/:id', blogValidation, async (req: Request<ParamId, {}, ReqBodyBlog>, res: Response<ResType>) => {
+blogsRouter.put('/:id', updateBlogValidation, async (req: Request<ParamId, {}, ReqBodyBlog>, res: Response<ResType>) => {
   const isUpdated = await blogsService.updateBlog(req.params.id, req.body);
 
   if (isUpdated) res.sendStatus(HTTP_STATUSES.NO_CONTENT_204);
