@@ -13,11 +13,9 @@ type CommonPost = {
 
 export type Post = CommonPost & { extendedLikesInfo: ExtendedLikesInfo };
 
-export type PostDB = CommonPost & { reactions: ReactionDB[] };
+export type PostDB = CommonPost & { userId: string; reactions: ReactionDB[] };
 
 export type ReqBodyPost = { title: string; shortDescription: string; content: string; blogId: string };
-
-export type ParamPost = { id: Post['id'] };
 
 export type ReqQueryPost = Query & { blogId?: string };
 

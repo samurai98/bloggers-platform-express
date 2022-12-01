@@ -33,6 +33,4 @@ export type ResLoginWithCookie = {
 
 export type Device = { deviceId: string; ip: string; title: string; lastActiveDate: string };
 
-export type ParamDevice = { deviceId: Device['deviceId'] };
-
 export type ResDevices = ResType<Device[]>;

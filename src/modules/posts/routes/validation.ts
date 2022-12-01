@@ -1,8 +1,9 @@
 import { Request, Response, NextFunction } from 'express';
 import { body } from 'express-validator';
 
-import { checkBearerAuth, getQueryValidation, inputValidation } from '../../../middlewares';
+import { checkBearerAuth, checkUserRightsToEntity, getQueryValidation, inputValidation } from '../../../middlewares';
 import { getErrorText, ERROR_TYPE } from '../../../common/messages';
+import { HTTP_STATUSES } from '../../../common/http-statuses';
 
 import { blogsService } from '../../blogs/services/blogs-service';
 
@@ -25,7 +26,12 @@ const contentValidation = body('content')
   .withMessage(getErrorText(ERROR_TYPE.length, 'content', { max: 1000 }));
 
 const blogIdValidation = async (req: Request, res: Response, next: NextFunction) => {
-  const blog = await blogsService.getBlogById(req.body.blogId?.trim());
+  const blog = await blogsService.getBlogDBbyId(req.body.blogId?.trim());
+
+  if (blog && blog.userId !== req.requestContext.user?.id) {
+    res.sendStatus(HTTP_STATUSES.FORBIDDEN_403);
+    return;
+  }
 
   if (!blog) req.requestContext.validationErrors.blogId = getErrorText(ERROR_TYPE.incorrect, 'blogId');
 
@@ -38,23 +44,25 @@ export const postsQueryValidation = getQueryValidation(query => {
   query.blogId = typeof blogId === 'string' ? blogId : undefined;
 });
 
-export const postValidation = [
+const postValidation = [titleValidation, shortDescriptionValidation, contentValidation];
+
+export const createPostValidation = [checkBearerAuth, blogIdValidation, ...postValidation, inputValidation];
+
+export const updatePostValidation = [
   checkBearerAuth,
-  titleValidation,
-  shortDescriptionValidation,
-  contentValidation,
   blogIdValidation,
+  checkUserRightsToEntity('post'),
+  ...postValidation,
   inputValidation,
 ];
 
 export const postByBlogIdValidation = [
   checkBearerAuth,
-  titleValidation,
-  shortDescriptionValidation,
-  contentValidation,
+  checkUserRightsToEntity('blog'),
+  ...postValidation,
   inputValidation,
 ];
 
 export const commentsByPostQueryValidation = getQueryValidation();
 
-export { checkBearerAuth };
+export const deletePostValidation = [checkBearerAuth, checkUserRightsToEntity('post')];

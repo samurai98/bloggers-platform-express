@@ -1,4 +1,4 @@
-import { checkBearerAuth, getQueryValidation } from '../../../middlewares';
+import { checkBearerAuth, checkUserRightsToEntity, getQueryValidation } from '../../../middlewares';
 
 export const usersQueryValidation = getQueryValidation(query => {
   const { searchEmailTerm, searchLoginTerm } = query;
@@ -7,4 +7,4 @@ export const usersQueryValidation = getQueryValidation(query => {
   query.searchLoginTerm = typeof searchLoginTerm === 'string' ? searchLoginTerm : '';
 });
 
-export { checkBearerAuth };
+export const deleteUserValidation = [checkBearerAuth, checkUserRightsToEntity('user')];

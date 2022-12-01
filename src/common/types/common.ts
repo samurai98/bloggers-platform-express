@@ -11,6 +11,8 @@ export type Pagination<T = unknown> = {
 /** Query after validation */
 export type Query = { pageNumber: number; pageSize: number; sortBy: string; sortDirection: 1 | -1 };
 
+export type ParamId = { id: string };
+
 export type QueryDBFilter = { skipCount: number; pageSize: number; sortBy: string; sortDirection: 1 | -1 };
 
 export type ErrorsMessages = { errorsMessages: { field: string; message: string }[] };

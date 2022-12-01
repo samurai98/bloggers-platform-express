@@ -6,7 +6,7 @@ import { router } from '../../src/routers';
 import { Blog, ReqBodyBlog, ReqBodyPostByBlogId } from '../../src/modules/blogs/blog';
 import { Post } from '../../src/modules/posts/post';
 
-import { incorrectQuery, validBlogs, validPosts, bearerAuth } from '../common/data';
+import { incorrectQuery, validBlogs, validPosts, validUsers, bearerAuth } from '../common/data';
 import {
   anyString,
   dateISORegEx,
@@ -15,7 +15,7 @@ import {
   getPaginationItems,
   sortByField,
 } from '../common/helpers';
-import { createBlog, createUser } from '../common/tests-helpers';
+import { createBlog, createUser, loginUser } from '../common/tests-helpers';
 
 const createdBlogs: Blog[] = [];
 
@@ -189,6 +189,29 @@ export const testBlogsApi = () =>
       expect(thirdRes.body.errorsMessages).toHaveLength(2);
 
       await request(app).get(`${router.blogs}/${createdBlogs[2].id}`).expect(HTTP_STATUSES.OK_200, createdBlogs[2]);
+    });
+
+    it('Delete blog & create post by blogId another user. Should return 403', async () => {
+      await createUser({ isLogin: true, validUserIndex: 1 });
+
+      // Delete blog
+      await request(app)
+        .delete(`${router.blogs}/${createdBlogs[3].id}`)
+        .set(bearerAuth)
+        .expect(HTTP_STATUSES.FORBIDDEN_403);
+      await request(app).get(`${router.blogs}/${createdBlogs[3].id}`).expect(HTTP_STATUSES.OK_200, createdBlogs[3]);
+
+      // Create post
+      await request(app)
+        .post(`${router.blogs}/${createdBlogs[0].id}/posts`)
+        .set(bearerAuth)
+        .send(validPosts[0])
+        .expect(HTTP_STATUSES.FORBIDDEN_403);
+      await request(app)
+        .get(`${router.blogs}/${createdBlogs[0].id}/posts`)
+        .expect(HTTP_STATUSES.OK_200, getPaginationItems());
+
+      await loginUser(validUsers[0].login);
     });
 
     it('Delete blog. Should delete blog and return 204', async () => {

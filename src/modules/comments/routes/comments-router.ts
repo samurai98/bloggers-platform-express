@@ -1,42 +1,38 @@
 import { Router, Request, Response } from 'express';
 
-import { ResType } from '../../../common/types/common';
+import { ResType, ParamId } from '../../../common/types/common';
 import { HTTP_STATUSES } from '../../../common/http-statuses';
 import { addLikeStatusRouter } from '../../../common/modules/reactions';
 
 import { commentsService } from '../services/comments-service';
-import { ReqBodyComment, ParamComment, ResComment } from '../comment';
+import { ReqBodyComment, ResComment } from '../comment';
 import { deleteCommentValidation, updateCommentValidation } from './validation';
 
 export const commentsRouter = Router({});
 
-commentsRouter.get('/:commentId', async (req: Request<ParamComment>, res: Response<ResComment>) => {
-  const comment = await commentsService.getCommentById(req.params.commentId, req.requestContext.user?.id);
+commentsRouter.get('/:id', async (req: Request<ParamId>, res: Response<ResComment>) => {
+  const comment = await commentsService.getCommentById(req.params.id, req.requestContext.user?.id);
 
   if (comment) res.send(comment);
   else res.sendStatus(HTTP_STATUSES.NOT_FOUND_404);
 });
 
 commentsRouter.put(
-  '/:commentId',
+  '/:id',
   updateCommentValidation,
-  async (req: Request<ParamComment, {}, ReqBodyComment>, res: Response<ResType>) => {
-    const isUpdated = await commentsService.updateComment(req.params.commentId, req.body);
+  async (req: Request<ParamId, {}, ReqBodyComment>, res: Response<ResType>) => {
+    const isUpdated = await commentsService.updateComment(req.params.id, req.body);
 
     if (isUpdated) res.sendStatus(HTTP_STATUSES.NO_CONTENT_204);
     else res.sendStatus(HTTP_STATUSES.NOT_FOUND_404);
   }
 );
 
-commentsRouter.delete(
-  '/:commentId',
-  deleteCommentValidation,
-  async (req: Request<ParamComment>, res: Response<ResType>) => {
-    const isDeleted = await commentsService.deleteComment(req.params.commentId);
+commentsRouter.delete('/:id', deleteCommentValidation, async (req: Request<ParamId>, res: Response<ResType>) => {
+  const isDeleted = await commentsService.deleteComment(req.params.id);
 
-    if (isDeleted) res.sendStatus(HTTP_STATUSES.NO_CONTENT_204);
-    else res.sendStatus(HTTP_STATUSES.NOT_FOUND_404);
-  }
-);
+  if (isDeleted) res.sendStatus(HTTP_STATUSES.NO_CONTENT_204);
+  else res.sendStatus(HTTP_STATUSES.NOT_FOUND_404);
+});
 
 addLikeStatusRouter('comments', commentsRouter);

@@ -65,6 +65,14 @@ export const testUsersApi = () =>
         .expect(HTTP_STATUSES.OK_200, getPaginationItems({ pagesCount: 1, page: 99, totalCount: createdUsers.length }));
     });
 
+    it('Delete user another user. Should return 403', async () => {
+      await request(app)
+        .delete(`${router.users}/${createdUsers[3].id}`)
+        .set(bearerAuth)
+        .expect(HTTP_STATUSES.FORBIDDEN_403);
+      await request(app).get(`${router.users}/${createdUsers[3].id}`).expect(HTTP_STATUSES.OK_200, createdUsers[3]);
+    });
+
     it('Delete user. Should delete user and return 204', async () => {
       await request(app)
         .delete(`${router.users}/${createdUsers[0].id}`)

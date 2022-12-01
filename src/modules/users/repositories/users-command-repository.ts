@@ -24,7 +24,6 @@ export const usersCommandRepository = {
 
   async deleteUser(id: string): Promise<boolean> {
     const result = await UserModel.deleteOne({ 'accountData.id': id });
-
     return result.deletedCount === 1;
   },
 

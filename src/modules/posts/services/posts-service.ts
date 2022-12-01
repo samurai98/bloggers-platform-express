@@ -44,7 +44,7 @@ export const postsService = {
     return post && postMapper(post, currentUserId, newestLikes || []);
   },
 
-  async createPost({ title, shortDescription, content, blogId }: ReqBodyPost, currentUserId?: string): Promise<Post> {
+  async createPost({ title, shortDescription, content, blogId }: ReqBodyPost, currentUserId: string): Promise<Post> {
     const { name: blogName } = (await blogsService.getBlogById(blogId)) as Blog;
 
     const currentDate = getCurrentDateISO();
@@ -53,6 +53,7 @@ export const postsService = {
       title,
       shortDescription,
       content,
+      userId: currentUserId,
       blogId,
       blogName,
       createdAt: currentDate,

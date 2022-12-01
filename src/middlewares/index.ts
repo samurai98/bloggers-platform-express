@@ -4,3 +4,4 @@ export { inputValidation } from './input-validation';
 export { getQueryValidation } from './query-validation';
 export { addRequestContext } from './request-context';
 export { checkRequestsCount } from './check-requests-count';
+export { checkUserRightsToEntity } from './check-user-rights';

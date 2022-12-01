@@ -8,13 +8,11 @@ type CommonComment = {
   createdAt: string;
 };
 
-export type Comment = CommonComment & { userLogin: string, likesInfo: LikesInfo };
+export type Comment = CommonComment & { userLogin: string; likesInfo: LikesInfo };
 
 export type CommentDB = CommonComment & { postId: string; reactions: ReactionDB[] };
 
 export type ReqBodyComment = { content: string; postId: string };
-
-export type ParamComment = { commentId: Comment['id'] };
 
 export type ReqQueryComment = Query & { postId?: string };
 

@@ -50,7 +50,7 @@ const loginAndPassValidation = body(['loginOrEmail', 'password'])
 const codeValidation = body('code').trim().notEmpty().withMessage(getErrorText(ERROR_TYPE.incorrect, 'code'));
 
 const deviceIdValidation = async (req: Request, res: Response, next: NextFunction) => {
-  const session = await sessionsService.getSessionByDeviceId(req.params.deviceId);
+  const session = await sessionsService.getSessionByDeviceId(req.params.id);
 
   if (!session) {
     res.sendStatus(HTTP_STATUSES.NOT_FOUND_404);

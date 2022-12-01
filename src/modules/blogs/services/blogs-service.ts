@@ -36,6 +36,10 @@ export const blogsService = {
     return blog && blogMapper(blog);
   },
 
+  async getBlogDBbyId(blogId: string): Promise<BlogDB | null> {
+    return await blogsQueryRepository.findBlogById(blogId);
+  },
+
   async createBlog({ name, websiteUrl, description, userId }: ReqBodyBlog & { userId: string }): Promise<Blog> {
     const currentDate = getCurrentDateISO();
     const newBlog: BlogDB = { id: uuidv4(), name, websiteUrl, description, userId, createdAt: currentDate };
@@ -57,9 +61,9 @@ export const blogsService = {
     return await postsService.getPosts({ ...query, blogId }, userId);
   },
 
-  async createPostByBlogId(blogId: string, body: ReqBodyPostByBlogId): Promise<Post | null> {
+  async createPostByBlogId(blogId: string, userId: string, body: ReqBodyPostByBlogId): Promise<Post | null> {
     if (!blogId || !(await this.getBlogById(blogId))) return null;
 
-    return await postsService.createPost({ ...body, blogId });
+    return await postsService.createPost({ ...body, blogId }, userId);
   },
 };

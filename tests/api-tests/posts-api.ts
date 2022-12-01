@@ -9,8 +9,8 @@ import { Comment } from '../../src/modules/comments/comment';
 import { User } from '../../src/modules/users/user';
 
 import { getErrorsMessages, getOverMaxLength, getPaginationItems, sortByField } from '../common/helpers';
-import { bearerAuth, incorrectQuery, validComments, validPosts } from '../common/data';
-import { createBlog, createComment, createPost, createUser } from '../common/tests-helpers';
+import { bearerAuth, incorrectQuery, validComments, validPosts, validUsers } from '../common/data';
+import { createBlog, createComment, createPost, createUser, loginUser } from '../common/tests-helpers';
 
 const createdPosts: Post[] = [];
 const createdBlogs: Blog[] = [];
@@ -205,6 +205,34 @@ export const testPostsApi = () =>
       expect(thirdRes.body.errorsMessages).toHaveLength(2);
 
       await request(app).get(`${router.posts}/${createdPosts[3].id}`).expect(HTTP_STATUSES.OK_200, createdPosts[3]);
+    });
+
+    it('Create/Update/Delete post another user. Should return 403', async () => {
+      await createUser({ isLogin: true, validUserIndex: 1 });
+
+      // Create post
+      await request(app)
+        .post(router.posts)
+        .set(bearerAuth)
+        .send({ title: 'title', content: 'create', shortDescription: 'create', blogId: createdBlogs[0].id })
+        .expect(HTTP_STATUSES.FORBIDDEN_403);
+
+      // Update post
+      await request(app)
+        .put(`${router.posts}/${createdPosts[4].id}`)
+        .set(bearerAuth)
+        .send({ title: 'title', content: 'update', shortDescription: 'updated', blogId: createdBlogs[0].id })
+        .expect(HTTP_STATUSES.FORBIDDEN_403);
+      await request(app).get(`${router.posts}/${createdPosts[4].id}`).expect(HTTP_STATUSES.OK_200, createdPosts[4]);
+
+      // Delete post
+      await request(app)
+        .delete(`${router.posts}/${createdPosts[4].id}`)
+        .set(bearerAuth)
+        .expect(HTTP_STATUSES.FORBIDDEN_403);
+      await request(app).get(`${router.posts}/${createdPosts[4].id}`).expect(HTTP_STATUSES.OK_200, createdPosts[4]);
+
+      await loginUser(validUsers[0].login);
     });
 
     it('Delete post. Should delete post and return 204', async () => {

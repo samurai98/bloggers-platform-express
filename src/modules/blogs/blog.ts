@@ -14,8 +14,6 @@ export type ReqBodyBlog = { name: string; websiteUrl: string; description: strin
 
 export type ReqBodyPostByBlogId = { title: string; shortDescription: string; content: string };
 
-export type ParamBlog = { id: Blog['id'] };
-
 export type ReqQueryBlog = Query & { searchNameTerm?: string };
 
 export type ResBlogs = ResType<Pagination<Blog>>;
