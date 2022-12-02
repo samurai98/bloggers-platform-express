@@ -19,6 +19,10 @@ export const postsQueryRepository = {
     return items;
   },
 
+  async findPostsWhere(filter: FilterQuery<PostDB>): Promise<PostDB[]> {
+    return await PostModel.find(filter, { _id: false, __v: false }).lean();
+  },
+
   async countTotalPosts(filter: FilterQuery<PostDB>): Promise<number> {
     return await PostModel.countDocuments(filter);
   },

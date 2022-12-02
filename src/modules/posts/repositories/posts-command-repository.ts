@@ -1,3 +1,5 @@
+import { FilterQuery } from 'mongoose';
+
 import { PostModel } from '../../../common/db';
 
 import { PostDB } from '../post';
@@ -19,6 +21,12 @@ export const postsCommandRepository = {
     const result = await PostModel.deleteOne({ id });
 
     return result.deletedCount === 1;
+  },
+
+  async deleteAllWhere(filter: FilterQuery<PostDB>): Promise<boolean> {
+    const result = await PostModel.deleteMany(filter);
+
+    return result.deletedCount >= 1;
   },
 
   async deleteAll(): Promise<boolean> {

@@ -5,6 +5,7 @@ import { HTTP_STATUSES } from '../../src/common/http-statuses';
 import { router } from '../../src/routers';
 import { Blog, ReqBodyBlog, ReqBodyPostByBlogId } from '../../src/modules/blogs/blog';
 import { Post } from '../../src/modules/posts/post';
+import { User } from '../../src/modules/users/user';
 
 import { incorrectQuery, validBlogs, validPosts, validUsers, bearerAuth } from '../common/data';
 import {
@@ -15,14 +16,15 @@ import {
   getPaginationItems,
   sortByField,
 } from '../common/helpers';
-import { createBlog, createUser, loginUser } from '../common/tests-helpers';
+import { createBlog, createPost, createComment, createUser, loginUser } from '../common/tests-helpers';
 
 const createdBlogs: Blog[] = [];
+let createdUser = {} as User;
 
 export const testBlogsApi = () =>
   describe('Test blogs api', () => {
     beforeAll(async () => {
-      await createUser({ isLogin: true });
+      createdUser = await createUser({ isLogin: true });
     });
 
     it('Blogs without auth. Should return 401', async () => {
@@ -222,13 +224,18 @@ export const testBlogsApi = () =>
       await loginUser(validUsers[0].login);
     });
 
-    it('Delete blog. Should delete blog and return 204', async () => {
+    it('Delete blog. Should delete blog (& posts & comments) and return 204', async () => {
+      const createdPost = await createPost(createdBlogs[3]);
+      const createdComment = await createComment(createdPost, createdUser);
+
       await request(app)
         .delete(`${router.blogs}/${createdBlogs[3].id}`)
         .set(bearerAuth)
         .expect(HTTP_STATUSES.NO_CONTENT_204);
 
       await request(app).get(`${router.blogs}/${createdBlogs[3].id}`).expect(HTTP_STATUSES.NOT_FOUND_404);
+      await request(app).get(`${router.posts}/${createdPost.id}`).expect(HTTP_STATUSES.NOT_FOUND_404);
+      await request(app).get(`${router.comments}/${createdComment.id}`).expect(HTTP_STATUSES.NOT_FOUND_404);
     });
 
     it('Delete blog. Should return 404', async () => {

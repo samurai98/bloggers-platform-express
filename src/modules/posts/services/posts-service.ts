@@ -12,7 +12,7 @@ import { User } from '../../users/user';
 
 import { postsQueryRepository } from '../repositories';
 import { getNewestLikes } from './helpers';
-import { ReqBodyPost, Post, PostDB, ReqQueryPost, ResPosts, ReqBodyCommentByPostId } from '../post';
+import { ReqBodyPost, Post, PostDB, ReqQueryPost, ReqBodyCommentByPostId } from '../post';
 import { postsCommandRepository } from '../repositories';
 import { postMapper } from './posts-mapper';
 
@@ -69,7 +69,16 @@ export const postsService = {
   },
 
   async deletePost(id: string): Promise<boolean> {
-    return await postsCommandRepository.deletePost(id);
+    const isDeleted = await commentsService.deleteAllCommentsWhere({ postId: id });
+
+    return isDeleted && (await postsCommandRepository.deletePost(id));
+  },
+
+  async deleteAllPostsWhere(filter: FilterQuery<PostDB>): Promise<boolean> {
+    const posts = await postsQueryRepository.findPostsWhere(filter);
+    const isDeleted = await commentsService.deleteAllCommentsWhere({ $or: posts.map(post => ({ postId: post.id })) });
+
+    return isDeleted && (await postsCommandRepository.deleteAllWhere(filter));
   },
 
   async getCommentsByPostId(

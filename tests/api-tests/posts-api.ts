@@ -235,13 +235,16 @@ export const testPostsApi = () =>
       await loginUser(validUsers[0].login);
     });
 
-    it('Delete post. Should delete post and return 204', async () => {
+    it('Delete post. Should delete post (& comments) and return 204', async () => {
+      const createdComment = await createComment(createdPosts[4], createdUser);
+
       await request(app)
         .delete(`${router.posts}/${createdPosts[4].id}`)
         .set(bearerAuth)
         .expect(HTTP_STATUSES.NO_CONTENT_204);
 
       await request(app).get(`${router.posts}/${createdPosts[4].id}`).expect(HTTP_STATUSES.NOT_FOUND_404);
+      await request(app).get(`${router.comments}/${createdComment.id}`).expect(HTTP_STATUSES.NOT_FOUND_404);
     });
 
     it('Delete post. Should return 404', async () => {

@@ -1,3 +1,5 @@
+import { FilterQuery } from 'mongoose';
+
 import { CommentModel } from '../../../common/db';
 
 import { CommentDB } from '../comment';
@@ -19,6 +21,12 @@ export const commentsCommandRepository = {
     const result = await CommentModel.deleteOne({ id });
 
     return result.deletedCount === 1;
+  },
+
+  async deleteAllWhere(filter: FilterQuery<CommentDB>): Promise<boolean> {
+    const result = await CommentModel.deleteMany(filter);
+
+    return result.deletedCount >= 1;
   },
 
   async deleteAll(): Promise<boolean> {

@@ -23,7 +23,7 @@ export const sessionsService = {
 
   async addRefreshSession(refreshSession: RefreshSessionDB): Promise<boolean> {
     if (!(await this._isValidSessionsCount(refreshSession.userId))) {
-      await this._deleteAllUserRefreshSessions(refreshSession.userId);
+      await this.deleteAllUserRefreshSessions(refreshSession.userId);
     }
 
     await sessionsCommandRepository.createSession(refreshSession);
@@ -61,13 +61,13 @@ export const sessionsService = {
     return true;
   },
 
+  async deleteAllUserRefreshSessions(userId: string): Promise<boolean> {
+    return await sessionsCommandRepository.deleteAllWhere({ userId });
+  },
+
   async _isValidSessionsCount(userId: string): Promise<boolean> {
     const existingSessionsCount = await sessionsQueryRepository.countTotalSessions({ userId });
 
     return existingSessionsCount < MAX_REFRESH_SESSIONS_COUNT;
-  },
-
-  async _deleteAllUserRefreshSessions(userId: string): Promise<boolean> {
-    return await sessionsCommandRepository.deleteAllWhere({ userId });
   },
 };

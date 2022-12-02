@@ -5,7 +5,7 @@ import { add } from 'date-fns';
 
 import { generateHash, getCurrentDateISO } from '../../../common/helpers/utils';
 import { SETTINGS } from '../../../settings/config';
-import { emailsService } from '../../auth/services';
+import { emailsService, sessionsService } from '../../auth/services';
 import { Pagination } from '../../../common/types/common';
 import { getPagesCount, getSkipCount } from '../../../common/helpers/pagination';
 
@@ -73,6 +73,8 @@ export const usersService = {
   },
 
   async deleteUser(id: string): Promise<boolean> {
+    sessionsService.deleteAllUserRefreshSessions(id);
+
     return usersCommandRepository.deleteUser(id);
   },
 

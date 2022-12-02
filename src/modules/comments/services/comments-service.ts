@@ -47,7 +47,14 @@ export const commentsService = {
 
   async createComment({ content, postId }: ReqBodyComment, user: User): Promise<Comment> {
     const currentDate = getCurrentDateISO();
-    const newComment: CommentDB = { id: uuidv4(), content, postId, userId: user.id, createdAt: currentDate, reactions: [] };
+    const newComment: CommentDB = {
+      id: uuidv4(),
+      content,
+      postId,
+      userId: user.id,
+      createdAt: currentDate,
+      reactions: [],
+    };
     const createdComment = await commentsCommandRepository.createComment(newComment);
 
     return commentMapper(createdComment, user.id, user.login);
@@ -59,5 +66,9 @@ export const commentsService = {
 
   async deleteComment(id: string): Promise<boolean> {
     return await commentsCommandRepository.deleteComment(id);
+  },
+
+  async deleteAllCommentsWhere(filter: FilterQuery<CommentDB>): Promise<boolean> {
+    return await commentsCommandRepository.deleteAllWhere(filter);
   },
 };

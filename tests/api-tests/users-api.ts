@@ -4,6 +4,7 @@ import { app } from '../../src/index';
 import { HTTP_STATUSES } from '../../src/common/http-statuses';
 import { router } from '../../src/routers';
 import { User } from '../../src/modules/users/user';
+import { SessionModel } from '../../src/common/db';
 
 import { incorrectQuery, bearerAuth } from '../common/data';
 import { getPaginationItems, sortByField } from '../common/helpers';
@@ -73,17 +74,20 @@ export const testUsersApi = () =>
       await request(app).get(`${router.users}/${createdUsers[3].id}`).expect(HTTP_STATUSES.OK_200, createdUsers[3]);
     });
 
-    it('Delete user. Should delete user and return 204', async () => {
+    it('Delete user. Should return 404', async () => {
+      await request(app).delete(`${router.users}/fakeUserId`).set(bearerAuth).expect(HTTP_STATUSES.NOT_FOUND_404);
+    });
+
+    it('Delete user. Should delete user (& sessions) and return 204', async () => {
       await request(app)
         .delete(`${router.users}/${createdUsers[0].id}`)
         .set(bearerAuth)
         .expect(HTTP_STATUSES.NO_CONTENT_204);
 
-      await request(app).get(`${router.users}/${createdUsers[0].id}`).expect(HTTP_STATUSES.NOT_FOUND_404);
-    });
+      const sessions = await SessionModel.find({ userId: createdUsers[3].id });
+      expect(sessions.length).toEqual(0);
 
-    it('Delete user. Should return 404', async () => {
-      await request(app).delete(`${router.users}/fakeUserId`).set(bearerAuth).expect(HTTP_STATUSES.NOT_FOUND_404);
+      await request(app).get(`${router.users}/${createdUsers[0].id}`).expect(HTTP_STATUSES.NOT_FOUND_404);
     });
 
     afterAll(async () => {

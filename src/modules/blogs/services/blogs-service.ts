@@ -52,7 +52,9 @@ export const blogsService = {
   },
 
   async deleteBlog(id: string): Promise<boolean> {
-    return await blogsCommandRepository.deleteBlog(id);
+    const isDeleted = await postsService.deleteAllPostsWhere({ blogId: id });
+
+    return isDeleted && (await blogsCommandRepository.deleteBlog(id));
   },
 
   async getPostsByBlogId(blogId: string, userId: string | undefined, query: Query): Promise<Pagination<Post> | null> {
