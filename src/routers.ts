@@ -31,4 +31,8 @@ export const useRouters = (app: Express) => {
   app.use(router.securityDevices, securityDevicesRouter);
 
   app.use(router.delete_all, deleteAllRouter);
+
+  app.use(router.root, async (req, res) =>
+    res.send('Hello! Look at the README file <a href="https://github.com/samurai98/bloggers-platform-express">here</a>')
+  );
 };
