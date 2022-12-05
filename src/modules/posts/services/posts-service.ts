@@ -69,16 +69,16 @@ export const postsService = {
   },
 
   async deletePost(id: string): Promise<boolean> {
-    const isDeleted = await commentsService.deleteAllCommentsWhere({ postId: id });
+    await commentsService.deleteAllCommentsWhere({ postId: id });
 
-    return isDeleted && (await postsCommandRepository.deletePost(id));
+    return await postsCommandRepository.deletePost(id);
   },
 
   async deleteAllPostsWhere(filter: FilterQuery<PostDB>): Promise<boolean> {
     const posts = await postsQueryRepository.findPostsWhere(filter);
-    const isDeleted = await commentsService.deleteAllCommentsWhere({ $or: posts.map(post => ({ postId: post.id })) });
+    !!posts.length && (await commentsService.deleteAllCommentsWhere({ $or: posts.map(post => ({ postId: post.id })) }));
 
-    return isDeleted && (await postsCommandRepository.deleteAllWhere(filter));
+    return await postsCommandRepository.deleteAllWhere(filter);
   },
 
   async getCommentsByPostId(
