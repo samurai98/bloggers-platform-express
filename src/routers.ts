@@ -1,5 +1,4 @@
 import { Express } from 'express';
-import fs from 'fs';
 
 import { blogsRouter } from './modules/blogs/routes/blogs-router';
 import { postsRouter } from './modules/posts/routes/posts-router';
@@ -32,6 +31,4 @@ export const useRouters = (app: Express) => {
   app.use(router.securityDevices, securityDevicesRouter);
 
   app.use(router.delete_all, deleteAllRouter);
-
-  app.use(router.root, async (req, res) => res.end(await fs.promises.readFile('./README.md')));
 };
